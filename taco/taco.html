@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Calorias</title>
+    <title>🔥 Calculadora de Calorias 🍏</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --cor-fundo: #f9fafb;
@@ -15,190 +16,204 @@
 
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 15px;
             background-color: var(--cor-fundo);
             color: var(--cor-texto);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--cor-titulo);
+            text-align: center;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
         }
 
         .container {
             max-width: 800px;
             margin: 0 auto;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            color: var(--cor-titulo);
-            font-size: 1.8rem;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .food-entry {
-            margin-bottom: 15px;
+        .input-group {
             display: flex;
-            flex-direction: column;
             gap: 10px;
+            margin-bottom: 20px;
+            flex-direction: column;
         }
 
         select, input {
-            width: 100%;
+            flex: 1;
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
-            background-color: white;
-        }
-
-        .button-group {
-            display: flex;
-            gap: 10px;
-            flex-direction: column;
-            margin: 20px 0;
         }
 
         button {
             background-color: var(--cor-botao);
             color: white;
-            padding: 12px;
             border: none;
+            padding: 12px 20px;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1rem;
             transition: background-color 0.3s;
+            font-size: 1rem;
         }
 
         button:hover {
             background-color: var(--cor-botao-hover);
         }
 
-        #results {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        #lista {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
         }
 
-        .total {
+        #lista li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin: 8px 0;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        .resultado {
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 8px;
             font-weight: bold;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 2px solid #eee;
             color: var(--cor-titulo);
+            text-align: center;
+        }
+
+        #total-calorias {
+            color: #007BFF;
+            font-size: 1.2em;
         }
 
         @media (min-width: 480px) {
-            .food-entry {
+            .input-group {
                 flex-direction: row;
             }
             
             select {
-                width: 70%;
+                width: 60%;
             }
             
             input {
                 width: 30%;
             }
             
-            .button-group {
-                flex-direction: row;
+            button {
+                width: auto;
             }
         }
     </style>
 </head>
 <body>
+    <h1>🔥 Calculadora de Calorias 🍏</h1>
     <div class="container">
-        <h1>🍏 Calculadora de Calorias 🔥</h1>
-        <div id="entries"></div>
-        <div class="button-group">
-            <button onclick="addEntry()">➕ Adicionar Alimento</button>
-            <button onclick="calculate()">📊 Calcular Calorias</button>
+        <div class="input-group">
+            <select id="alimento"></select>
+            <input type="number" id="quantidade" placeholder="Gramas" min="1">
+            <button onclick="adicionarAlimento()">➕ Adicionar</button>
         </div>
-        <div id="results"></div>
+        <ul id="lista"></ul>
+        <div class="resultado">
+            Total de Calorias: <span id="total-calorias">0.00</span> kcal
+        </div>
     </div>
 
     <script>
-        let foodData = [];
-        let entryCount = 0;
+        // Mantido igual ao código funcional fornecido
+        let alimentos = [];
+        let selecionados = [];
 
-        // Carregar dados do CSV
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                const response = await fetch('assets/taco.csv');
-                const csvData = await response.text();
-                
-                // Processar CSV
-                const rows = csvData.split('\n');
-                const headers = rows[0].split(';').map(h => h.trim());
-                
-                const descIndex = headers.indexOf('Descrição dos alimentos');
-                const kcalIndex = headers.indexOf('Energia (kcal)');
-                
-                if(descIndex === -1 || kcalIndex === -1) {
-                    throw new Error('Colunas não encontradas no CSV');
-                }
+        async function carregarXLSX() {
+            const response = await fetch("assets/taco.xlsx");
+            const arrayBuffer = await response.arrayBuffer();
+            const workbook = XLSX.read(arrayBuffer, { type: "array" });
+            const sheet = workbook.Sheets["taco"];
+            const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+            
+            const nomeIndex = 1;
+            const caloriasIndex = 3;
+            
+            alimentos = data.slice(1).map(linha => {
+                const nome = linha[nomeIndex]?.toString().trim();
+                const calorias = parseFloat((linha[caloriasIndex] || "0").toString().replace(",", ".")) || 0;
+                return { nome, calorias };
+            }).filter(alimento => alimento.nome);
+            
+            const select = document.getElementById("alimento");
+            alimentos.forEach(alimento => {
+                const option = document.createElement("option");
+                option.value = alimento.nome;
+                option.textContent = alimento.nome;
+                select.appendChild(option);
+            });
+        }
 
-                for(let i = 1; i < rows.length; i++) {
-                    const cells = rows[i].split(';').map(c => c.trim());
-                    if(cells.length >= Math.max(descIndex, kcalIndex)) {
-                        foodData.push({
-                            nome: cells[descIndex],
-                            calorias: parseFloat(cells[kcalIndex].replace(',', '.'))
-                        });
-                    }
-                }
-
-                document.querySelector('button').disabled = false;
-            } catch (error) {
-                console.error('Erro ao carregar dados:', error);
-                alert('Erro ao carregar a base de dados! Verifique o formato do arquivo CSV.');
-            }
-        });
-
-        function addEntry() {
-            if (entryCount >= 5) {
-                alert('Máximo de 5 alimentos permitidos!');
+        function adicionarAlimento() {
+            if (selecionados.length >= 5) {
+                alert("Máximo de 5 alimentos permitidos!");
                 return;
             }
 
-            const entry = document.createElement('div');
-            entry.className = 'food-entry';
-            entry.innerHTML = `
-                <select required>
-                    <option value="">Selecione um alimento...</option>
-                    ${foodData.map(food => `
-                        <option value="${food.calorias}">${food.nome}</option>
-                    `).join('')}
-                </select>
-                <input type="number" placeholder="Gramas" min="0" required step="10">
-            `;
+            const nome = document.getElementById("alimento").value;
+            const quantidade = parseFloat(document.getElementById("quantidade").value);
             
-            document.getElementById('entries').appendChild(entry);
-            entryCount++;
-        }
-
-        function calculate() {
-            const entries = document.getElementsByClassName('food-entry');
-            let totalCalories = 0;
-            let resultsHTML = '';
-
-            for (let entry of entries) {
-                const select = entry.querySelector('select');
-                const input = entry.querySelector('input');
-                
-                if (select.value && input.value) {
-                    const calories = (parseFloat(select.value) * parseFloat(input.value)) / 100;
-                    totalCalories += calories;
-                    resultsHTML += `
-                        <div>✅ ${select.selectedOptions[0].text}: ${calories.toFixed(1)} kcal</div>
-                    `;
-                }
+            if (!quantidade || quantidade <= 0) {
+                alert("Insira uma quantidade válida!");
+                return;
             }
 
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = resultsHTML || '<div>⚠️ Nenhum alimento válido selecionado</div>';
-            resultsDiv.innerHTML += `<div class="total">🎯 Total: ${totalCalories.toFixed(1)} kcal</div>`;
+            const alimento = alimentos.find(a => a.nome === nome);
+
+            if (!alimento) {
+                alert("Alimento não encontrado!");
+                return;
+            }
+
+            const caloriasTotais = (alimento.calorias / 100) * quantidade;
+
+            selecionados.push({ nome, quantidade, caloriasTotais });
+            atualizarLista();
         }
+
+        function atualizarLista() {
+            const lista = document.getElementById("lista");
+            lista.innerHTML = "";
+            let totalCalorias = 0;
+
+            selecionados.forEach((item, index) => {
+                totalCalorias += item.caloriasTotais;
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <span>${item.nome} - ${item.quantidade}g</span>
+                    <div>
+                        <span style="color: var(--cor-titulo);">${item.caloriasTotais.toFixed(2)} kcal</span>
+                        <button onclick="removerAlimento(${index})" style="margin-left: 10px; padding: 4px 8px;">❌</button>
+                    </div>
+                `;
+                lista.appendChild(li);
+            });
+            document.getElementById("total-calorias").textContent = totalCalorias.toFixed(2);
+        }
+
+        function removerAlimento(index) {
+            selecionados.splice(index, 1);
+            atualizarLista();
+        }
+
+        carregarXLSX();
     </script>
 </body>
 </html>
