@@ -6,6 +6,23 @@
     <title>🔥 Calculadora de Calorias 🍏</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* Adicione este novo estilo para a prévia */
+        .previa-calorias {
+            margin: 10px 0;
+            padding: 12px;
+            background-color: #e3f2fd;
+            border-radius: 8px;
+            color: #1976d2;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            visibility: hidden;
+        }
+
+        .previa-calorias.visivel {
+            opacity: 1;
+            visibility: visible;
+        }
         :root {
             --cor-fundo: #f9fafb;
             --cor-texto: #333333;
@@ -176,14 +193,13 @@
 <body>
     <h1>🔥 Calculadora de Calorias 🍏</h1>
     <div class="container">
-        <!-- Botão Voltar posicionado no topo -->
         <button class="btn-voltar" onclick="window.history.back()">⬅️ Voltar</button>
 
-        <!-- Conteúdo principal -->
         <div class="input-group">
             <input type="text" id="pesquisa" placeholder="Pesquisar alimento..." oninput="filtrarAlimentos()">
-            <select id="alimento"></select>
-            <input type="number" id="quantidade" placeholder="Gramas" min="1">
+            <select id="alimento" onchange="atualizarPrevia()"></select>
+            <input type="number" id="quantidade" placeholder="Gramas" min="1" oninput="atualizarPrevia()">
+            <div id="previa" class="previa-calorias"></div>
             <button onclick="adicionarAlimento()">➕ Adicionar</button>
         </div>
         
@@ -197,6 +213,61 @@
         </div>
     </div>
     <script>
+        function atualizarPrevia() {
+            const previa = document.getElementById('previa');
+            const alimentoSelecionado = document.getElementById("alimento").value;
+            const quantidade = document.getElementById("quantidade").value;
+
+            if (alimentoSelecionado && quantidade && quantidade > 0) {
+                const alimento = alimentos.find(a => a.nome === alimentoSelecionado);
+                const calorias = (alimento.calorias / 100) * quantidade;
+                previa.textContent = `Prévia: ${calorias.toFixed(2)} kcal`;
+                previa.classList.add('visivel');
+            } else {
+                previa.classList.remove('visivel');
+            }
+        }
+
+        function limparTudo() {
+            if (confirm("Tem certeza que deseja limpar todos os dados?")) {
+                selecionados = [];
+                atualizarLista();
+                document.getElementById('pesquisa').value = '';
+                document.getElementById('quantidade').value = '';
+                document.getElementById('previa').classList.remove('visivel');
+                filtrarAlimentos();
+            }
+        }
+
+        // Modifique a função adicionarAlimento
+        function adicionarAlimento() {
+            if (selecionados.length >= 5) {
+                alert("Máximo de 5 alimentos permitidos!");
+                return;
+            }
+
+            const nome = document.getElementById("alimento").value;
+            const quantidade = parseFloat(document.getElementById("quantidade").value);
+            
+            if (!quantidade || quantidade <= 0) {
+                alert("Insira uma quantidade válida!");
+                return;
+            }
+
+            const alimento = alimentos.find(a => a.nome === nome);
+
+            if (!alimento) {
+                alert("Alimento não encontrado!");
+                return;
+            }
+
+            const caloriasTotais = (alimento.calorias / 100) * quantidade;
+
+            selecionados.push({ nome, quantidade, caloriasTotais });
+            document.getElementById('quantidade').value = ''; // Limpa o campo após adicionar
+            document.getElementById('previa').classList.remove('visivel'); // Esconde a prévia
+            atualizarLista();
+        }
         let alimentos = [];
         let selecionados = [];
         let alimentosFiltrados = [];
@@ -241,31 +312,39 @@
         }
 
         function adicionarAlimento() {
-            if (selecionados.length >= 5) {
-                alert("Máximo de 5 alimentos permitidos!");
-                return;
-            }
+    if (selecionados.length >= 5) {
+        alert("Máximo de 5 alimentos permitidos!");
+        return;
+    }
 
-            const nome = document.getElementById("alimento").value;
-            const quantidade = parseFloat(document.getElementById("quantidade").value);
-            
-            if (!quantidade || quantidade <= 0) {
-                alert("Insira uma quantidade válida!");
-                return;
-            }
+    const nome = document.getElementById("alimento").value;
+    const quantidade = parseFloat(document.getElementById("quantidade").value);
+    
+    if (!quantidade || quantidade <= 0) {
+        alert("Insira uma quantidade válida!");
+        return;
+    }
 
-            const alimento = alimentos.find(a => a.nome === nome);
+    const alimento = alimentos.find(a => a.nome === nome);
 
-            if (!alimento) {
-                alert("Alimento não encontrado!");
-                return;
-            }
+    if (!alimento) {
+        alert("Alimento não encontrado!");
+        return;
+    }
 
-            const caloriasTotais = (alimento.calorias / 100) * quantidade;
+    const caloriasTotais = (alimento.calorias / 100) * quantidade;
 
-            selecionados.push({ nome, quantidade, caloriasTotais });
-            atualizarLista();
-        }
+    selecionados.push({ nome, quantidade, caloriasTotais });
+    
+    // Limpa os campos após adicionar
+    document.getElementById('alimento').value = '';
+    document.getElementById('quantidade').value = '';
+    document.getElementById('pesquisa').value = '';
+    document.getElementById('previa').classList.remove('visivel');
+    
+    atualizarLista();
+    filtrarAlimentos(); // Atualiza a lista completa de opções
+}
 
         function editarQuantidade(index) {
             const novaQuantidade = prompt("Nova quantidade (gramas):", selecionados[index].quantidade);
