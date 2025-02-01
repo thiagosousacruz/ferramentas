@@ -1,87 +1,90 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const API_URL = 'https://parallelum.com.br/fipe/api/v1/carros';
-  
-  // Campos de entrada e datalists para marcas e modelos
+
+  // Elementos dos campos e dropdowns
   const marcasInput = document.getElementById('marcas');
-  const marcasDatalist = document.getElementById('marcas-datalist');
+  const marcasDropdown = document.getElementById('marcas-dropdown');
   const modelosInput = document.getElementById('modelos');
-  const modelosDatalist = document.getElementById('modelos-datalist');
-  
+  const modelosDropdown = document.getElementById('modelos-dropdown');
   const tabelaPrecos = document.getElementById('tabela-precos');
   const loading = document.getElementById('loading');
 
-  // Variáveis para armazenar os dados das marcas e modelos
   let marcasData = [];
   let modelosData = [];
 
-  // Carregar marcas
-  try {
-    const response = await fetch(`${API_URL}/marcas`);
-    const marcas = await response.json();
-    marcasData = marcas;
-    
-    // Preenche o datalist com as marcas (nome e código ficam armazenados em marcasData)
-    marcasDatalist.innerHTML = '<option value="">Selecione a marca</option>' + 
-      marcas.map(marca => `<option data-codigo="${marca.codigo}" value="${marca.nome}">`).join('');
-    marcasInput.disabled = false;
-  } catch (error) {
-    alert('Erro ao carregar marcas');
+  // Função para filtrar os itens do dropdown conforme o texto digitado
+  function filterDropdown(dropdown, query) {
+    const items = dropdown.querySelectorAll('li');
+    items.forEach(item => {
+      if (item.textContent.toLowerCase().includes(query)) {
+        item.classList.remove('hidden');
+      } else {
+        item.classList.add('hidden');
+      }
+    });
   }
 
-  // Ao selecionar (ou digitar) uma marca válida
-  marcasInput.addEventListener('change', async () => {
-    const selectedName = marcasInput.value.trim();
-    const selectedBrand = marcasData.find(brand => brand.nome.toLowerCase() === selectedName.toLowerCase());
-    if (!selectedBrand) {
-      // Se a marca não for válida, limpa e desabilita o campo de modelo
-      modelosInput.value = "";
-      modelosInput.disabled = true;
-      modelosDatalist.innerHTML = '<option value="Selecione um modelo">';
-      return;
-    }
-    const codigoMarca = selectedBrand.codigo;
-    
-    // Limpa o campo de modelo enquanto carrega as opções
-    modelosInput.value = "";
+  // Preenche o dropdown de marcas
+  function fillMarcasDropdown(marcas) {
+    marcasDropdown.innerHTML = '';
+    marcas.forEach(marca => {
+      const li = document.createElement('li');
+      li.textContent = marca.nome;
+      li.dataset.codigo = marca.codigo;
+      li.addEventListener('click', () => {
+        marcasInput.value = marca.nome;
+        marcasInput.dataset.codigo = marca.codigo;
+        marcasDropdown.classList.add('hidden');
+        // Após selecionar a marca, habilita e carrega os modelos
+        fetchModels(marca.codigo);
+      });
+      marcasDropdown.appendChild(li);
+    });
+  }
+
+  // Preenche o dropdown de modelos
+  function fillModelosDropdown(modelos) {
+    modelosDropdown.innerHTML = '';
+    modelos.forEach(modelo => {
+      const li = document.createElement('li');
+      li.textContent = modelo.nome;
+      li.dataset.codigo = modelo.codigo;
+      li.addEventListener('click', () => {
+        modelosInput.value = modelo.nome;
+        modelosInput.dataset.codigo = modelo.codigo;
+        modelosDropdown.classList.add('hidden');
+        // Após selecionar o modelo, busca os preços
+        fetchPrices(marcasInput.dataset.codigo, modelo.codigo);
+      });
+      modelosDropdown.appendChild(li);
+    });
+  }
+
+  // Busca os modelos para a marca selecionada
+  async function fetchModels(codigoMarca) {
+    modelosInput.value = '';
     modelosInput.disabled = true;
-    modelosDatalist.innerHTML = '<option value="">Carregando modelos...</option>';
-    
+    modelosDropdown.innerHTML = '';
+    modelosDropdown.classList.add('hidden');
     try {
       const response = await fetch(`${API_URL}/marcas/${codigoMarca}/modelos`);
       const data = await response.json();
       modelosData = data.modelos;
-      modelosDatalist.innerHTML = '<option value="">Selecione o modelo</option>' + 
-        modelosData.map(modelo => `<option data-codigo="${modelo.codigo}" value="${modelo.nome}">`).join('');
+      fillModelosDropdown(modelosData);
       modelosInput.disabled = false;
     } catch (error) {
       alert('Erro ao carregar modelos');
     }
-  });
+  }
 
-  // Ao selecionar (ou digitar) um modelo válido
-  modelosInput.addEventListener('change', async () => {
-    const selectedName = modelosInput.value.trim();
-    const selectedModel = modelosData.find(modelo => modelo.nome.toLowerCase() === selectedName.toLowerCase());
-    if (!selectedModel) {
-      return;
-    }
-    const codigoModelo = selectedModel.codigo;
-    
-    // Recupera o código da marca selecionada
-    const selectedBrand = marcasData.find(brand => brand.nome.toLowerCase() === marcasInput.value.trim().toLowerCase());
-    if (!selectedBrand) {
-      return;
-    }
-    const codigoMarca = selectedBrand.codigo;
-    
+  // Busca os preços do modelo selecionado
+  async function fetchPrices(codigoMarca, codigoModelo) {
     loading.classList.remove('hidden');
     tabelaPrecos.innerHTML = '';
     try {
-      // Buscar anos disponíveis para o modelo selecionado
       const anosResponse = await fetch(`${API_URL}/marcas/${codigoMarca}/modelos/${codigoModelo}/anos`);
       const anos = await anosResponse.json();
 
-      // Buscar preços para cada ano
       const precosPromises = anos.map(async (ano) => {
         const precoResponse = await fetch(`${API_URL}/marcas/${codigoMarca}/modelos/${codigoModelo}/anos/${ano.codigo}`);
         return precoResponse.json();
@@ -89,7 +92,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const precos = await Promise.all(precosPromises);
 
-      // Cria a tabela de preços
       tabelaPrecos.innerHTML = `
         <table>
           <thead>
@@ -110,11 +112,55 @@ document.addEventListener('DOMContentLoaded', async () => {
           </tbody>
         </table>
       `;
-
     } catch (error) {
       tabelaPrecos.innerHTML = '<p>Erro ao buscar preços.</p>';
     } finally {
       loading.classList.add('hidden');
+    }
+  }
+
+  // Carrega as marcas ao iniciar
+  try {
+    const response = await fetch(`${API_URL}/marcas`);
+    const marcas = await response.json();
+    marcasData = marcas;
+    fillMarcasDropdown(marcasData);
+    marcasInput.disabled = false;
+  } catch (error) {
+    alert('Erro ao carregar marcas');
+  }
+
+  // Exibe e filtra o dropdown de marcas quando o campo recebe foco ou o valor é digitado
+  marcasInput.addEventListener('focus', () => {
+    marcasDropdown.classList.remove('hidden');
+    filterDropdown(marcasDropdown, marcasInput.value.toLowerCase());
+  });
+
+  marcasInput.addEventListener('input', () => {
+    filterDropdown(marcasDropdown, marcasInput.value.toLowerCase());
+    marcasDropdown.classList.remove('hidden');
+  });
+
+  // Exibe e filtra o dropdown de modelos quando o campo recebe foco ou o valor é digitado
+  modelosInput.addEventListener('focus', () => {
+    if (!modelosInput.disabled) {
+      modelosDropdown.classList.remove('hidden');
+      filterDropdown(modelosDropdown, modelosInput.value.toLowerCase());
+    }
+  });
+
+  modelosInput.addEventListener('input', () => {
+    filterDropdown(modelosDropdown, modelosInput.value.toLowerCase());
+    modelosDropdown.classList.remove('hidden');
+  });
+
+  // Fecha os dropdowns se o clique ocorrer fora dos campos e das listas
+  document.addEventListener('click', (e) => {
+    if (!marcasInput.contains(e.target) && !marcasDropdown.contains(e.target)) {
+      marcasDropdown.classList.add('hidden');
+    }
+    if (!modelosInput.contains(e.target) && !modelosDropdown.contains(e.target)) {
+      modelosDropdown.classList.add('hidden');
     }
   });
 });

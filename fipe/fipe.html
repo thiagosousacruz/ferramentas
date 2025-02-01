@@ -13,18 +13,12 @@
     <h1>🚗 Consulta Preços FIPE</h1>
     <div class="selectors">
       <div class="selector-group">
-        <!-- Campo único: o usuário digita e o datalist sugere as marcas -->
-        <input type="text" id="marcas" list="marcas-datalist" placeholder="Selecione ou digite a marca" disabled>
-        <datalist id="marcas-datalist">
-          <option value="Carregando marcas...">
-        </datalist>
+        <input type="text" id="marcas" placeholder="Selecione ou digite a marca" disabled>
+        <ul id="marcas-dropdown" class="dropdown hidden"></ul>
       </div>
       <div class="selector-group">
-        <!-- Campo único: o usuário digita e o datalist sugere os modelos -->
-        <input type="text" id="modelos" list="modelos-datalist" placeholder="Selecione ou digite o modelo" disabled>
-        <datalist id="modelos-datalist">
-          <option value="Selecione um modelo">
-        </datalist>
+        <input type="text" id="modelos" placeholder="Selecione ou digite o modelo" disabled>
+        <ul id="modelos-dropdown" class="dropdown hidden"></ul>
       </div>
     </div>
     <div id="loading" class="hidden">Carregando...</div>
