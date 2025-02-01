@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de Preços Inteligente</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #1a73e8;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #5f6368;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #dadce0;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #1557b0;
+        }
+
+        .resultado {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .produto {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .melhor {
+            background: #e8f0fe;
+            border: 2px solid #1a73e8;
+        }
+
+        .destaque {
+            color: #1a73e8;
+            font-weight: bold;
+        }
+
+        .unidade {
+            font-size: 0.9rem;
+            color: #5f6368;
+        }
+
+        .aviso {
+            color: #d93025;
+            text-align: center;
+            margin: 15px 0;
+            display: none;
+        }
+
+        @media (min-width: 600px) {
+            .comparador {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            button {
+                grid-column: span 2;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Comparador de Preços</h1>
+        
+        <div class="card">
+            <div class="comparador">
+                <div class="input-group">
+                    <label>Preço Total 1</label>
+                    <input type="number" id="preco1" step="0.01" placeholder="0.00">
+                </div>
+                <div class="input-group">
+                    <label>Quantidade/Volume 1</label>
+                    <input type="number" id="quantidade1" step="0.01" placeholder="0">
+                </div>
+
+                <div class="input-group">
+                    <label>Preço Total 2</label>
+                    <input type="number" id="preco2" step="0.01" placeholder="0.00">
+                </div>
+                <div class="input-group">
+                    <label>Quantidade/Volume 2</label>
+                    <input type="number" id="quantidade2" step="0.01" placeholder="0">
+                </div>
+            </div>
+
+            <div class="aviso" id="aviso">Preencha todos os campos corretamente!</div>
+            
+            <button onclick="compararPrecos()">Comparar Preços</button>
+            
+            <div class="resultado" id="resultado">
+                <div class="produto" id="produto1"></div>
+                <div class="produto" id="produto2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function compararPrecos() {
+            // Obter valores dos inputs
+            const preco1 = parseFloat(document.getElementById('preco1').value);
+            const quantidade1 = parseFloat(document.getElementById('quantidade1').value);
+            
+            const preco2 = parseFloat(document.getElementById('preco2').value);
+            const quantidade2 = parseFloat(document.getElementById('quantidade2').value);
+
+            // Validar entradas
+            const aviso = document.getElementById('aviso');
+            if (isNaN(preco1) || isNaN(quantidade1) || 
+                isNaN(preco2) || isNaN(quantidade2) ||
+                quantidade1 <= 0 || quantidade2 <= 0) {
+                aviso.style.display = 'block';
+                document.getElementById('resultado').style.display = 'none';
+                return;
+            }
+            aviso.style.display = 'none';
+
+            // Calcular preços por unidade
+            const precoUnitario1 = preco1 / quantidade1;
+            const precoUnitario2 = preco2 / quantidade2;
+
+            // Atualizar resultados
+            const produto1 = document.getElementById('produto1');
+            const produto2 = document.getElementById('produto2');
+            
+            produto1.innerHTML = `
+                <h3>Produto 1</h3>
+                <p>Preço Total: R$ ${preco1.toFixed(2)}</p>
+                <p>Quantidade: ${quantidade1}</p>
+                <p class="destaque">Preço por unidade: <span>R$ ${precoUnitario1.toFixed(2)}</span></p>
+            `;
+
+            produto2.innerHTML = `
+                <h3>Produto 2</h3>
+                <p>Preço Total: R$ ${preco2.toFixed(2)}</p>
+                <p>Quantidade: ${quantidade2}</p>
+                <p class="destaque">Preço por unidade: <span>R$ ${precoUnitario2.toFixed(2)}</span></p>
+            `;
+
+            // Aplicar estilos de comparação
+            produto1.classList.remove('melhor');
+            produto2.classList.remove('melhor');
+            
+            if (precoUnitario1 < precoUnitario2) {
+                produto1.classList.add('melhor');
+            } else if (precoUnitario2 < precoUnitario1) {
+                produto2.classList.add('melhor');
+            }
+
+            // Mostrar resultados
+            document.getElementById('resultado').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
