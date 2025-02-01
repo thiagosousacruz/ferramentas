@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <!-- Meta tag para garantir responsividade em dispositivos móveis -->
+  <!-- Meta tag para responsividade em dispositivos móveis -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Preços FIPE (Frontend)</title>
   <link rel="stylesheet" href="style.css">
@@ -12,12 +12,20 @@
     <button class="back-button" onclick="window.history.back()">⬅️ Voltar</button>
     <h1>🚗 Consulta Preços FIPE</h1>
     <div class="selectors">
-      <select id="marcas" disabled>
-        <option value="">Carregando marcas...</option>
-      </select>
-      <select id="modelos" disabled>
-        <option value="">Selecione um modelo</option>
-      </select>
+      <div class="selector-group">
+        <!-- Campo único: o usuário digita e o datalist sugere as marcas -->
+        <input type="text" id="marcas" list="marcas-datalist" placeholder="Selecione ou digite a marca" disabled>
+        <datalist id="marcas-datalist">
+          <option value="Carregando marcas...">
+        </datalist>
+      </div>
+      <div class="selector-group">
+        <!-- Campo único: o usuário digita e o datalist sugere os modelos -->
+        <input type="text" id="modelos" list="modelos-datalist" placeholder="Selecione ou digite o modelo" disabled>
+        <datalist id="modelos-datalist">
+          <option value="Selecione um modelo">
+        </datalist>
+      </div>
     </div>
     <div id="loading" class="hidden">Carregando...</div>
     <div id="tabela-precos"></div>

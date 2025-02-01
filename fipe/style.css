@@ -13,8 +13,7 @@ body {
   color: var(--cor-texto);
 }
 
-/* Estilo mobile-first: a largura da .container ocupará 90% da tela,
-   com max-width para telas maiores */
+/* Layout mobile-first: container ocupa 90% da largura, com max-width para telas maiores */
 .container {
   width: 90%;
   max-width: 800px;
@@ -41,15 +40,20 @@ body {
 
 .selectors {
   margin: 20px 0;
-  display: grid;
-  grid-gap: 10px;
 }
 
-select {
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+}
+
+.selector-group input {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   width: 100%;
+  box-sizing: border-box;
 }
 
 #loading {

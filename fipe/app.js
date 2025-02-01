@@ -1,60 +1,87 @@
 document.addEventListener('DOMContentLoaded', async () => {
   const API_URL = 'https://parallelum.com.br/fipe/api/v1/carros';
-  const marcasSelect = document.getElementById('marcas');
-  const modelosSelect = document.getElementById('modelos');
+  
+  // Campos de entrada e datalists para marcas e modelos
+  const marcasInput = document.getElementById('marcas');
+  const marcasDatalist = document.getElementById('marcas-datalist');
+  const modelosInput = document.getElementById('modelos');
+  const modelosDatalist = document.getElementById('modelos-datalist');
+  
   const tabelaPrecos = document.getElementById('tabela-precos');
   const loading = document.getElementById('loading');
+
+  // Variáveis para armazenar os dados das marcas e modelos
+  let marcasData = [];
+  let modelosData = [];
 
   // Carregar marcas
   try {
     const response = await fetch(`${API_URL}/marcas`);
     const marcas = await response.json();
+    marcasData = marcas;
     
-    marcasSelect.innerHTML = '<option value="">Selecione a marca</option>' + 
-      marcas.map(marca => `<option value="${marca.codigo}">${marca.nome}</option>`).join('');
-    
-    marcasSelect.disabled = false;
+    // Preenche o datalist com as marcas (nome e código ficam armazenados em marcasData)
+    marcasDatalist.innerHTML = '<option value="">Selecione a marca</option>' + 
+      marcas.map(marca => `<option data-codigo="${marca.codigo}" value="${marca.nome}">`).join('');
+    marcasInput.disabled = false;
   } catch (error) {
     alert('Erro ao carregar marcas');
   }
 
-  // Ao selecionar marca
-  marcasSelect.addEventListener('change', async (e) => {
-    const codigoMarca = e.target.value;
-    modelosSelect.innerHTML = '<option value="">Carregando modelos...</option>';
-    modelosSelect.disabled = true;
-
-    if (!codigoMarca) return;
-
+  // Ao selecionar (ou digitar) uma marca válida
+  marcasInput.addEventListener('change', async () => {
+    const selectedName = marcasInput.value.trim();
+    const selectedBrand = marcasData.find(brand => brand.nome.toLowerCase() === selectedName.toLowerCase());
+    if (!selectedBrand) {
+      // Se a marca não for válida, limpa e desabilita o campo de modelo
+      modelosInput.value = "";
+      modelosInput.disabled = true;
+      modelosDatalist.innerHTML = '<option value="Selecione um modelo">';
+      return;
+    }
+    const codigoMarca = selectedBrand.codigo;
+    
+    // Limpa o campo de modelo enquanto carrega as opções
+    modelosInput.value = "";
+    modelosInput.disabled = true;
+    modelosDatalist.innerHTML = '<option value="">Carregando modelos...</option>';
+    
     try {
       const response = await fetch(`${API_URL}/marcas/${codigoMarca}/modelos`);
       const data = await response.json();
-      
-      modelosSelect.innerHTML = '<option value="">Selecione o modelo</option>' + 
-        data.modelos.map(modelo => `<option value="${modelo.codigo}">${modelo.nome}</option>`).join('');
-      
-      modelosSelect.disabled = false;
+      modelosData = data.modelos;
+      modelosDatalist.innerHTML = '<option value="">Selecione o modelo</option>' + 
+        modelosData.map(modelo => `<option data-codigo="${modelo.codigo}" value="${modelo.nome}">`).join('');
+      modelosInput.disabled = false;
     } catch (error) {
       alert('Erro ao carregar modelos');
     }
   });
 
-  // Ao selecionar modelo
-  modelosSelect.addEventListener('change', async (e) => {
-    const codigoMarca = marcasSelect.value;
-    const codigoModelo = e.target.value;
+  // Ao selecionar (ou digitar) um modelo válido
+  modelosInput.addEventListener('change', async () => {
+    const selectedName = modelosInput.value.trim();
+    const selectedModel = modelosData.find(modelo => modelo.nome.toLowerCase() === selectedName.toLowerCase());
+    if (!selectedModel) {
+      return;
+    }
+    const codigoModelo = selectedModel.codigo;
     
-    if (!codigoMarca || !codigoModelo) return;
-
+    // Recupera o código da marca selecionada
+    const selectedBrand = marcasData.find(brand => brand.nome.toLowerCase() === marcasInput.value.trim().toLowerCase());
+    if (!selectedBrand) {
+      return;
+    }
+    const codigoMarca = selectedBrand.codigo;
+    
     loading.classList.remove('hidden');
     tabelaPrecos.innerHTML = '';
-
     try {
-      // Buscar anos disponíveis
+      // Buscar anos disponíveis para o modelo selecionado
       const anosResponse = await fetch(`${API_URL}/marcas/${codigoMarca}/modelos/${codigoModelo}/anos`);
       const anos = await anosResponse.json();
 
-      // Buscar preços de cada ano
+      // Buscar preços para cada ano
       const precosPromises = anos.map(async (ano) => {
         const precoResponse = await fetch(`${API_URL}/marcas/${codigoMarca}/modelos/${codigoModelo}/anos/${ano.codigo}`);
         return precoResponse.json();
@@ -62,7 +89,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const precos = await Promise.all(precosPromises);
 
-      // Criar tabela
+      // Cria a tabela de preços
       tabelaPrecos.innerHTML = `
         <table>
           <thead>
