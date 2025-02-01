@@ -13,7 +13,10 @@ body {
   color: var(--cor-texto);
 }
 
+/* Estilo mobile-first: a largura da .container ocupará 90% da tela,
+   com max-width para telas maiores */
 .container {
+  width: 90%;
   max-width: 800px;
   margin: 0 auto;
   background: white;
@@ -46,6 +49,7 @@ select {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  width: 100%;
 }
 
 #loading {
@@ -85,4 +89,6 @@ tr:hover {
 
 h1 {
   color: var(--cor-titulo);
+  font-size: 1.5em;
+  margin-bottom: 20px;
 }
