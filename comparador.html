@@ -1,215 +1,276 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparador de Preços Inteligente</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', sans-serif;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparador de Preços Inteligente</title>
+  <style>
+    :root {
+      --cor-fundo: #f9fafb;        /* Fundo claro e neutro */
+      --cor-texto: #333333;        /* Texto escuro */
+      --cor-botao: #007BFF;        /* Azul para botões */
+      --cor-botao-hover: #0056b3;   /* Azul mais escuro no hover */
+      --cor-titulo: #2c3e50;        /* Azul escuro para títulos */
+    }
 
-        body {
-            background-color: #f0f2f5;
-            padding: 20px;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-        }
+    body {
+      background-color: var(--cor-fundo);
+      padding: 20px;
+      color: var(--cor-texto);
+    }
 
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
 
-        h1 {
-            text-align: center;
-            color: #1a73e8;
-            margin-bottom: 30px;
-            font-size: 1.8rem;
-        }
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
 
-        .input-group {
-            margin-bottom: 15px;
-        }
+    h1 {
+      text-align: center;
+      color: var(--cor-titulo);
+      margin-bottom: 30px;
+      font-size: 1.8rem;
+    }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            color: #5f6368;
-            font-weight: 500;
-        }
+    .input-group {
+      margin-bottom: 15px;
+    }
 
-        input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #dadce0;
-            border-radius: 5px;
-            font-size: 1rem;
-        }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--cor-texto);
+      font-weight: 500;
+    }
 
-        button {
-            width: 100%;
-            padding: 12px;
-            background: #1a73e8;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #dadce0;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
 
-        button:hover {
-            background: #1557b0;
-        }
+    /* Botão padrão para ações principais */
+    button {
+      width: 100%;
+      padding: 12px;
+      background: var(--cor-botao);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    button:hover {
+      background: var(--cor-botao-hover);
+    }
 
-        .resultado {
-            display: none;
-            margin-top: 20px;
-        }
+    /* Botão Voltar: menor, com seta e cor neutra */
+    .botao-voltar {
+      background: #e0e0e0;
+      color: var(--cor-texto);
+      border: none;
+      border-radius: 5px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      width: auto;
+      margin-bottom: 15px;
+    }
 
-        .produto {
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
+    .botao-voltar:hover {
+      background: #cacaca;
+    }
 
-        .melhor {
-            background: #e8f0fe;
-            border: 2px solid #1a73e8;
-        }
+    /* Botão Limpar */
+    .botao-limpar {
+      margin-top: 10px;
+    }
 
-        .destaque {
-            color: #1a73e8;
-            font-weight: bold;
-        }
+    .resultado {
+      display: none;
+      margin-top: 20px;
+    }
 
-        .unidade {
-            font-size: 0.9rem;
-            color: #5f6368;
-        }
+    .produto {
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      transition: all 0.3s;
+    }
 
-        .aviso {
-            color: #d93025;
-            text-align: center;
-            margin: 15px 0;
-            display: none;
-        }
+    .melhor {
+      background: #e8f0fe;
+      border: 2px solid var(--cor-botao);
+    }
 
-        @media (min-width: 600px) {
-            .comparador {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
+    .destaque {
+      color: var(--cor-botao);
+      font-weight: bold;
+    }
 
-            button {
-                grid-column: span 2;
-            }
-        }
-    </style>
+    .unidade {
+      font-size: 0.9rem;
+      color: var(--cor-texto);
+    }
+
+    .aviso {
+      color: #d93025;
+      text-align: center;
+      margin: 15px 0;
+      display: none;
+    }
+
+    @media (min-width: 600px) {
+      .comparador {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      /* Em telas maiores, os botões que ocupavam 100% serão ajustados se necessário */
+      button {
+        grid-column: span 2;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📊 Comparador de Preços</h1>
-        
-        <div class="card">
-            <div class="comparador">
-                <div class="input-group">
-                    <label>Preço Total 1</label>
-                    <input type="number" id="preco1" step="0.01" placeholder="0.00">
-                </div>
-                <div class="input-group">
-                    <label>Quantidade/Volume 1</label>
-                    <input type="number" id="quantidade1" step="0.01" placeholder="0">
-                </div>
+  <div class="container">
+    <h1>📊 Comparador de Preços</h1>
+    <div class="card">
+      <!-- Botão Voltar -->
+      <button type="button" class="botao-voltar" onclick="history.back()">← Voltar</button>
 
-                <div class="input-group">
-                    <label>Preço Total 2</label>
-                    <input type="number" id="preco2" step="0.01" placeholder="0.00">
-                </div>
-                <div class="input-group">
-                    <label>Quantidade/Volume 2</label>
-                    <input type="number" id="quantidade2" step="0.01" placeholder="0">
-                </div>
-            </div>
-
-            <div class="aviso" id="aviso">Preencha todos os campos corretamente!</div>
-            
-            <button onclick="compararPrecos()">Comparar Preços</button>
-            
-            <div class="resultado" id="resultado">
-                <div class="produto" id="produto1"></div>
-                <div class="produto" id="produto2"></div>
-            </div>
+      <div class="comparador">
+        <!-- Opção A: Preço Total primeiro, depois Quantidade / Volume -->
+        <div class="input-group">
+          <label>Preço Total da opção A</label>
+          <input type="number" id="preco1" step="0.01" placeholder="0.00" oninput="compararPrecos()" />
         </div>
+        <div class="input-group">
+          <label>Quantidade / Volume da opção A</label>
+          <input type="number" id="quantidade1" step="0.01" placeholder="0" oninput="compararPrecos()" />
+        </div>
+
+        <!-- Opção B: Preço Total primeiro, depois Quantidade / Volume -->
+        <div class="input-group">
+          <label>Preço Total da opção B</label>
+          <input type="number" id="preco2" step="0.01" placeholder="0.00" oninput="compararPrecos()" />
+        </div>
+        <div class="input-group">
+          <label>Quantidade / Volume da opção B</label>
+          <input type="number" id="quantidade2" step="0.01" placeholder="0" oninput="compararPrecos()" />
+        </div>
+      </div>
+
+      <div class="aviso" id="aviso">
+        Preencha todos os campos corretamente!
+      </div>
+
+      <!-- Área de resultado -->
+      <div class="resultado" id="resultado">
+        <div class="produto" id="produto1"></div>
+        <div class="produto" id="produto2"></div>
+      </div>
+
+      <!-- Botão Limpar -->
+      <button type="button" class="botao-limpar" onclick="limparCampos()">Limpar</button>
     </div>
+  </div>
 
-    <script>
-        function compararPrecos() {
-            // Obter valores dos inputs
-            const preco1 = parseFloat(document.getElementById('preco1').value);
-            const quantidade1 = parseFloat(document.getElementById('quantidade1').value);
-            
-            const preco2 = parseFloat(document.getElementById('preco2').value);
-            const quantidade2 = parseFloat(document.getElementById('quantidade2').value);
+  <script>
+    function compararPrecos() {
+      // Obter os valores dos inputs
+      const preco1 = parseFloat(document.getElementById('preco1').value);
+      const quantidade1 = parseFloat(document.getElementById('quantidade1').value);
+      const preco2 = parseFloat(document.getElementById('preco2').value);
+      const quantidade2 = parseFloat(document.getElementById('quantidade2').value);
 
-            // Validar entradas
-            const aviso = document.getElementById('aviso');
-            if (isNaN(preco1) || isNaN(quantidade1) || 
-                isNaN(preco2) || isNaN(quantidade2) ||
-                quantidade1 <= 0 || quantidade2 <= 0) {
-                aviso.style.display = 'block';
-                document.getElementById('resultado').style.display = 'none';
-                return;
-            }
-            aviso.style.display = 'none';
+      const aviso = document.getElementById('aviso');
 
-            // Calcular preços por unidade
-            const precoUnitario1 = preco1 / quantidade1;
-            const precoUnitario2 = preco2 / quantidade2;
+      // Se algum campo estiver vazio ou com valor inválido, exibe aviso e esconde resultado
+      if (
+        isNaN(preco1) || isNaN(quantidade1) ||
+        isNaN(preco2) || isNaN(quantidade2) ||
+        quantidade1 <= 0 || quantidade2 <= 0
+      ) {
+        aviso.style.display = 'block';
+        document.getElementById('resultado').style.display = 'none';
+        return;
+      }
+      aviso.style.display = 'none';
 
-            // Atualizar resultados
-            const produto1 = document.getElementById('produto1');
-            const produto2 = document.getElementById('produto2');
-            
-            produto1.innerHTML = `
-                <h3>Produto 1</h3>
-                <p>Preço Total: R$ ${preco1.toFixed(2)}</p>
-                <p>Quantidade: ${quantidade1}</p>
-                <p class="destaque">Preço por unidade: <span>R$ ${precoUnitario1.toFixed(2)}</span></p>
-            `;
+      // Calcular preços por unidade
+      const precoUnitario1 = preco1 / quantidade1;
+      const precoUnitario2 = preco2 / quantidade2;
 
-            produto2.innerHTML = `
-                <h3>Produto 2</h3>
-                <p>Preço Total: R$ ${preco2.toFixed(2)}</p>
-                <p>Quantidade: ${quantidade2}</p>
-                <p class="destaque">Preço por unidade: <span>R$ ${precoUnitario2.toFixed(2)}</span></p>
-            `;
+      // Formatar os números para o padrão brasileiro (vírgula como separador decimal)
+      const formatarValor = (valor) =>
+        valor.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-            // Aplicar estilos de comparação
-            produto1.classList.remove('melhor');
-            produto2.classList.remove('melhor');
-            
-            if (precoUnitario1 < precoUnitario2) {
-                produto1.classList.add('melhor');
-            } else if (precoUnitario2 < precoUnitario1) {
-                produto2.classList.add('melhor');
-            }
+      // Atualizar resultados com os valores formatados
+      const produto1 = document.getElementById('produto1');
+      const produto2 = document.getElementById('produto2');
 
-            // Mostrar resultados
-            document.getElementById('resultado').style.display = 'block';
-        }
-    </script>
+      produto1.innerHTML = `
+        <h3>Opção A</h3>
+        <p>Preço Total: R$ ${formatarValor(preco1)}</p>
+        <p>Quantidade / Volume: ${formatarValor(quantidade1)}</p>
+        <p class="destaque">Preço por unidade: <span>R$ ${formatarValor(precoUnitario1)}</span></p>
+      `;
+
+      produto2.innerHTML = `
+        <h3>Opção B</h3>
+        <p>Preço Total: R$ ${formatarValor(preco2)}</p>
+        <p>Quantidade / Volume: ${formatarValor(quantidade2)}</p>
+        <p class="destaque">Preço por unidade: <span>R$ ${formatarValor(precoUnitario2)}</span></p>
+      `;
+
+      // Destacar a opção com o melhor preço por unidade
+      produto1.classList.remove('melhor');
+      produto2.classList.remove('melhor');
+
+      if (precoUnitario1 < precoUnitario2) {
+        produto1.classList.add('melhor');
+      } else if (precoUnitario2 < precoUnitario1) {
+        produto2.classList.add('melhor');
+      }
+
+      document.getElementById('resultado').style.display = 'block';
+    }
+
+    function limparCampos() {
+      // Zera todos os campos
+      document.getElementById('preco1').value = '';
+      document.getElementById('quantidade1').value = '';
+      document.getElementById('preco2').value = '';
+      document.getElementById('quantidade2').value = '';
+
+      // Esconde resultado e mensagem de aviso
+      document.getElementById('resultado').style.display = 'none';
+      document.getElementById('aviso').style.display = 'none';
+
+      // Limpa o conteúdo das opções
+      document.getElementById('produto1').innerHTML = '';
+      document.getElementById('produto2').innerHTML = '';
+    }
+  </script>
 </body>
 </html>

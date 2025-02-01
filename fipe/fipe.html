@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Preços FIPE (Frontend)</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <button class="back-button" onclick="window.history.back()">⬅️ Voltar</button>
+    <h1>🚗 Consulta Preços FIPE</h1>
+    <div class="selectors">
+      <select id="marcas" disabled>
+        <option value="">Carregando marcas...</option>
+      </select>
+      <select id="modelos" disabled>
+        <option value="">Selecione um modelo</option>
+      </select>
+    </div>
+    <div id="loading" class="hidden">Carregando...</div>
+    <div id="tabela-precos"></div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

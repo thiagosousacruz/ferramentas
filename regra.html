@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>📐 Regra de Três</title>
+  <style>
+    :root {
+      --cor-fundo: #f9fafb; /* Fundo claro e neutro */
+      --cor-texto: #333333; /* Texto escuro */
+      --cor-botao: #007BFF; /* Azul para botões */
+      --cor-botao-hover: #0056b3; /* Azul mais escuro no hover */
+      --cor-titulo: #2c3e50; /* Azul escuro para o título */
+      --cor-toggle: #28a745; /* Cor para o botão de alternar modo */
+      --cor-toggle-hover: #218838;
+    }
+
+    body {
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 15px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 20px auto;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--cor-titulo);
+      margin-bottom: 20px;
+    }
+
+    .vertical-regra {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .vertical-regra span {
+      font-weight: bold;
+    }
+
+    .vertical-regra input[type="number"],
+    .vertical-regra input[readonly] {
+      width: 100%;
+      max-width: 300px;
+      padding: 8px;
+      font-size: 16px;
+      text-align: center;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .vertical-regra input[readonly] {
+      background-color: #e9ecef;
+    }
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .btn-toggle {
+      background-color: var(--cor-toggle);
+    }
+
+    .btn-toggle:hover {
+      background-color: var(--cor-toggle-hover);
+    }
+
+    .btn-limpar {
+      background-color: var(--cor-botao);
+    }
+
+    .btn-limpar:hover {
+      background-color: var(--cor-botao-hover);
+    }
+
+    .btn-voltar {
+      background-color: #6c757d;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .btn-voltar:hover {
+      background-color: #5a6268;
+    }
+
+    .help-button {
+      background-color: #17a2b8;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .help-button:hover {
+      background-color: #138496;
+    }
+
+    /* Estilos do Popup de Ajuda */
+    .overlay {
+      position: fixed;
+      display: none;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 999;
+    }
+
+    .popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      border: 1px solid #ccc;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      z-index: 1000;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .popup h2 {
+      margin-top: 0;
+    }
+
+    .popup p {
+      margin-bottom: 15px;
+    }
+
+    .popup-close {
+      background-color: var(--cor-botao);
+      padding: 5px 10px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      float: right;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Botão de Voltar -->
+    <button class="btn-voltar" onclick="voltar()">← Voltar</button>
+    <h1>📐 Regra de Três</h1>
+
+    <!-- Layout Vertical com a frase e campos -->
+    <div class="vertical-regra">
+      <span>Se</span>
+      <input type="number" id="valor1" placeholder="Valor 1" required oninput="calcular()" />
+
+      <span>corresponde a</span>
+      <input type="number" id="valor2" placeholder="Valor 2" required oninput="calcular()" />
+
+      <span>então</span>
+      <input type="number" id="valor3" placeholder="Valor 3" required oninput="calcular()" />
+
+      <span>corresponde a</span>
+      <input type="text" id="resultado" placeholder="Resultado" readonly />
+    </div>
+
+    <!-- Botões de alternância, limpar e ajuda -->
+    <div class="button-group">
+      <button type="button" class="btn-toggle" id="toggleBtn" onclick="toggleProporcionalidade()">
+        Usar Regra Inversa
+      </button>
+      <button type="button" class="btn-limpar" onclick="limparCampos()">Limpar</button>
+      <button type="button" class="help-button" onclick="mostrarAjuda()">❓ Ajuda</button>
+    </div>
+  </div>
+
+  <!-- Popup e Overlay de Ajuda -->
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popupAjuda">
+    <button class="popup-close" onclick="fecharAjuda()">Fechar</button>
+    <h2>Como funciona?</h2>
+    <p>
+      Imagine que você tem carrinhos e bicicletas.
+    </p>
+    <p>
+      <strong>Exemplo de Regra de Três Direta</strong>:<br>
+      Se 2 carrinhos correspondem a 4 bicicletas, então se você tem 6 carrinhos, quantas bicicletas você terá?<br>
+      Cálculo: (Valor 2 × Valor 3) / Valor 1 = (4 × 6) / 2 = 12
+    </p>
+    <p>
+      <strong>Exemplo de Regra de Três Inversa</strong>:<br>
+      Se 2 carrinhos correspondem a 4 bicicletas, então se você tem 6 bicicletas, quantos carrinhos serão necessários?<br>
+      Cálculo: (Valor 1 × Valor 2) / Valor 3 = (2 × 4) / 6 ≈ 1,33
+    </p>
+  </div>
+
+  <script>
+    // Modo padrão: Regra de Três Direta
+    // Quando direta = true: Resultado = (Valor 2 × Valor 3) / Valor 1
+    // Quando direta = false (inversa): Resultado = (Valor 1 × Valor 2) / Valor 3
+    let direta = true;
+
+    function calcular() {
+      const valor1 = parseFloat(document.getElementById("valor1").value);
+      const valor2 = parseFloat(document.getElementById("valor2").value);
+      const valor3 = parseFloat(document.getElementById("valor3").value);
+      
+      // Verifica se os três campos estão preenchidos e se os valores são válidos (não zero onde necessário).
+      if (isNaN(valor1) || isNaN(valor2) || isNaN(valor3) || valor1 === 0 || valor3 === 0) {
+        document.getElementById("resultado").value = "";
+        return;
+      }
+
+      let res;
+      if (direta) {
+        // Regra de Três Direta: Resultado = (Valor 2 × Valor 3) / Valor 1
+        res = (valor2 * valor3) / valor1;
+      } else {
+        // Regra de Três Inversa: Resultado = (Valor 1 × Valor 2) / Valor 3
+        res = (valor1 * valor2) / valor3;
+      }
+      
+      // Formata o resultado para o padrão brasileiro (vírgula como separador decimal)
+      document.getElementById("resultado").value = res.toLocaleString('pt-BR');
+    }
+
+    function toggleProporcionalidade() {
+      direta = !direta;
+      const toggleBtn = document.getElementById("toggleBtn");
+      toggleBtn.innerText = direta ? "Usar Regra Inversa" : "Usar Regra Direta";
+      calcular();
+    }
+
+    function limparCampos() {
+      document.getElementById("valor1").value = "";
+      document.getElementById("valor2").value = "";
+      document.getElementById("valor3").value = "";
+      document.getElementById("resultado").value = "";
+      // Retorna ao modo direto
+      direta = true;
+      document.getElementById("toggleBtn").innerText = "Usar Regra Inversa";
+    }
+
+    function mostrarAjuda() {
+      document.getElementById("overlay").style.display = "block";
+      document.getElementById("popupAjuda").style.display = "block";
+    }
+
+    function fecharAjuda() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("popupAjuda").style.display = "none";
+    }
+
+    function voltar() {
+      window.history.back();
+    }
+  </script>
+</body>
+</html>

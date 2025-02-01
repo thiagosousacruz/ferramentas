@@ -1,124 +1,82 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ferramentas Thithizinho</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛠️ Ferramentas Práticas 🛠️</title>
+  <style>
+    /* Paleta de cores */
+    :root {
+      --cor-fundo: #f9fafb; /* Fundo claro e neutro */
+      --cor-texto: #333333; /* Texto escuro */
+      --cor-botao: #007BFF; /* Azul para botões */
+      --cor-botao-hover: #0056b3; /* Azul mais escuro no hover */
+      --cor-titulo: #2c3e50; /* Azul escuro para o título */
+    }
 
-        body {
-            background-color: #1a1a2e;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      text-align: center;
+    }
 
-        .container {
-            background-color: #16213e;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-        }
+    h1 {
+      font-size: 2.5rem;
+      color: var(--cor-titulo);
+      margin-bottom: 20px;
+    }
 
-        h1 {
-            color: #e94560;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
 
-        .button-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            margin-top: 30px;
-        }
+    .botao {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      background-color: var(--cor-botao);
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
 
-        .tool-button {
-            background-color: #4a4a4a;
-            color: white;
-            text-decoration: none;
-            padding: 18px 30px;
-            border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            display: block;
-            width: 100%;
-        }
-
-        .tool-button:hover {
-            background-color: #e94560;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(233, 69, 96, 0.4);
-        }
-
-        .github-link {
-            color: #888;
-            margin-top: 30px;
-            font-size: 0.9em;
-            text-decoration: none;
-        }
-
-        .github-link:hover {
-            color: #e94560;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 25px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
-            
-            .tool-button {
-                padding: 15px 20px;
-                font-size: 1em;
-            }
-        }
-    </style>
+    .botao:hover {
+      background-color: var(--cor-botao-hover);
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Ferramentas Thithizinho</h1>
-        
-        <div class="button-container">
-            <a href="fipe.html" class="tool-button">FIPE</a>
-            <a href="comparador.html" class="tool-button">Comparador</a>
-        </div>
+  <div class="container">
+    <h1>🛠️ Ferramentas Práticas 🛠️</h1>
+    <p>Suas ferramentas úteis para o dia a dia! Calculadoras, comparadores e muito mais.</p>
 
-        <a href="https://github.com/seu-usuario" class="github-link" target="_blank">
-            Visite nosso GitHub
-        </a>
-    </div>
+    <!-- Botões -->
+    <a href="fipe/fipe.html" class="botao">🚗 Consulta FIPE</a>
+    <a href="comparador.html" class="botao">📊 Comparador de Preços</a>
+    <a href="regra.html" class="botao">📐 Regra de Três</a>
+  </div>
 
-    <script>
-        // Efeito de hover suave para os botões
-        document.querySelectorAll('.tool-button').forEach(button => {
-            button.addEventListener('mouseover', function() {
-                this.style.transform = 'translateY(-3px)';
-            });
-            
-            button.addEventListener('mouseout', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-    </script>
+  <script>
+    // Script básico para adicionar funcionalidades futuras, se necessário
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Página carregada com sucesso!');
+    });
+  </script>
 </body>
 </html>
