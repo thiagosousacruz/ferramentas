@@ -2,69 +2,102 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>🛠️ Ferramentas Práticas 🛠️</title>
   <style>
-    /* Paleta de cores */
+    /* Reset básico para evitar inconsistências entre navegadores */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Paleta de cores e variáveis de espaçamento */
     :root {
       --cor-fundo: #f9fafb; /* Fundo claro e neutro */
       --cor-texto: #333333; /* Texto escuro */
       --cor-botao: #007BFF; /* Azul para botões */
       --cor-botao-hover: #0056b3; /* Azul mais escuro no hover */
       --cor-titulo: #2c3e50; /* Azul escuro para o título */
+      --espacamento: 1rem;
     }
 
+    /* Estilização global */
     body {
       font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
       background-color: var(--cor-fundo);
       color: var(--cor-texto);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
+      padding: var(--espacamento);
       text-align: center;
     }
 
-    h1 {
-      font-size: 2.5rem;
-      color: var(--cor-titulo);
-      margin-bottom: 20px;
-    }
-
+    /* Container centralizado com fundo branco e sombra para destaque */
     .container {
       width: 100%;
       max-width: 400px;
-      padding: 20px;
+      padding: calc(var(--espacamento) * 1.5);
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
+    h1 {
+      font-size: 2rem;
+      color: var(--cor-titulo);
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      font-size: 1rem;
+      line-height: 1.5;
+      margin-bottom: 1.5rem;
+    }
+
+    /* Botões com feedback visual e responsividade */
     .botao {
       display: block;
       width: 100%;
-      padding: 15px;
-      margin: 10px 0;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
       background-color: var(--cor-botao);
-      color: white;
+      color: #fff;
       text-decoration: none;
       border: none;
       border-radius: 5px;
-      font-size: 1.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
+      font-size: 1rem;
+      transition: background-color 0.3s ease, transform 0.1s ease;
     }
 
-    .botao:hover {
+    .botao:hover,
+    .botao:focus {
       background-color: var(--cor-botao-hover);
+      outline: none;
+    }
+
+    .botao:active {
+      transform: scale(0.98);
+    }
+
+    /* Ajustes para telas maiores */
+    @media (min-width: 600px) {
+      h1 {
+        font-size: 2.5rem;
+      }
+      .botao {
+        font-size: 1.2rem;
+        padding: 1rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>🛠️ Ferramentas Práticas 🛠️</h1>
-    <p>Suas ferramentas úteis para o dia a dia! Calculadoras, comparadores e muito mais.</p>
+    <p>Coisinhas úteis para o dia a dia! Aceito sugestões (ou não)...</p>
 
     <!-- Botões -->
     <a href="fipe/fipe.html" class="botao">🚗 Consulta FIPE</a>
@@ -73,7 +106,7 @@
   </div>
 
   <script>
-    // Script básico para adicionar funcionalidades futuras, se necessário
+    // Script básico para futuras funcionalidades
     document.addEventListener('DOMContentLoaded', () => {
       console.log('Página carregada com sucesso!');
     });
