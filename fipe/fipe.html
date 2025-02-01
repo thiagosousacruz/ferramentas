@@ -12,14 +12,12 @@
     <button class="back-button" onclick="window.history.back()">⬅️ Voltar</button>
     <h1>🚗 Consulta Preços FIPE</h1>
     <div class="selectors">
-      <div class="selector-group">
-        <input type="text" id="marcas" placeholder="Selecione ou digite a marca" disabled>
-        <ul id="marcas-dropdown" class="dropdown hidden"></ul>
-      </div>
-      <div class="selector-group">
-        <input type="text" id="modelos" placeholder="Selecione ou digite o modelo" disabled>
-        <ul id="modelos-dropdown" class="dropdown hidden"></ul>
-      </div>
+      <select id="marcas" disabled>
+        <option value="">Carregando marcas...</option>
+      </select>
+      <select id="modelos" disabled>
+        <option value="">Selecione um modelo</option>
+      </select>
     </div>
     <div id="loading" class="hidden">Carregando...</div>
     <div id="tabela-precos"></div>
