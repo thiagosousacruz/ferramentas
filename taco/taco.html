@@ -38,7 +38,6 @@
             background: white;
             border-radius: 10px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: relative;
         }
 
         .search-container {
@@ -290,6 +289,7 @@
             document.getElementById('pesquisa').value = alimento.nome;
             alimentoSelecionado = alimento;
             document.getElementById('dropdown').style.display = 'none';
+            document.getElementById('quantidade').focus();
             atualizarPrevia();
         }
 
@@ -355,6 +355,25 @@
             atualizarLista();
         }
 
+        function editarQuantidade(index) {
+            const novaQuantidade = prompt("Nova quantidade (gramas):", selecionados[index].quantidade);
+            if (novaQuantidade && !isNaN(novaQuantidade) && novaQuantidade > 0) {
+                const quantidadeNum = parseFloat(novaQuantidade);
+                const alimentoOriginal = alimentos.find(a => a.nome === selecionados[index].nome);
+                
+                selecionados[index] = {
+                    nome: selecionados[index].nome,
+                    quantidade: quantidadeNum,
+                    caloriasTotais: (alimentoOriginal.calorias / 100) * quantidadeNum,
+                    proteinas: (alimentoOriginal.proteinas / 100) * quantidadeNum,
+                    carboidratos: (alimentoOriginal.carboidratos / 100) * quantidadeNum,
+                    lipidios: (alimentoOriginal.lipidios / 100) * quantidadeNum
+                };
+                
+                atualizarLista();
+            }
+        }
+
         function atualizarLista() {
             const lista = document.getElementById("lista");
             lista.innerHTML = "";
@@ -399,8 +418,21 @@
             document.getElementById("total-lipidios").textContent = totais.lipidios.toFixed(2);
         }
 
-        // Restante das funções permanece igual...
-        // [Manter as funções editarQuantidade, removerAlimento e limparTudo conforme versão anterior]
+        function removerAlimento(index) {
+            selecionados.splice(index, 1);
+            atualizarLista();
+        }
+
+        function limparTudo() {
+            if (confirm("Tem certeza que deseja limpar todos os dados?")) {
+                selecionados = [];
+                document.getElementById('pesquisa').value = '';
+                document.getElementById('quantidade').value = '';
+                document.getElementById('previa').classList.remove('visivel');
+                document.getElementById('dropdown').style.display = 'none';
+                atualizarLista();
+            }
+        }
 
         // Inicialização
         carregarXLSX();
