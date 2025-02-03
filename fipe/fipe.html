@@ -11,13 +11,15 @@
   <div class="container">
     <button class="back-button" onclick="window.history.back()">⬅️ Voltar</button>
     <h1>🚗 Consulta Preços FIPE</h1>
-    <div class="selectors">
-      <select id="marcas" disabled>
-        <option value="">Carregando marcas...</option>
-      </select>
-      <select id="modelos" disabled>
-        <option value="">Selecione um modelo</option>
-      </select>
+    <div class="search-container">
+      <!-- Searchbox para buscar marcas -->
+      <input type="text" id="searchbox-brand" placeholder="Digite para buscar marca..." disabled>
+      <ul id="brand-dropdown" class="dropdown hidden"></ul>
+    </div>
+    <div class="search-container">
+      <!-- Searchbox para buscar veículos; inicialmente desabilitado -->
+      <input type="text" id="searchbox-model" placeholder="Digite para buscar veículo..." disabled>
+      <ul id="model-dropdown" class="dropdown hidden"></ul>
     </div>
     <div id="loading" class="hidden">Carregando...</div>
     <div id="tabela-precos"></div>
