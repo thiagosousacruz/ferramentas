@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ficha Técnica do Produto 📝</title>
+  <style>
+    :root {
+      --cor-fundo: #f9fafb;       /* Fundo claro e neutro */
+      --cor-texto: #333333;       /* Texto escuro */
+      --cor-botao: #007BFF;       /* Azul para botões */
+      --cor-botao-hover: #0056b3;  /* Azul mais escuro no hover */
+      --cor-titulo: #2c3e50;      /* Azul escuro para o título */
+    }
+    body {
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: var(--cor-titulo);
+    }
+    h2 {
+      text-align: center;
+      color: var(--cor-titulo);
+    }
+    h3, h4 {
+      color: var(--cor-titulo);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 8px;
+      margin: 2px 0;
+      box-sizing: border-box;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    .btn {
+      background: var(--cor-botao);
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      margin-top: 5px;
+      border-radius: 4px;
+    }
+    .btn:hover {
+      background: var(--cor-botao-hover);
+    }
+    @media(max-width: 600px) {
+      input, select, button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ficha Técnica do Produto 📝</h1>
+    
+    <!-- Campo do nome do produto -->
+    <div class="form-group">
+      <label for="productName">Nome do Produto</label>
+      <input type="text" id="productName" placeholder="Digite o nome do produto">
+    </div>
+    
+    <!-- Seção de Matérias Primas -->
+    <h2>Matérias Primas</h2>
+    <table id="rawMaterialsTable">
+      <thead>
+        <tr>
+          <th>Descrição</th>
+          <th>Quantidade</th>
+          <th>Unidade</th>
+          <th>Custo Unitário</th>
+          <th>Custo Total</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linhas adicionadas dinamicamente -->
+      </tbody>
+    </table>
+    <button class="btn" onclick="addRawMaterial()">Adicionar Matéria Prima</button>
+    
+    <!-- Seção de Mão de Obra -->
+    <h2>Mão de Obra</h2>
+    <table id="laborTable">
+      <thead>
+        <tr>
+          <th>Tempo Gasto</th>
+          <th>Unidade</th>
+          <th>Custo por Unidade</th>
+          <th>Custo Total</th>
+          <th>Ação</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Linhas adicionadas dinamicamente -->
+      </tbody>
+    </table>
+    <button class="btn" onclick="addLabor()">Adicionar Mão de Obra</button>
+    
+    <!-- Campo para a Margem de Lucro -->
+    <div class="form-group">
+      <label for="profitMargin">Margem de Lucro (%)</label>
+      <input type="number" id="profitMargin" placeholder="Ex: 20" value="0" min="0">
+    </div>
+    
+    <!-- Botão para gerar a ficha técnica -->
+    <button class="btn" onclick="generateSheet()">Gerar Ficha Técnica</button>
+    
+    <!-- Área para exibir a ficha técnica gerada -->
+    <div id="technicalSheet" style="display:none; margin-top:20px;">
+      <h2>Ficha Técnica Gerada</h2>
+      <div id="sheetContent"></div>
+      <button class="btn" onclick="exportToExcel()">Exportar para Excel</button>
+      <button class="btn" onclick="exportToPDF()">Exportar para PDF</button>
+    </div>
+  </div>
+  
+  <!-- Biblioteca jsPDF para exportação para PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script>
+    // Função auxiliar para formatar números como moeda brasileira (R$)
+    function formatCurrency(value) {
+      return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+    
+    // Adiciona uma linha de matéria prima na tabela
+    function addRawMaterial() {
+      const table = document.getElementById('rawMaterialsTable').getElementsByTagName('tbody')[0];
+      const row = table.insertRow();
+      
+      // Coluna: Descrição
+      let cell = row.insertCell();
+      cell.innerHTML = '<input type="text" placeholder="Descrição" oninput="updateRawMaterialCost(this)">';
+      
+      // Coluna: Quantidade
+      cell = row.insertCell();
+      cell.innerHTML = '<input type="number" value="0" min="0" oninput="updateRawMaterialCost(this)">';
+      
+      // Coluna: Unidade
+      cell = row.insertCell();
+      cell.innerHTML = '<select onchange="updateRawMaterialCost(this)"><option value="un">un</option><option value="kg">kg</option><option value="g">g</option><option value="L">L</option><option value="mL">mL</option></select>';
+      
+      // Coluna: Custo Unitário
+      cell = row.insertCell();
+      cell.innerHTML = '<input type="number" value="0" min="0" step="0.01" oninput="updateRawMaterialCost(this)">';
+      
+      // Coluna: Custo Total (calculado automaticamente)
+      cell = row.insertCell();
+      cell.innerHTML = '<span>' + formatCurrency(0) + '</span>';
+      
+      // Coluna: Ação (botão para remover linha)
+      cell = row.insertCell();
+      cell.innerHTML = '<button class="btn" onclick="removeRow(this)">Remover</button>';
+    }
+    
+    // Atualiza o custo total da matéria prima (quantidade * custo unitário)
+    function updateRawMaterialCost(element) {
+      const row = element.parentElement.parentElement;
+      const qty = parseFloat(row.cells[1].querySelector('input').value) || 0;
+      const unitCost = parseFloat(row.cells[3].querySelector('input').value) || 0;
+      const totalCost = qty * unitCost;
+      row.cells[4].querySelector('span').textContent = formatCurrency(totalCost);
+      updateSummary();
+    }
+    
+    // Adiciona uma linha de mão de obra na tabela
+    function addLabor() {
+      const table = document.getElementById('laborTable').getElementsByTagName('tbody')[0];
+      const row = table.insertRow();
+      
+      // Coluna: Tempo Gasto
+      let cell = row.insertCell();
+      cell.innerHTML = '<input type="number" value="0" min="0" oninput="updateLaborCost(this)">';
+      
+      // Coluna: Unidade (horas ou minutos)
+      cell = row.insertCell();
+      cell.innerHTML = '<select onchange="updateLaborCost(this)"><option value="horas">Horas</option><option value="minutos">Minutos</option></select>';
+      
+      // Coluna: Custo por Unidade
+      cell = row.insertCell();
+      cell.innerHTML = '<input type="number" value="0" min="0" step="0.01" oninput="updateLaborCost(this)">';
+      
+      // Coluna: Custo Total (calculado automaticamente)
+      cell = row.insertCell();
+      cell.innerHTML = '<span>' + formatCurrency(0) + '</span>';
+      
+      // Coluna: Ação (botão para remover linha)
+      cell = row.insertCell();
+      cell.innerHTML = '<button class="btn" onclick="removeRow(this)">Remover</button>';
+    }
+    
+    // Atualiza o custo total da mão de obra
+    function updateLaborCost(element) {
+      const row = element.parentElement.parentElement;
+      let time = parseFloat(row.cells[0].querySelector('input').value) || 0;
+      const unit = row.cells[1].querySelector('select').value;
+      const costPerUnit = parseFloat(row.cells[2].querySelector('input').value) || 0;
+      
+      // Se a unidade for minutos, converte para horas para o cálculo
+      if (unit === 'minutos') {
+        time = time / 60;
+      }
+      
+      const totalCost = time * costPerUnit;
+      row.cells[3].querySelector('span').textContent = formatCurrency(totalCost);
+      updateSummary();
+    }
+    
+    // Remove a linha da tabela
+    function removeRow(button) {
+      const row = button.parentElement.parentElement;
+      row.parentElement.removeChild(row);
+      updateSummary();
+    }
+    
+    // Atualiza os totais para exibir no resumo da ficha técnica
+    function updateSummary() {
+      let totalRaw = 0;
+      let totalLabor = 0;
+      
+      // Soma os custos totais das matérias primas
+      const rawRows = document.getElementById('rawMaterialsTable').getElementsByTagName('tbody')[0].rows;
+      for (let row of rawRows) {
+        // Remove símbolos e converte para número
+        let costText = row.cells[4].querySelector('span').textContent.replace(/[R$\s.]/g, '').replace(',', '.');
+        totalRaw += parseFloat(costText) || 0;
+      }
+      
+      // Soma os custos totais da mão de obra
+      const laborRows = document.getElementById('laborTable').getElementsByTagName('tbody')[0].rows;
+      for (let row of laborRows) {
+        let costText = row.cells[3].querySelector('span').textContent.replace(/[R$\s.]/g, '').replace(',', '.');
+        totalLabor += parseFloat(costText) || 0;
+      }
+      
+      // Guarda o custo total de produção (matérias primas + mão de obra) para uso posterior
+      const productionCost = totalRaw + totalLabor;
+      document.getElementById('sheetContent').dataset.productionCost = productionCost;
+    }
+    
+    // Gera a ficha técnica com base nas informações inseridas
+    function generateSheet() {
+      updateSummary();
+      const productName = document.getElementById('productName').value || 'Produto Sem Nome';
+      const profitMargin = parseFloat(document.getElementById('profitMargin').value) || 0;
+      const productionCost = parseFloat(document.getElementById('sheetContent').dataset.productionCost) || 0;
+      
+      // Fórmula do preço: Custo Total / (1 - Margem de lucro)
+      let salePrice = 0;
+      if (profitMargin < 100) {
+        salePrice = productionCost / (1 - (profitMargin / 100));
+      } else {
+        salePrice = productionCost; // Evita divisão por zero se a margem for 100%
+      }
+      
+      let contentHTML = '';
+      contentHTML += '<p><strong>Nome do Produto:</strong> ' + productName + '</p>';
+      contentHTML += '<p><strong>Custo de Produção:</strong> ' + formatCurrency(productionCost) + '</p>';
+      contentHTML += '<p><strong>Preço de Venda:</strong> ' + formatCurrency(salePrice) + '</p>';
+      
+      // Composição do Produto
+      contentHTML += '<h3>Composição do Produto</h3>';
+      
+      // Listagem das Matérias Primas
+      contentHTML += '<h4>Matérias Primas:</h4>';
+      const rawRows = document.getElementById('rawMaterialsTable').getElementsByTagName('tbody')[0].rows;
+      if (rawRows.length > 0) {
+        contentHTML += '<ul>';
+        for (let row of rawRows) {
+          const desc = row.cells[0].querySelector('input').value || 'Sem descrição';
+          const qty = row.cells[1].querySelector('input').value || '0';
+          const unit = row.cells[2].querySelector('select').value;
+          const costUnit = parseFloat(row.cells[3].querySelector('input').value) || 0;
+          const costTotalText = row.cells[4].querySelector('span').textContent;
+          contentHTML += '<li>' + desc + ' - ' + qty + ' ' + unit + ' - Custo Unitário: ' + formatCurrency(costUnit) + ' - Total: ' + costTotalText + '</li>';
+        }
+        contentHTML += '</ul>';
+      } else {
+        contentHTML += '<p>Nenhuma matéria prima adicionada.</p>';
+      }
+      
+      // Listagem da Mão de Obra
+      contentHTML += '<h4>Mão de Obra:</h4>';
+      const laborRows = document.getElementById('laborTable').getElementsByTagName('tbody')[0].rows;
+      if (laborRows.length > 0) {
+        contentHTML += '<ul>';
+        for (let row of laborRows) {
+          const time = row.cells[0].querySelector('input').value || '0';
+          const unit = row.cells[1].querySelector('select').value;
+          const costPerUnit = parseFloat(row.cells[2].querySelector('input').value) || 0;
+          const costTotalText = row.cells[3].querySelector('span').textContent;
+          contentHTML += '<li>' + time + ' ' + unit + ' - Custo por Unidade: ' + formatCurrency(costPerUnit) + ' - Total: ' + costTotalText + '</li>';
+        }
+        contentHTML += '</ul>';
+      } else {
+        contentHTML += '<p>Nenhuma mão de obra adicionada.</p>';
+      }
+      
+      document.getElementById('sheetContent').innerHTML = contentHTML;
+      document.getElementById('technicalSheet').style.display = 'block';
+    }
+    
+    // Exporta a ficha técnica para Excel (formato CSV)
+    function exportToExcel() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Nome do Produto," + (document.getElementById('productName').value || '') + "\r\n";
+      csvContent += "Matérias Primas\r\n";
+      csvContent += "Descrição,Quantidade,Unidade,Custo Unitário,Custo Total\r\n";
+      
+      const rawRows = document.getElementById('rawMaterialsTable').getElementsByTagName('tbody')[0].rows;
+      for (let row of rawRows) {
+        const desc = row.cells[0].querySelector('input').value;
+        const qty = row.cells[1].querySelector('input').value;
+        const unit = row.cells[2].querySelector('select').value;
+        const costUnit = formatCurrency(parseFloat(row.cells[3].querySelector('input').value) || 0);
+        const costTotal = row.cells[4].querySelector('span').textContent;
+        csvContent += desc + "," + qty + "," + unit + "," + costUnit + "," + costTotal + "\r\n";
+      }
+      
+      csvContent += "\r\nMão de Obra\r\n";
+      csvContent += "Tempo Gasto,Unidade,Custo por Unidade,Custo Total\r\n";
+      
+      const laborRows = document.getElementById('laborTable').getElementsByTagName('tbody')[0].rows;
+      for (let row of laborRows) {
+        const time = row.cells[0].querySelector('input').value;
+        const unit = row.cells[1].querySelector('select').value;
+        const costPerUnit = formatCurrency(parseFloat(row.cells[2].querySelector('input').value) || 0);
+        const costTotal = row.cells[3].querySelector('span').textContent;
+        csvContent += time + "," + unit + "," + costPerUnit + "," + costTotal + "\r\n";
+      }
+      
+      const profitMargin = document.getElementById('profitMargin').value;
+      csvContent += "\r\nMargem de Lucro," + profitMargin + "\r\n";
+      
+      const productionCost = document.getElementById('sheetContent').dataset.productionCost || "0";
+      let salePrice = 0;
+      if(parseFloat(profitMargin) < 100){
+        salePrice = productionCost / (1 - (parseFloat(profitMargin) / 100));
+      } else {
+        salePrice = productionCost;
+      }
+      csvContent += "Custo de Produção," + formatCurrency(parseFloat(productionCost)) + "\r\n";
+      csvContent += "Preço de Venda," + formatCurrency(parseFloat(salePrice)) + "\r\n";
+      
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "ficha_tecnica.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // Exporta a ficha técnica para PDF usando jsPDF
+    async function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      
+      let y = 10;
+      doc.setFontSize(14);
+      doc.text("Ficha Técnica do Produto 📝", 10, y);
+      y += 10;
+      
+      const productName = document.getElementById('productName').value || 'Produto Sem Nome';
+      doc.setFontSize(12);
+      doc.text("Nome do Produto: " + productName, 10, y);
+      y += 10;
+      
+      const productionCost = parseFloat(document.getElementById('sheetContent').dataset.productionCost) || 0;
+      const profitMargin = parseFloat(document.getElementById('profitMargin').value) || 0;
+      let salePrice = 0;
+      if(profitMargin < 100){
+        salePrice = productionCost / (1 - (profitMargin/100));
+      } else {
+        salePrice = productionCost;
+      }
+      
+      doc.text("Custo de Produção: " + formatCurrency(productionCost), 10, y);
+      y += 10;
+      doc.text("Preço de Venda: " + formatCurrency(salePrice), 10, y);
+      y += 10;
+      
+      // Composição do Produto
+      doc.text("Composição do Produto:", 10, y);
+      y += 10;
+      
+      // Matérias Primas
+      doc.text("Matérias Primas:", 10, y);
+      y += 10;
+      const rawRows = document.getElementById('rawMaterialsTable').getElementsByTagName('tbody')[0].rows;
+      for (let row of rawRows) {
+        const desc = row.cells[0].querySelector('input').value || 'Sem descrição';
+        const qty = row.cells[1].querySelector('input').value || '0';
+        const unit = row.cells[2].querySelector('select').value;
+        const costUnit = formatCurrency(parseFloat(row.cells[3].querySelector('input').value) || 0);
+        const costTotal = row.cells[4].querySelector('span').textContent;
+        const line = desc + " - " + qty + " " + unit + " - Custo Unitário: " + costUnit + " - Total: " + costTotal;
+        doc.text(line, 10, y);
+        y += 10;
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      }
+      
+      // Mão de Obra
+      doc.text("Mão de Obra:", 10, y);
+      y += 10;
+      const laborRows = document.getElementById('laborTable').getElementsByTagName('tbody')[0].rows;
+      for (let row of laborRows) {
+        const time = row.cells[0].querySelector('input').value;
+        const unit = row.cells[1].querySelector('select').value;
+        const costPerUnit = formatCurrency(parseFloat(row.cells[2].querySelector('input').value) || 0);
+        const costTotal = row.cells[3].querySelector('span').textContent;
+        const line = time + " " + unit + " - Custo por Unidade: " + costPerUnit + " - Total: " + costTotal;
+        doc.text(line, 10, y);
+        y += 10;
+        if (y > 280) {
+          doc.addPage();
+          y = 10;
+        }
+      }
+      
+      doc.save("ficha_tecnica.pdf");
+    }
+  </script>
+</body>
+</html>
