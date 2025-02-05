@@ -11,6 +11,7 @@
             --fortnite-blue: #00BFFF;
             --fortnite-black: #2B2B2B;
             --fortnite-red: #FF4655;
+            --leader-color: var(--fortnite-yellow);
         }
 
         * {
@@ -64,6 +65,7 @@
             padding: 20px;
             text-align: center;
             position: relative;
+            transition: color 0.3s;
         }
 
         .leader-crown {
@@ -162,6 +164,7 @@
 
         <div class="form-container">
             <h2 style="text-align: center; margin-bottom: 15px;">➕ Adicionar Resultado</h2>
+            <input type="date" id="matchDate">
             <input type="number" id="thithizinho" placeholder="Kills Thithizinho">
             <input type="number" id="pattynha" placeholder="Kills Pattynha">
             <button onclick="saveResult()">Salvar Resultado 🚀</button>
@@ -190,33 +193,39 @@
                     if(pKills > tKills) pattynhaWins++;
                 });
 
-                // Update display
                 document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
                 document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
                 document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
                 document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
 
-                // Update leader crown
-                const crown = '👑';
-                document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(crown, ''));
-                if(thithizinhoWins > pattynhaWins) {
-                    document.querySelector('#player1 .player-name').innerHTML += crown;
-                } else if(pattynhaWins > thithizinhoWins) {
-                    document.querySelector('#player2 .player-name').innerHTML += crown;
-                }
+                highlightLeader(thithizinhoWins, pattynhaWins);
 
             } catch (error) {
                 alert('Erro ao carregar dados!');
             }
         }
 
+        function highlightLeader(thithizinhoWins, pattynhaWins) {
+            document.querySelectorAll('.total-wins').forEach(el => el.style.color = '');
+            if (thithizinhoWins > pattynhaWins) {
+                document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
+            } else if (pattynhaWins > thithizinhoWins) {
+                document.querySelector('#player2 .total-wins').style.color = 'var(--leader-color)';
+            }
+        }
+
         async function saveResult() {
             const tKills = document.getElementById('thithizinho').value;
             const pKills = document.getElementById('pattynha').value;
+            let matchDate = document.getElementById('matchDate').value;
 
-            if(!tKills || !pKills) {
+            if (!tKills || !pKills) {
                 alert('Preencha ambos os campos!');
                 return;
+            }
+
+            if (!matchDate) {
+                matchDate = new Date().toISOString().split('T')[0]; 
             }
 
             try {
@@ -224,6 +233,7 @@
                     method: "POST",
                     body: JSON.stringify({
                         data: {
+                            "Data": matchDate,
                             "Thithizinho": tKills,
                             "Pattynha": pKills
                         }
@@ -239,7 +249,6 @@
             }
         }
 
-        // Load initial data
         fetchData();
     </script>
 </body>
