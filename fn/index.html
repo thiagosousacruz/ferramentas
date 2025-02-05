@@ -228,26 +228,41 @@ function highlightLeader(thithizinhoWins, pattynhaWins) {
     }
 }
 
+async function hashCode(input) {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(input);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    return Array.from(new Uint8Array(hashBuffer))
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+}
 
-        async function saveResult() {
-            const confirmCode = document.getElementById('confirmCode').value;
-            if (confirmCode !== '1123') {
-                alert('Código de confirmação incorreto!');
-                return;
-            }
 
-            const tKills = document.getElementById('thithizinho').value;
-            const pKills = document.getElementById('pattynha').value;
-            let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
 
-            await fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
-                method: "POST",
-                body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
-            });
+async function saveResult() {
+    const inputCode = document.getElementById('confirmCode').value;
+    const storedHash = "a80665c38c405a1d872f25b14eb9b68e7b89d8bfbf0f4a69d4c73a19a0501c22"; // Hash de '1123'
 
-            alert('Resultado salvo com sucesso! 🎉');
-            fetchData();
-        }
+    const inputHash = await hashCode(inputCode);
+    
+    if (inputHash !== storedHash) {
+        alert('Código de confirmação incorreto!');
+        return;
+    }
+
+    const tKills = document.getElementById('thithizinho').value;
+    const pKills = document.getElementById('pattynha').value;
+    let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
+
+    await fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
+        method: "POST",
+        body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
+    });
+
+    alert('Resultado salvo com sucesso! 🎉');
+    fetchData();
+}
+
 
         fetchData();
     </script>
