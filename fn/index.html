@@ -206,13 +206,18 @@
         }
 
         function highlightLeader(thithizinhoWins, pattynhaWins) {
-            document.querySelectorAll('.total-wins').forEach(el => el.style.color = '');
-            if (thithizinhoWins > pattynhaWins) {
-                document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
-            } else if (pattynhaWins > thithizinhoWins) {
-                document.querySelector('#player2 .total-wins').style.color = 'var(--leader-color)';
-            }
-        }
+    document.querySelectorAll('.total-wins').forEach(el => el.style.color = '');
+    document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(' 👑', ''));
+
+    if (thithizinhoWins > pattynhaWins) {
+        document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
+        document.querySelector('#player1 .player-name').innerHTML += ' 👑';
+    } else if (pattynhaWins > thithizinhoWins) {
+        document.querySelector('#player2 .total-wins').style.color = 'var(--leader-color)';
+        document.querySelector('#player2 .player-name').innerHTML += ' 👑';
+    }
+}
+
 
         async function saveResult() {
             const tKills = document.getElementById('thithizinho').value;
