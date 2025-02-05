@@ -26,6 +26,7 @@
             min-height: 100vh;
             padding: 20px;
             color: white;
+            text-align: center;
         }
 
         .container {
@@ -33,16 +34,38 @@
             margin: 0 auto;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
         .header h1 {
             color: var(--fortnite-yellow);
             text-shadow: 2px 2px var(--fortnite-red);
             font-size: 2.5rem;
             margin-bottom: 1rem;
+        }
+
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .button-container button {
+            padding: 15px;
+            background: var(--fortnite-red);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .button-container button:hover {
+            transform: scale(1.05);
+            background: #FF1A2F;
+        }
+
+        .hidden {
+            display: none;
         }
 
         .score-board {
@@ -66,14 +89,6 @@
             text-align: center;
             position: relative;
             transition: color 0.3s;
-        }
-
-        .leader-crown {
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 2rem;
         }
 
         .player-name {
@@ -111,23 +126,6 @@
             text-align: center;
         }
 
-        button {
-            width: 100%;
-            padding: 15px;
-            background: var(--fortnite-red);
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        button:hover {
-            transform: scale(1.05);
-            background: #FF1A2F;
-        }
-
         @media (min-width: 768px) {
             .players-container {
                 flex-direction: row;
@@ -146,67 +144,79 @@
             <h1>🏆 Placar Fortnite 1x1 🎮</h1>
         </div>
 
-        <div class="score-board">
+        <div class="button-container">
+            <button onclick="showView('placar')">📊 Ver Placar</button>
+            <button onclick="showView('inserir')">✍️ Inserir Resultado</button>
+        </div>
+
+        <!-- Tela de Placar -->
+        <div id="placar" class="score-board">
             <div class="players-container">
                 <div class="player" id="player1">
-                    <div class="player-name">Thithizinho 👑</div>
+                    <div class="player-name">Thithizinho</div>
                     <div class="total-wins">0</div>
                     <div class="kills-counter">💀 Kills: 0</div>
                 </div>
 
                 <div class="player" id="player2">
-                    <div class="player-name">Pattynha 👑</div>
+                    <div class="player-name">Pattynha</div>
                     <div class="total-wins">0</div>
                     <div class="kills-counter">💀 Kills: 0</div>
                 </div>
             </div>
         </div>
 
-        <div class="form-container">
-            <h2 style="text-align: center; margin-bottom: 15px;">➕ Adicionar Resultado</h2>
+        <!-- Tela de Inserção -->
+        <div id="inserir" class="form-container hidden">
+            <h2>➕ Adicionar Resultado</h2>
             <input type="date" id="matchDate">
             <input type="number" id="thithizinho" placeholder="Kills Thithizinho">
             <input type="number" id="pattynha" placeholder="Kills Pattynha">
+            <input type="password" id="confirmCode" placeholder="Digite 1123 para confirmar">
             <button onclick="saveResult()">Salvar Resultado 🚀</button>
         </div>
     </div>
 
     <script>
-        async function fetchData() {
-            try {
-                const response = await fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/");
-                const data = await response.json();
-                
-                let thithizinhoWins = 0;
-                let pattynhaWins = 0;
-                let thithizinhoKills = 0;
-                let pattynhaKills = 0;
-
-                data.data.forEach(entry => {
-                    const tKills = parseInt(entry.Thithizinho);
-                    const pKills = parseInt(entry.Pattynha);
-                    
-                    thithizinhoKills += tKills;
-                    pattynhaKills += pKills;
-                    
-                    if(tKills > pKills) thithizinhoWins++;
-                    if(pKills > tKills) pattynhaWins++;
-                });
-
-                document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
-                document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
-                document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
-                document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
-
-                highlightLeader(thithizinhoWins, pattynhaWins);
-
-            } catch (error) {
-                alert('Erro ao carregar dados!');
-            }
+        function showView(view) {
+            document.getElementById('placar').classList.add('hidden');
+            document.getElementById('inserir').classList.add('hidden');
+            document.getElementById(view).classList.remove('hidden');
         }
 
-        function highlightLeader(thithizinhoWins, pattynhaWins) {
-    document.querySelectorAll('.total-wins').forEach(el => el.style.color = '');
+        function fetchData() {
+    fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/")
+        .then(response => response.json())
+        .then(data => {
+            let thithizinhoWins = 0;
+            let pattynhaWins = 0;
+            let thithizinhoKills = 0;
+            let pattynhaKills = 0;
+
+            data.data.forEach(entry => {
+                const tKills = parseInt(entry.Thithizinho);
+                const pKills = parseInt(entry.Pattynha);
+                
+                thithizinhoKills += tKills;
+                pattynhaKills += pKills;
+                
+                if (tKills > pKills) thithizinhoWins++;
+                if (pKills > tKills) pattynhaWins++;
+            });
+
+            document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
+            document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
+            document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
+            document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
+
+            highlightLeader(thithizinhoWins, pattynhaWins);
+        })
+        .catch(error => {
+            alert('Erro ao carregar dados!');
+        });
+}
+
+function highlightLeader(thithizinhoWins, pattynhaWins) {
     document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(' 👑', ''));
 
     if (thithizinhoWins > pattynhaWins) {
@@ -220,38 +230,23 @@
 
 
         async function saveResult() {
-            const tKills = document.getElementById('thithizinho').value;
-            const pKills = document.getElementById('pattynha').value;
-            let matchDate = document.getElementById('matchDate').value;
-
-            if (!tKills || !pKills) {
-                alert('Preencha ambos os campos!');
+            const confirmCode = document.getElementById('confirmCode').value;
+            if (confirmCode !== '1123') {
+                alert('Código de confirmação incorreto!');
                 return;
             }
 
-            if (!matchDate) {
-                matchDate = new Date().toISOString().split('T')[0]; 
-            }
+            const tKills = document.getElementById('thithizinho').value;
+            const pKills = document.getElementById('pattynha').value;
+            let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
 
-            try {
-                await fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        data: {
-                            "Data": matchDate,
-                            "Thithizinho": tKills,
-                            "Pattynha": pKills
-                        }
-                    }),
-                });
+            await fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
+                method: "POST",
+                body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
+            });
 
-                document.getElementById('thithizinho').value = '';
-                document.getElementById('pattynha').value = '';
-                fetchData();
-                alert('Resultado salvo com sucesso! 🎉');
-            } catch (error) {
-                alert('Erro ao salvar resultado!');
-            }
+            alert('Resultado salvo com sucesso! 🎉');
+            fetchData();
         }
 
         fetchData();
