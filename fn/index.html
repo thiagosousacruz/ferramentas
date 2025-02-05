@@ -172,7 +172,8 @@
             <input type="date" id="matchDate">
             <input type="number" id="thithizinho" placeholder="Kills Thithizinho">
             <input type="number" id="pattynha" placeholder="Kills Pattynha">
-            <input type="password" id="confirmCode" placeholder="Digite 1123 para confirmar">
+            <input type="password" id="confirmCode" placeholder="Insira o código de autenticação">
+
             <button onclick="saveResult()">Salvar Resultado 🚀</button>
         </div>
     </div>
@@ -241,7 +242,7 @@ async function hashCode(input) {
 
 async function saveResult() {
     const inputCode = document.getElementById('confirmCode').value;
-    const storedHash = "a80665c38c405a1d872f25b14eb9b68e7b89d8bfbf0f4a69d4c73a19a0501c22"; // Hash de '1123'
+    const storedHash = "a80665c38c405a1d872f25b14eb9b68e7b89d8bfbf0f4a69d4c73a19a0501c22"; // Hash de confirmação
 
     const inputHash = await hashCode(inputCode);
     
