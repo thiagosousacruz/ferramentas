@@ -377,7 +377,12 @@
 
             const tKills = document.getElementById('thithizinho').value;
             const pKills = document.getElementById('pattynha').value;
-            let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
+
+            // Ajuste para garantir que a data seja baseada no horário de Brasília (UTC-3)
+            let matchDateInput = document.getElementById('matchDate').value;
+            let now = new Date();
+            let nowBrasilia = new Date(now.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
+            let matchDate = matchDateInput || nowBrasilia.toISOString().split('T')[0];
 
             fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
                 method: "POST",
@@ -389,6 +394,7 @@
                 alert('Erro ao salvar resultado!');
             });
         }
+
         // Adicione os event listeners para navegação do mês
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
