@@ -242,12 +242,9 @@ async function hashCode(input) {
 
 async function saveResult() {
     const inputCode = document.getElementById('confirmCode').value;
-    const storedHash = "a80665c38c405a1d872f25b14eb9b68e7b89d8bfbf0f4a69d4c73a19a0501c22"; // Hash de confirmação
-
-    const inputHash = await hashCode(inputCode);
     
-    if (inputHash !== storedHash) {
-        alert('Código de confirmação incorreto!');
+    if (inputCode !== '1123') {
+        alert('Código de autenticação incorreto!');
         return;
     }
 
@@ -255,14 +252,17 @@ async function saveResult() {
     const pKills = document.getElementById('pattynha').value;
     let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
 
-    await fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
+    fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
         method: "POST",
         body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
+    }).then(() => {
+        alert('Resultado salvo com sucesso! 🎉');
+        fetchData();
+    }).catch(() => {
+        alert('Erro ao salvar resultado!');
     });
-
-    alert('Resultado salvo com sucesso! 🎉');
-    fetchData();
 }
+
 
 
         fetchData();
