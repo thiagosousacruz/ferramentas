@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
         :root {
             --fortnite-yellow: #FFD700;
             --fortnite-purple: #7D3CFF;
+            --fortnite-pink: #ff3df5;
             --fortnite-blue: #00BFFF;
             --fortnite-black: #2B2B2B;
             --fortnite-red: #FF4655;
@@ -73,7 +75,7 @@
             border-radius: 15px;
             padding: 20px;
             margin: 20px 0;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
         }
 
         .players-container {
@@ -131,13 +133,70 @@
                 flex-direction: row;
                 justify-content: center;
             }
-            
+
             .player {
                 width: 45%;
             }
         }
+
+        .calendar-container {
+            background: var(--fortnite-black);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            aspect-ratio: 1/1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+
+        .calendar-day.pattynha-win::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--fortnite-pink);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
+
+        .calendar-day.thithizinho-win::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--fortnite-blue);
+            border-radius: 50%;
+            opacity: 0.7;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -147,6 +206,7 @@
         <div class="button-container">
             <button onclick="showView('placar')">📊 Ver Placar</button>
             <button onclick="showView('inserir')">✍️ Inserir Resultado</button>
+            <button onclick="showView('calendario'); generateCalendar()">📅 Calendário</button>
         </div>
 
         <!-- Tela de Placar -->
@@ -176,96 +236,173 @@
 
             <button onclick="saveResult()">Salvar Resultado 🚀</button>
         </div>
+
+        <!-- Tela do Calendário -->
+        <div id="calendario" class="calendar-container hidden">
+            <div class="calendar-header">
+                <button id="prevMonth">◀</button>
+                <h2 id="currentMonth"></h2>
+                <button id="nextMonth">▶</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
     </div>
 
     <script>
         function showView(view) {
             document.getElementById('placar').classList.add('hidden');
             document.getElementById('inserir').classList.add('hidden');
+            document.getElementById('calendario').classList.add('hidden');
             document.getElementById(view).classList.remove('hidden');
         }
 
+        let currentDate = new Date();
+        let matchResults = {};
+
+        function generateCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const currentMonthElement = document.getElementById('currentMonth');
+
+            // Configurar mês atual
+            currentMonthElement.textContent = currentDate.toLocaleDateString('pt-BR', {
+                month: 'long',
+                year: 'numeric'
+            }).toUpperCase();
+
+            // Limpar calendário
+            calendarGrid.innerHTML = '';
+
+            // Criar dias do calendário
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+            // Preencher dias vazios no início
+            for (let i = 0; i < firstDay.getDay(); i++) {
+                calendarGrid.appendChild(document.createElement('div'));
+            }
+
+            // Preencher dias do mês
+            for (let day = 1; day <= lastDay.getDate(); day++) {
+                const dateStr = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+                const dayElement = document.createElement('div');
+                dayElement.className = 'calendar-day';
+                dayElement.textContent = day;
+
+                if (matchResults[dateStr]) {
+                    dayElement.classList.add(matchResults[dateStr].winner + '-win');
+                }
+
+                calendarGrid.appendChild(dayElement);
+            }
+        }
+
         function fetchData() {
-    fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/")
-        .then(response => response.json())
-        .then(data => {
-            let thithizinhoWins = 0;
-            let pattynhaWins = 0;
-            let thithizinhoKills = 0;
-            let pattynhaKills = 0;
 
-            data.data.forEach(entry => {
-                const tKills = parseInt(entry.Thithizinho);
-                const pKills = parseInt(entry.Pattynha);
-                
-                thithizinhoKills += tKills;
-                pattynhaKills += pKills;
-                
-                if (tKills > pKills) thithizinhoWins++;
-                if (pKills > tKills) pattynhaWins++;
+
+            fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/")
+                .then(response => response.json())
+                .then(data => {
+                    let thithizinhoWins = 0;
+                    let pattynhaWins = 0;
+                    let thithizinhoKills = 0;
+                    let pattynhaKills = 0;
+                    matchResults = {};
+                    data.data.forEach(entry => {
+                        const tKills = parseInt(entry.Thithizinho);
+                        const pKills = parseInt(entry.Pattynha);
+                        const winner = tKills > pKills ? 'thithizinho' : pKills > tKills ? 'pattynha' : null;
+
+                        if (winner) {
+                            matchResults[entry.Data] = { winner };
+                        }
+                    });
+
+                    data.data.forEach(entry => {
+                        const tKills = parseInt(entry.Thithizinho);
+                        const pKills = parseInt(entry.Pattynha);
+
+                        thithizinhoKills += tKills;
+                        pattynhaKills += pKills;
+
+                        if (tKills > pKills) thithizinhoWins++;
+                        if (pKills > tKills) pattynhaWins++;
+                    });
+
+                    document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
+                    document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
+                    document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
+                    document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
+
+                    highlightLeader(thithizinhoWins, pattynhaWins);
+                    generateCalendar();
+                })
+
+                .catch(error => {
+                    alert('Erro ao carregar dados!');
+                });
+
+        }
+
+        function highlightLeader(thithizinhoWins, pattynhaWins) {
+            document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(' 👑', ''));
+
+            if (thithizinhoWins > pattynhaWins) {
+                document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
+                document.querySelector('#player1 .player-name').innerHTML += ' 👑';
+            } else if (pattynhaWins > thithizinhoWins) {
+                document.querySelector('#player2 .total-wins').style.color = 'var(--leader-color)';
+                document.querySelector('#player2 .player-name').innerHTML += ' 👑';
+            }
+        }
+
+        async function hashCode(input) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(input);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            return Array.from(new Uint8Array(hashBuffer))
+                .map(byte => byte.toString(16).padStart(2, '0'))
+                .join('');
+        }
+
+
+
+        async function saveResult() {
+            const inputCode = document.getElementById('confirmCode').value;
+
+            if (inputCode !== '1123') {
+                alert('Código de autenticação incorreto!');
+                return;
+            }
+
+            const tKills = document.getElementById('thithizinho').value;
+            const pKills = document.getElementById('pattynha').value;
+            let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
+
+            fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
+                method: "POST",
+                body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
+            }).then(() => {
+                alert('Resultado salvo com sucesso! 🎉');
+                fetchData();
+            }).catch(() => {
+                alert('Erro ao salvar resultado!');
             });
-
-            document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
-            document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
-            document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
-            document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
-
-            highlightLeader(thithizinhoWins, pattynhaWins);
-        })
-        .catch(error => {
-            alert('Erro ao carregar dados!');
+        }
+        // Adicione os event listeners para navegação do mês
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() - 1);
+            generateCalendar();
         });
-}
 
-function highlightLeader(thithizinhoWins, pattynhaWins) {
-    document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(' 👑', ''));
-
-    if (thithizinhoWins > pattynhaWins) {
-        document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
-        document.querySelector('#player1 .player-name').innerHTML += ' 👑';
-    } else if (pattynhaWins > thithizinhoWins) {
-        document.querySelector('#player2 .total-wins').style.color = 'var(--leader-color)';
-        document.querySelector('#player2 .player-name').innerHTML += ' 👑';
-    }
-}
-
-async function hashCode(input) {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(input);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hashBuffer))
-        .map(byte => byte.toString(16).padStart(2, '0'))
-        .join('');
-}
-
-
-
-async function saveResult() {
-    const inputCode = document.getElementById('confirmCode').value;
-    
-    if (inputCode !== '1123') {
-        alert('Código de autenticação incorreto!');
-        return;
-    }
-
-    const tKills = document.getElementById('thithizinho').value;
-    const pKills = document.getElementById('pattynha').value;
-    let matchDate = document.getElementById('matchDate').value || new Date().toISOString().split('T')[0];
-
-    fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
-        method: "POST",
-        body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
-    }).then(() => {
-        alert('Resultado salvo com sucesso! 🎉');
-        fetchData();
-    }).catch(() => {
-        alert('Erro ao salvar resultado!');
-    });
-}
-
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentDate.setMonth(currentDate.getMonth() + 1);
+            generateCalendar();
+        });
 
 
         fetchData();
     </script>
 </body>
+
 </html>
