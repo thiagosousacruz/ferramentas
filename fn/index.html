@@ -209,7 +209,6 @@
             <button onclick="showView('calendario'); generateCalendar()">📅 Calendário</button>
         </div>
 
-        <!-- Tela de Placar -->
         <div id="placar" class="score-board">
             <div class="players-container">
                 <div class="player" id="player1">
@@ -226,7 +225,6 @@
             </div>
         </div>
 
-        <!-- Tela de Inserção -->
         <div id="inserir" class="form-container hidden">
             <h2>➕ Adicionar Resultado</h2>
             <input type="date" id="matchDate">
@@ -237,7 +235,6 @@
             <button onclick="saveResult()">Salvar Resultado 🚀</button>
         </div>
 
-        <!-- Tela do Calendário -->
         <div id="calendario" class="calendar-container hidden">
             <div class="calendar-header">
                 <button id="prevMonth">◀</button>
@@ -246,106 +243,142 @@
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
         </div>
-
     </div>
 
     <script>
         function showView(view) {
-            document.getElementById('placar').classList.add('hidden');
-            document.getElementById('inserir').classList.add('hidden');
-            document.getElementById('calendario').classList.add('hidden');
-            document.getElementById(view).classList.remove('hidden');
+            ['placar', 'inserir', 'calendario'].forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', id !== view);
+            });
         }
 
         let currentDate = new Date();
         let matchResults = {};
 
         function generateCalendar() {
-            const calendarGrid = document.getElementById('calendarGrid');
-            const currentMonthElement = document.getElementById('currentMonth');
+    const calendarGrid = document.getElementById('calendarGrid');
+    const currentMonthElement = document.getElementById('currentMonth');
 
-            // Configurar mês atual
-            currentMonthElement.textContent = currentDate.toLocaleDateString('pt-BR', {
-                month: 'long',
-                year: 'numeric'
-            }).toUpperCase();
+    currentMonthElement.textContent = currentDate.toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric'
+    }).toUpperCase();
 
-            // Limpar calendário
-            calendarGrid.innerHTML = '';
+    calendarGrid.innerHTML = '';
 
-            // Criar dias do calendário
-            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
-            // Preencher dias vazios no início
-            for (let i = 0; i < firstDay.getDay(); i++) {
-                calendarGrid.appendChild(document.createElement('div'));
+    // Adiciona os espaços vazios para os dias antes do primeiro dia do mês
+    for (let i = 0; i < firstDay.getDay(); i++) {
+        calendarGrid.appendChild(document.createElement('div'));
+    }
+
+    console.log('Current Month/Year:', currentDate.getFullYear(), currentDate.getMonth() + 1);
+    console.log('Match Results:', matchResults);
+
+    for (let day = 1; day <= lastDay.getDate(); day++) {
+        // Formata a data no mesmo formato que está no matchResults
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const formattedDay = String(day).padStart(2, '0');
+        const dateStr = `${currentDate.getFullYear()}-${month}-${formattedDay}`;
+
+        const dayElement = document.createElement('div');
+        dayElement.className = 'calendar-day';
+        dayElement.textContent = day;
+
+        // Debug para verificar a correspondência de datas
+        console.log(`Checking formatted date: ${dateStr}`);
+        if (matchResults[dateStr]) {
+            console.log(`Found match for ${dateStr}:`, matchResults[dateStr]);
+            dayElement.classList.add(matchResults[dateStr].winner + '-win');
+        }
+
+        calendarGrid.appendChild(dayElement);
+    }
+}
+
+function formatDateForComparison(dateStr) {
+    // A data vem no formato "YYYY-DD-MMT03:00:00.000Z"
+    const date = new Date(dateStr);
+    
+    // Extrair os componentes da data original
+    const originalParts = dateStr.split('T')[0].split('-');
+    const year = originalParts[0];
+    const day = originalParts[1];   // Estava como mês, mas é dia
+    const month = originalParts[2]; // Estava como dia, mas é mês
+    
+    // Retornar no formato correto YYYY-MM-DD
+    return `${year}-${month}-${day}`;
+}
+
+function fetchData() {
+    fetch("https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec?method=GET")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados recebidos da API:', data);
+
+            let thithizinhoWins = 0;
+            let pattynhaWins = 0;
+            let thithizinhoKills = 0;
+            let pattynhaKills = 0;
+            matchResults = {};
+
+            if (!data || !Array.isArray(data)) {
+                throw new Error('Dados inválidos ou vazios');
             }
 
-            // Preencher dias do mês
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const dateStr = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.textContent = day;
-
-                if (matchResults[dateStr]) {
-                    dayElement.classList.add(matchResults[dateStr].winner + '-win');
+            data.forEach(entry => {
+                if (!entry || !entry.Data || !entry.Thithizinho || !entry.Pattynha) {
+                    console.warn('Entrada inválida ignorada:', entry);
+                    return;
                 }
 
-                calendarGrid.appendChild(dayElement);
-            }
-        }
+                const tKills = parseInt(entry.Thithizinho);
+                const pKills = parseInt(entry.Pattynha);
+                const winner = tKills > pKills ? 'thithizinho' :
+                    pKills > tKills ? 'pattynha' : null;
 
-        function fetchData() {
+                // Usar a nova função de formatação que corrige a inversão mês/dia
+                const formattedDate = formatDateForComparison(entry.Data);
+                
+                console.log('Original date:', entry.Data, 'Formatted date:', formattedDate); // Debug log
 
+                if (winner) {
+                    matchResults[formattedDate] = { winner };
+                }
 
-            fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/")
-                .then(response => response.json())
-                .then(data => {
-                    let thithizinhoWins = 0;
-                    let pattynhaWins = 0;
-                    let thithizinhoKills = 0;
-                    let pattynhaKills = 0;
-                    matchResults = {};
-                    data.data.forEach(entry => {
-                        const tKills = parseInt(entry.Thithizinho);
-                        const pKills = parseInt(entry.Pattynha);
-                        const winner = tKills > pKills ? 'thithizinho' : pKills > tKills ? 'pattynha' : null;
+                thithizinhoKills += tKills;
+                pattynhaKills += pKills;
 
-                        if (winner) {
-                            matchResults[entry.Data] = { winner };
-                        }
-                    });
+                if (tKills > pKills) thithizinhoWins++;
+                if (pKills > tKills) pattynhaWins++;
+            });
 
-                    data.data.forEach(entry => {
-                        const tKills = parseInt(entry.Thithizinho);
-                        const pKills = parseInt(entry.Pattynha);
+            document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
+            document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
+            document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
+            document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
 
-                        thithizinhoKills += tKills;
-                        pattynhaKills += pKills;
+            console.log('Processed match results:', matchResults);
 
-                        if (tKills > pKills) thithizinhoWins++;
-                        if (pKills > tKills) pattynhaWins++;
-                    });
-
-                    document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
-                    document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
-                    document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
-                    document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
-
-                    highlightLeader(thithizinhoWins, pattynhaWins);
-                    generateCalendar();
-                })
-
-                .catch(error => {
-                    alert('Erro ao carregar dados!');
-                });
-
-        }
+            highlightLeader(thithizinhoWins, pattynhaWins);
+            generateCalendar();
+        })
+        .catch(error => {
+            console.error('Erro completo:', error);
+            alert('Erro ao carregar dados: ' + error.message);
+        });
+}
 
         function highlightLeader(thithizinhoWins, pattynhaWins) {
             document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(' 👑', ''));
+            document.querySelectorAll('.total-wins').forEach(el => el.style.color = '');
 
             if (thithizinhoWins > pattynhaWins) {
                 document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
@@ -356,17 +389,6 @@
             }
         }
 
-        async function hashCode(input) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(input);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            return Array.from(new Uint8Array(hashBuffer))
-                .map(byte => byte.toString(16).padStart(2, '0'))
-                .join('');
-        }
-
-
-
         async function saveResult() {
             const inputCode = document.getElementById('confirmCode').value;
 
@@ -375,18 +397,43 @@
                 return;
             }
 
-            const tKills = document.getElementById('thithizinho').value;
-            const pKills = document.getElementById('pattynha').value;
+            const tKills = document.getElementById('thithizinho').value || '0';
+            const pKills = document.getElementById('pattynha').value || '0';
 
-            // Ajuste para garantir que a data seja baseada no horário de Brasília (UTC-3)
             let matchDateInput = document.getElementById('matchDate').value;
-            let now = new Date();
-            let nowBrasilia = new Date(now.toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
-            let matchDate = matchDateInput || nowBrasilia.toISOString().split('T')[0];
 
-            fetch("https://api.apispreadsheets.com/data/MUynugNkZUr1aOhu/", {
-                method: "POST",
-                body: JSON.stringify({ data: { "Data": matchDate, "Thithizinho": tKills, "Pattynha": pKills } })
+            // Create date in Brasilia time zone explicitly
+            let matchDate;
+            if (matchDateInput) {
+                // Split the input date and create a new Date object
+                const [year, month, day] = matchDateInput.split('-');
+                matchDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+            } else {
+                matchDate = new Date();
+            }
+
+            // Format date to dd/mm/yyyy 00:00:00
+            let formattedDateString = [
+                matchDate.getUTCDate().toString().padStart(2, '0'),
+                (matchDate.getUTCMonth() + 1).toString().padStart(2, '0'),
+                matchDate.getUTCFullYear()
+            ].join('/') + ' 00:00:00';
+
+            const requestBody = {
+                method: 'POST',
+                Data: formattedDateString,
+                Pattynha: pKills,
+                Thithizinho: tKills
+            };
+
+            console.log('Enviando dados para a API:', requestBody);
+
+            fetch('https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `method=POST&data=${encodeURIComponent(JSON.stringify(requestBody))}`
             }).then(() => {
                 alert('Resultado salvo com sucesso! 🎉');
                 fetchData();
@@ -395,7 +442,6 @@
             });
         }
 
-        // Adicione os event listeners para navegação do mês
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
             generateCalendar();
@@ -405,7 +451,6 @@
             currentDate.setMonth(currentDate.getMonth() + 1);
             generateCalendar();
         });
-
 
         fetchData();
     </script>
