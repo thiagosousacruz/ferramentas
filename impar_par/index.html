@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Par ou Ímpar</title>
+    <style>
+        :root {
+            --cor-fundo: #f9fafb;
+            --cor-texto: #333333;
+            --cor-botao: #007BFF;
+            --cor-botao-hover: #0056b3;
+            --cor-titulo: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: var(--cor-titulo);
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2.5em;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1.2em;
+        }
+
+        button {
+            background-color: var(--cor-botao);
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.5em;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--cor-botao-hover);
+        }
+
+        .result {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .hands {
+            display: none;
+            justify-content: center;
+            gap: 40px;
+            margin: 30px 0;
+        }
+
+        .hand-image {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            transition: transform 0.5s ease;
+        }
+
+        @media (min-width: 768px) {
+            .container {
+                max-width: 1000px;
+            }
+
+            .hands {
+                flex-direction: row;
+            }
+            
+            .hand-image.left {
+                transform: rotate(90deg);
+            }
+            
+            .hand-image.right {
+                transform: rotate(-90deg);
+            }
+
+            .hand-image {
+                width: 300px;
+                height: 300px;
+            }
+
+            input {
+                font-size: 1.5em;
+                padding: 20px;
+            }
+
+            .result {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .hands {
+                flex-direction: column;
+            }
+            
+            .hand-image.left {
+                transform: rotate(180deg);
+            }
+            
+            .hand-image.right {
+                transform: rotate(0deg);
+            }
+        }
+
+        .show {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Par ou Ímpar 🎲</h1>
+        
+        <div class="input-group">
+            <input type="text" id="optionEven" placeholder="Digite a opção PAR">
+            <input type="text" id="optionOdd" placeholder="Digite a opção ÍMPAR">
+        </div>
+        
+        <button onclick="playGame()">Tirar!</button>
+        
+        <div class="hands" id="handsContainer">
+            <img src="/api/placeholder/300/300" alt="Mão esquerda" class="hand-image left" id="leftHand">
+            <img src="/api/placeholder/300/300" alt="Mão direita" class="hand-image right" id="rightHand">
+        </div>
+        
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function playGame() {
+            const optionEven = document.getElementById('optionEven').value || 'Par';
+            const optionOdd = document.getElementById('optionOdd').value || 'Ímpar';
+            
+            const number1 = Math.floor(Math.random() * 6);
+            const number2 = Math.floor(Math.random() * 6);
+            const sum = number1 + number2;
+            
+            const handsContainer = document.getElementById('handsContainer');
+            const leftHand = document.getElementById('leftHand');
+            const rightHand = document.getElementById('rightHand');
+            const result = document.getElementById('result');
+            
+            leftHand.src = `assets/${number1}.png`;
+            rightHand.src = `assets/${number2}.png`;
+            
+            const isEven = sum % 2 === 0;
+            const winner = isEven ? optionEven : optionOdd;
+            
+            // Mostrar as mãos
+            handsContainer.classList.add('show');
+            
+            result.innerHTML = `
+                <p>A soma é ${sum} (${isEven ? 'PAR' : 'ÍMPAR'})</p>
+                <p>🎉 <strong>${winner}</strong> venceu! 🎉</p>
+            `;
+        }
+    </script>
+</body>
+</html>
