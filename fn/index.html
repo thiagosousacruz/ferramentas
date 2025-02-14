@@ -299,17 +299,9 @@
 }
 
 function formatDateForComparison(dateStr) {
-    // A data vem no formato "YYYY-DD-MMT03:00:00.000Z"
+    // Handle ISO date string
     const date = new Date(dateStr);
-    
-    // Extrair os componentes da data original
-    const originalParts = dateStr.split('T')[0].split('-');
-    const year = originalParts[0];
-    const day = originalParts[1];   // Estava como mês, mas é dia
-    const month = originalParts[2]; // Estava como dia, mas é mês
-    
-    // Retornar no formato correto YYYY-MM-DD
-    return `${year}-${month}-${day}`;
+    return date.toISOString().split('T')[0];
 }
 
 function fetchData() {
@@ -344,11 +336,9 @@ function fetchData() {
                 const winner = tKills > pKills ? 'thithizinho' :
                     pKills > tKills ? 'pattynha' : null;
 
-                // Usar a nova função de formatação que corrige a inversão mês/dia
+                // Format date for calendar
                 const formattedDate = formatDateForComparison(entry.Data);
                 
-                console.log('Original date:', entry.Data, 'Formatted date:', formattedDate); // Debug log
-
                 if (winner) {
                     matchResults[formattedDate] = { winner };
                 }
@@ -390,58 +380,50 @@ function fetchData() {
         }
 
         async function saveResult() {
-            const inputCode = document.getElementById('confirmCode').value;
+    const inputCode = document.getElementById('confirmCode').value;
 
-            if (inputCode !== '1123') {
-                alert('Código de autenticação incorreto!');
-                return;
-            }
+    if (inputCode !== '1123') {
+        alert('Código de autenticação incorreto!');
+        return;
+    }
 
-            const tKills = document.getElementById('thithizinho').value || '0';
-            const pKills = document.getElementById('pattynha').value || '0';
+    const tKills = document.getElementById('thithizinho').value || '0';
+    const pKills = document.getElementById('pattynha').value || '0';
+    const matchDateInput = document.getElementById('matchDate').value;
 
-            let matchDateInput = document.getElementById('matchDate').value;
+    // Ensure we're working with a valid date
+    let matchDate;
+    if (matchDateInput) {
+        matchDate = new Date(matchDateInput + 'T00:00:00-03:00'); // Force Brasilia timezone
+    } else {
+        matchDate = new Date();
+    }
 
-            // Create date in Brasilia time zone explicitly
-            let matchDate;
-            if (matchDateInput) {
-                // Split the input date and create a new Date object
-                const [year, month, day] = matchDateInput.split('-');
-                matchDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
-            } else {
-                matchDate = new Date();
-            }
+    // Format date as YYYY-MM-DD HH:mm:ss
+    const formattedDateString = matchDate.toISOString().split('T')[0] + ' 00:00:00';
 
-            // Format date to dd/mm/yyyy 00:00:00
-            let formattedDateString = [
-                matchDate.getUTCDate().toString().padStart(2, '0'),
-                (matchDate.getUTCMonth() + 1).toString().padStart(2, '0'),
-                matchDate.getUTCFullYear()
-            ].join('/') + ' 00:00:00';
+    const requestBody = {
+        method: 'POST',
+        Data: formattedDateString,
+        Pattynha: pKills,
+        Thithizinho: tKills
+    };
 
-            const requestBody = {
-                method: 'POST',
-                Data: formattedDateString,
-                Pattynha: pKills,
-                Thithizinho: tKills
-            };
+    console.log('Enviando dados para a API:', requestBody);
 
-            console.log('Enviando dados para a API:', requestBody);
-
-            fetch('https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `method=POST&data=${encodeURIComponent(JSON.stringify(requestBody))}`
-            }).then(() => {
-                alert('Resultado salvo com sucesso! 🎉');
-                fetchData();
-            }).catch(() => {
-                alert('Erro ao salvar resultado!');
-            });
-        }
-
+    fetch('https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: `method=POST&data=${encodeURIComponent(JSON.stringify(requestBody))}`
+    }).then(() => {
+        alert('Resultado salvo com sucesso! 🎉');
+        fetchData();
+    }).catch(() => {
+        alert('Erro ao salvar resultado!');
+    });
+}
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentDate.setMonth(currentDate.getMonth() - 1);
             generateCalendar();
