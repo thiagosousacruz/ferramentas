@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acompanhamento Gestacional</title>
+  <style>
+    :root {
+      --primary-color: #9a8c98;
+      --secondary-color: #c9ada7;
+      --background-color: #f2e9e4;
+      --text-color: #4a4e69;
+      --accent-color: #22223b;
+    }
+    
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-color);
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    h1, h2 {
+      margin: 0;
+    }
+    
+    .subtitle {
+      font-weight: normal;
+      margin-top: 0.5rem;
+    }
+    
+    .calendar-container {
+      margin-top: 2rem;
+    }
+    
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    
+    .year-selector {
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--primary-color);
+    }
+    
+    .calendar {
+      display: grid;
+      grid-template-columns: 1fr; /* Mobile first: 1 mês por linha */
+      gap: 1rem;
+    }
+    
+    .month {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+    
+    .month-header {
+      text-align: center;
+      margin-bottom: 0.5rem;
+      color: var(--accent-color);
+      font-size: 1.2rem;
+    }
+    
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-weight: bold;
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+    
+    .day {
+      aspect-ratio: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      font-size: 0.9rem;
+      border-radius: 4px;
+    }
+    
+    .day.empty {
+      background-color: transparent;
+    }
+    
+    .day-number {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      font-size: 0.8rem;
+    }
+    
+    .pregnancy-week {
+      font-size: 0.8rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    .current-day {
+      background-color: var(--secondary-color);
+      border-radius: 50%;
+      color: white;
+    }
+    
+    .pregnancy {
+      background-color: rgba(201, 173, 167, 0.3);
+      border-radius: 4px;
+    }
+    
+    footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: var(--primary-color);
+      color: white;
+    }
+    
+    /* Tablet */
+    @media (min-width: 768px) {
+      .calendar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .month-header {
+        font-size: 1.3rem;
+      }
+      
+      .day-number {
+        font-size: 0.9rem;
+      }
+      
+      .pregnancy-week {
+        font-size: 0.9rem;
+      }
+    }
+    
+    /* Desktop */
+    @media (min-width: 1024px) {
+      .calendar {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .month-header {
+        font-size: 1.4rem;
+      }
+      
+      .day {
+        font-size: 1rem;
+      }
+      
+      .day-number {
+        font-size: 1rem;
+      }
+      
+      .pregnancy-week {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Acompanhamento Gestacional</h1>
+    <p class="subtitle">Uma jornada especial descoberta em 17/02/2025</p>
+  </header>
+  
+  <div class="container">
+    <div class="calendar-container">
+      <div class="calendar-header">
+        <h2>Calendário <span id="year-display">2025</span></h2>
+        <select id="year-selector" class="year-selector">
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+      </div>
+      
+      <div id="calendar" class="calendar">
+        <!-- Meses serão inseridos aqui via JavaScript -->
+      </div>
+    </div>
+  </div>
+  
+  <footer>
+    <p>Desenvolvido com amor ❤️</p>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Data de início da gestação
+      const startDate = new Date(2025, 0, 21); // 21/01/2025 (mês é 0-indexed)
+      
+      // Configurar o seletor de ano
+      const yearSelector = document.getElementById('year-selector');
+      const yearDisplay = document.getElementById('year-display');
+      
+      yearSelector.addEventListener('change', function() {
+        const selectedYear = parseInt(this.value);
+        yearDisplay.textContent = selectedYear;
+        renderCalendar(selectedYear);
+      });
+      
+      // Renderizar o calendário inicial
+      renderCalendar(2025);
+      
+      function renderCalendar(year) {
+        const calendarContainer = document.getElementById('calendar');
+        calendarContainer.innerHTML = '';
+        
+        const currentDate = new Date();
+        
+        // Criar cada mês
+        for (let month = 0; month < 12; month++) {
+          const monthElement = document.createElement('div');
+          monthElement.className = 'month';
+          
+          // Cabeçalho do mês
+          const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
+                             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+          const monthHeader = document.createElement('div');
+          monthHeader.className = 'month-header';
+          monthHeader.textContent = monthNames[month];
+          monthElement.appendChild(monthHeader);
+          
+          // Dias da semana
+          const weekdaysElement = document.createElement('div');
+          weekdaysElement.className = 'weekdays';
+          const weekdays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+          weekdays.forEach(day => {
+            const dayElement = document.createElement('div');
+            dayElement.textContent = day;
+            weekdaysElement.appendChild(dayElement);
+          });
+          monthElement.appendChild(weekdaysElement);
+          
+          // Dias do mês
+          const daysElement = document.createElement('div');
+          daysElement.className = 'days';
+          
+          // Obter o primeiro dia do mês
+          const firstDay = new Date(year, month, 1);
+          const lastDay = new Date(year, month + 1, 0);
+          
+          // Adicionar dias vazios antes do primeiro dia
+          for (let i = 0; i < firstDay.getDay(); i++) {
+            const emptyDay = document.createElement('div');
+            emptyDay.className = 'day empty';
+            daysElement.appendChild(emptyDay);
+          }
+          
+          // Adicionar dias do mês
+          for (let day = 1; day <= lastDay.getDate(); day++) {
+            const date = new Date(year, month, day);
+            const dayElement = document.createElement('div');
+            dayElement.className = 'day';
+            
+            // Número do dia
+            const dayNumber = document.createElement('span');
+            dayNumber.className = 'day-number';
+            dayNumber.textContent = day;
+            dayElement.appendChild(dayNumber);
+            
+            // Verificar se é depois da data de início da gestação + 7 dias (semana 0)
+            const sevenDaysAfterStart = new Date(startDate);
+            sevenDaysAfterStart.setDate(startDate.getDate() + 7);
+            
+            if (date >= sevenDaysAfterStart) {
+              // Calcular semana de gestação (considerando que semana 1 começa após 7 dias do início)
+              const diffTime = Math.abs(date - startDate);
+              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+              const weekNum = Math.floor(diffDays / 7);  // Agora começa do 1, não do 0
+              
+              if (weekNum <= 42 && weekNum >= 1) { // 42 semanas é considerado o máximo da gestação
+                dayElement.classList.add('pregnancy');
+                
+                // Adicionar número da semana
+                const weekElement = document.createElement('span');
+                weekElement.className = 'pregnancy-week';
+                weekElement.textContent = weekNum;
+                dayElement.appendChild(weekElement);
+              }
+            } else if (date >= startDate && date < sevenDaysAfterStart) {
+              // Semana 0 - apenas destacar sem mostrar o número
+              dayElement.classList.add('pregnancy');
+            }
+            
+            // Verificar se é o dia atual
+            if (date.getDate() === currentDate.getDate() && 
+                date.getMonth() === currentDate.getMonth() && 
+                date.getFullYear() === currentDate.getFullYear()) {
+              dayElement.classList.add('current-day');
+            }
+            
+            daysElement.appendChild(dayElement);
+          }
+          
+          monthElement.appendChild(daysElement);
+          calendarContainer.appendChild(monthElement);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
