@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤰🏽Nossa Jornada de Gravidez 💕</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --cor-fundo: #f9fafb;
+            --cor-texto: #333333;
+            --cor-botao: #007BFF;
+            --cor-botao-hover: #0056b3;
+            --cor-titulo: #2c3e50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .title {
+            color: var(--cor-titulo);
+            margin-bottom: 30px;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .link-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            background-color: var(--cor-botao);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        .link-button:hover {
+            background-color: var(--cor-botao-hover);
+        }
+
+        .link-button .emoji {
+            margin-right: 10px;
+        }
+
+        .copy-icon {
+            cursor: pointer;
+            color: white;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-icon:hover {
+            opacity: 1;
+        }
+
+        .tooltip {
+            visibility: hidden;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .link-button:hover .tooltip {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">
+            <span>🤰🏽Nossa Jornada 💕</span>
+        </h1>
+
+        <div class="links">
+            <a href="https://danteoulara.glitch.me/" target="_blank" class="link-button" data-link="https://danteoulara.glitch.me/">
+                <span class="emoji">🍼</span>
+                Contador de Revelação
+                <i class="fas fa-copy copy-icon" onclick="copyLink(event, 'https://danteoulara.glitch.me/')"></i>
+                <span class="tooltip">Copiar link</span>
+            </a>
+
+            <a href="https://thiagosousacruz.github.io/ferramentas/gestacao/" target="_blank" class="link-button" data-link="https://thiagosousacruz.github.io/ferramentas/gestacao/">
+                <span class="emoji">📆</span>
+                Calendário Anual
+                <i class="fas fa-copy copy-icon" onclick="copyLink(event, 'https://thiagosousacruz.github.io/ferramentas/gestacao/')"></i>
+                <span class="tooltip">Copiar link</span>
+            </a>
+
+            <a href="https://bebepaivacruz.glitch.me" target="_blank" class="link-button" data-link="https://bebepaivacruz.glitch.me">
+                <span class="emoji">🤰🏽</span>
+                Acompanhamento Gestacional
+                <i class="fas fa-copy copy-icon" onclick="copyLink(event, 'https://bebepaivacruz.glitch.me')"></i>
+                <span class="tooltip">Copiar link</span>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function copyLink(event, link) {
+            event.preventDefault();
+            
+            // Cria um elemento temporário para copiar o link
+            const tempInput = document.createElement('input');
+            tempInput.value = link;
+            document.body.appendChild(tempInput);
+            
+            // Seleciona e copia o link
+            tempInput.select();
+            document.execCommand('copy');
+            
+            // Remove o elemento temporário
+            document.body.removeChild(tempInput);
+            
+            // Atualiza o tooltip
+            const tooltip = event.target.nextElementSibling;
+            tooltip.textContent = 'Copiado!';
+            
+            // Retorna ao texto original após 2 segundos
+            setTimeout(() => {
+                tooltip.textContent = 'Copiar link';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
