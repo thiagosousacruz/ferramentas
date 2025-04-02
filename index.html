@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#007BFF">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="/ferramentas/manifest.json">
+<meta name="theme-color" content="#007BFF">
+<link rel="apple-touch-icon" href="/ferramentas/icons/icon-192x192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>🛠️ Ferramentas Práticas 🛠️</title>
   <style>
     /* Reset básico para evitar inconsistências entre navegadores */
@@ -132,7 +132,9 @@
     // Adicione ao seu script existente
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/ferramentas/sw.js')
+        navigator.serviceWorker.register('/ferramentas/sw.js', {
+          scope: '/ferramentas/'
+        })
           .then(registration => {
             console.log('Service Worker registrado com sucesso:', registration.scope);
           })

@@ -1,12 +1,12 @@
 // sw.js
 const CACHE_NAME = 'ferramentas-praticas-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/fipe/fipe.html',
-  '/comparador.html',
-  '/regra.html',
-  '/taco/taco.html',
+  '/ferramentas/',
+  '/ferramentas/index.html',
+  '/ferramentas/fipe/fipe.html',
+  '/ferramentas/comparador.html',
+  '/ferramentas/regra.html',
+  '/ferramentas/taco/taco.html',
   // Adicione outros recursos que deseja armazenar em cache
 ];
 
