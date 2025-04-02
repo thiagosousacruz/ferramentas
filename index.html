@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#007BFF">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>🛠️ Ferramentas Práticas 🛠️</title>
   <style>
     /* Reset básico para evitar inconsistências entre navegadores */
-    *, *::before, *::after {
+    *,
+    *::before,
+    *::after {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
@@ -14,11 +22,16 @@
 
     /* Paleta de cores e variáveis de espaçamento */
     :root {
-      --cor-fundo: #f9fafb; /* Fundo claro e neutro */
-      --cor-texto: #333333; /* Texto escuro */
-      --cor-botao: #007BFF; /* Azul para botões */
-      --cor-botao-hover: #0056b3; /* Azul mais escuro no hover */
-      --cor-titulo: #2c3e50; /* Azul escuro para o título */
+      --cor-fundo: #f9fafb;
+      /* Fundo claro e neutro */
+      --cor-texto: #333333;
+      /* Texto escuro */
+      --cor-botao: #007BFF;
+      /* Azul para botões */
+      --cor-botao-hover: #0056b3;
+      /* Azul mais escuro no hover */
+      --cor-titulo: #2c3e50;
+      /* Azul escuro para o título */
       --espacamento: 1rem;
     }
 
@@ -87,6 +100,7 @@
       h1 {
         font-size: 2.5rem;
       }
+
       .botao {
         font-size: 1.2rem;
         padding: 1rem;
@@ -94,6 +108,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>🛠️ Ferramentas Práticas 🛠️</h1>
@@ -105,7 +120,7 @@
     <a href="fipe/fipe.html" class="botao">🚗 Consulta FIPE</a>
     <a href="impar_par/index.html" class="botao">🎲 Tirar Par ou Ímpar</a>
     <a href="regra.html" class="botao">📐 Regra de Três</a>
-    
+
   </div>
 
   <script>
@@ -113,6 +128,20 @@
     document.addEventListener('DOMContentLoaded', () => {
       console.log('Página carregada com sucesso!');
     });
+
+    // Adicione ao seu script existente
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado com sucesso:', registration.scope);
+          })
+          .catch(error => {
+            console.log('Falha ao registrar o Service Worker:', error);
+          });
+      });
+    }
   </script>
 </body>
+
 </html>
