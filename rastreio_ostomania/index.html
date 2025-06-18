@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Rastreio WhatsApp</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .form-container {
+            padding: 30px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .generate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+        }
+
+        .result-container.show {
+            display: block;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+        }
+
+        .result-text {
+            background: white;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 15px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .copy-btn:hover {
+            background: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: #28a745;
+            transform: scale(0.98);
+        }
+
+        .copy-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .warning.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 25px 15px;
+            }
+            
+            .form-container {
+                padding: 25px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Gerador de Rastreio</h1>
+            <p>Crie mensagens personalizadas para WhatsApp</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="warning" id="warning">
+                ⚠️ Preencha todos os campos para gerar a mensagem
+            </div>
+            
+            <form id="trackingForm">
+                <div class="form-group">
+                    <label for="clientName">Nome da Cliente</label>
+                    <input type="text" id="clientName" placeholder="Ex: Maria Silva" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="carrier">Transportadora</label>
+                    <select id="carrier" required>
+                        <option value="">Selecione uma transportadora</option>
+                        <option value="loggi">Loggi</option>
+                        <option value="jadlog">Jadlog</option>
+                        <option value="jet">JeT</option>
+                        <option value="correios">Correios</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="deliveryDays">Dias Úteis de Entrega</label>
+                    <input type="number" id="deliveryDays" min="1" max="30" placeholder="Ex: 5" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="trackingCode">Código de Rastreio</label>
+                    <input type="text" id="trackingCode" placeholder="Ex: ABC123456789" required>
+                </div>
+                
+                <button type="submit" class="generate-btn">
+                    ✨ Gerar Mensagem
+                </button>
+            </form>
+            
+            <div class="result-container" id="resultContainer">
+                <div class="result-label">💬 Mensagem para WhatsApp:</div>
+                <div class="result-text" id="resultText"></div>
+                <button class="copy-btn" id="copyBtn">
+                    <svg class="copy-icon" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                    </svg>
+                    Copiar Mensagem
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const carrierData = {
+            loggi: {
+                name: 'Loggi',
+                site: 'https://www.loggi.com/rastreador/',
+                melhorRastreio: 'loggi'
+            },
+            jadlog: {
+                name: 'Jadlog',
+                site: 'https://www.jadlog.com.br',
+                melhorRastreio: 'jadlog'
+            },
+            jet: {
+                name: 'JeT',
+                site: 'https://www.jtexpress.com.br/',
+                melhorRastreio: 'jet'
+            },
+            correios: {
+                name: 'Correios',
+                site: 'https://rastreamento.correios.com.br/app/index.php',
+                melhorRastreio: 'correios'
+            }
+        };
+
+        const form = document.getElementById('trackingForm');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultText = document.getElementById('resultText');
+        const copyBtn = document.getElementById('copyBtn');
+        const warning = document.getElementById('warning');
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const clientName = document.getElementById('clientName').value.trim();
+            const carrier = document.getElementById('carrier').value;
+            const deliveryDays = document.getElementById('deliveryDays').value;
+            const trackingCode = document.getElementById('trackingCode').value.trim();
+            
+            if (!clientName || !carrier || !deliveryDays || !trackingCode) {
+                showWarning();
+                return;
+            }
+            
+            hideWarning();
+            generateMessage(clientName, carrier, deliveryDays, trackingCode);
+        });
+
+        function showWarning() {
+            warning.classList.add('show');
+            setTimeout(() => {
+                warning.classList.remove('show');
+            }, 3000);
+        }
+
+        function hideWarning() {
+            warning.classList.remove('show');
+        }
+
+        function generateMessage(clientName, carrier, deliveryDays, trackingCode) {
+            const firstName = clientName.split(' ')[0];
+            const carrierInfo = carrierData[carrier];
+            const trackingLink = `https://app.melhorrastreio.com.br/app/${carrierInfo.melhorRastreio}/${trackingCode}`;
+            
+            const message = `Oiii ${firstName}, seu link de rastreio!
+
+${trackingLink}
+
+A previsão de entrega é de ${deliveryDays} dias úteis.
+
+Você também pode consultar pelo site da transportadora ${carrierInfo.name} com o código ${trackingCode} e o CPF que você informou.
+
+${carrierInfo.site}`;
+            
+            resultText.textContent = message;
+            resultContainer.classList.add('show');
+            
+            // Scroll suave para o resultado
+            setTimeout(() => {
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        copyBtn.addEventListener('click', async function() {
+            const text = resultText.textContent;
+            
+            try {
+                await navigator.clipboard.writeText(text);
+                showCopySuccess();
+            } catch (err) {
+                // Fallback para navegadores sem suporte ao Clipboard API
+                fallbackCopy(text);
+            }
+        });
+
+        function showCopySuccess() {
+            const originalText = copyBtn.innerHTML;
+            copyBtn.classList.add('copied');
+            copyBtn.innerHTML = '✅ Copiado!';
+            
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopySuccess();
+            } catch (err) {
+                alert('Não foi possível copiar automaticamente. Por favor, selecione e copie manualmente.');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+
+        // Validação em tempo real para o campo de dias
+        document.getElementById('deliveryDays').addEventListener('input', function() {
+            const value = parseInt(this.value);
+            if (value < 1) this.value = 1;
+            if (value > 30) this.value = 30;
+        });
+
+        // Limpar resultado quando houver mudanças no formulário
+        const inputs = form.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                resultContainer.classList.remove('show');
+                hideWarning();
+            });
+        });
+    </script>
+</body>
+</html>
