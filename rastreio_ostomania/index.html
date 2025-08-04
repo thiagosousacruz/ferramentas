@@ -286,22 +286,22 @@
             loggi: {
                 name: 'Loggi',
                 site: 'https://www.loggi.com/rastreador/',
-                melhorRastreio: 'loggi'
+                melhorRastreio: 'loggi/LGI-'
             },
             jadlog: {
                 name: 'Jadlog',
                 site: 'https://www.jadlog.com.br',
-                melhorRastreio: 'jadlog'
+                melhorRastreio: 'jadlog/'
             },
             jet: {
                 name: 'JeT',
                 site: 'https://www.jtexpress.com.br/',
-                melhorRastreio: 'jet'
+                melhorRastreio: 'jet/'
             },
             correios: {
                 name: 'Correios',
                 site: 'https://rastreamento.correios.com.br/app/index.php',
-                melhorRastreio: 'correios'
+                melhorRastreio: 'correios/'
             }
         };
 
@@ -342,7 +342,7 @@
         function generateMessage(clientName, carrier, deliveryDays, trackingCode) {
             const firstName = clientName.split(' ')[0];
             const carrierInfo = carrierData[carrier];
-            const trackingLink = `https://app.melhorrastreio.com.br/app/${carrierInfo.melhorRastreio}/${trackingCode}`;
+            const trackingLink = `https://melhorrastreio.com.br/app/${carrierInfo.melhorRastreio}${trackingCode}`;
             
             const message = `Oiii ${firstName}, seu link de rastreio!
 
