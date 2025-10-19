@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acompanhamento Gestacional</title>
+  <title>Jornada do Dante - Calendário Gestacional</title>
   <style>
     :root {
       --primary-color: #9a8c98;
@@ -11,6 +11,7 @@
       --background-color: #f2e9e4;
       --text-color: #4a4e69;
       --accent-color: #22223b;
+      --heart-color: #ff6b9d;
     }
     
     body, html {
@@ -25,14 +26,8 @@
       background-color: var(--primary-color);
       color: white;
       text-align: center;
-      padding: 1rem;
+      padding: 1.5rem;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .container {
-      max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 1rem;
     }
     
     h1, h2 {
@@ -42,6 +37,114 @@
     .subtitle {
       font-weight: normal;
       margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    
+    .stats-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+      color: var(--text-color);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .timeline {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .timeline-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--accent-color);
+    }
+    
+    .timeline-bar {
+      position: relative;
+      height: 60px;
+      background: linear-gradient(to right, 
+        rgba(201, 173, 167, 0.3) 0%, 
+        rgba(201, 173, 167, 0.5) 50%, 
+        rgba(255, 107, 157, 0.4) 100%);
+      border-radius: 30px;
+      overflow: visible;
+      margin-top: 2rem;
+    }
+    
+    .timeline-marker {
+      position: absolute;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+    
+    .timeline-marker-dot {
+      width: 16px;
+      height: 16px;
+      background: var(--primary-color);
+      border-radius: 50%;
+      margin: 0 auto 0.5rem;
+      border: 3px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .timeline-marker.birth .timeline-marker-dot {
+      width: 24px;
+      height: 24px;
+      background: var(--heart-color);
+      animation: pulse 2s infinite;
+    }
+    
+    .timeline-marker-label {
+      font-size: 0.75rem;
+      color: var(--text-color);
+      white-space: nowrap;
+      margin-top: 2rem;
+      font-weight: 600;
+    }
+    
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.7);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(255, 107, 157, 0);
+      }
     }
     
     .calendar-container {
@@ -59,11 +162,14 @@
       padding: 0.5rem;
       border-radius: 4px;
       border: 1px solid var(--primary-color);
+      background: white;
+      color: var(--text-color);
+      cursor: pointer;
     }
     
     .calendar {
       display: grid;
-      grid-template-columns: 1fr; /* Mobile first: 1 mês por linha */
+      grid-template-columns: 1fr;
       gap: 1rem;
     }
     
@@ -79,6 +185,7 @@
       margin-bottom: 0.5rem;
       color: var(--accent-color);
       font-size: 1.2rem;
+      font-weight: bold;
     }
     
     .weekdays {
@@ -135,17 +242,73 @@
       border-radius: 4px;
     }
     
+    .birth-day {
+      background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+      animation: birthPulse 2s infinite;
+      position: relative;
+      overflow: visible;
+    }
+    
+    .birth-day .day-number {
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      z-index: 2;
+    }
+    
+    .birth-day::before {
+      content: '💖';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.5rem;
+      animation: heartbeat 1.5s infinite;
+      z-index: 1;
+    }
+    
+    @keyframes birthPulse {
+      0%, 100% {
+        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+      }
+      50% {
+        box-shadow: 0 6px 25px rgba(255, 107, 157, 0.6);
+      }
+    }
+    
+    @keyframes heartbeat {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+      25% {
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+    
     footer {
       text-align: center;
       margin-top: 2rem;
-      padding: 1rem;
+      padding: 1.5rem;
       background-color: var(--primary-color);
       color: white;
+    }
+    
+    footer p {
+      margin: 0.5rem 0;
     }
     
     /* Tablet */
     @media (min-width: 768px) {
       .calendar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .stats-container {
         grid-template-columns: repeat(2, 1fr);
       }
       
@@ -168,6 +331,10 @@
         grid-template-columns: repeat(3, 1fr);
       }
       
+      .stats-container {
+        grid-template-columns: repeat(4, 1fr);
+      }
+      
       .month-header {
         font-size: 1.4rem;
       }
@@ -188,11 +355,54 @@
 </head>
 <body>
   <header>
-    <h1>Acompanhamento Gestacional</h1>
-    <p class="subtitle">Uma jornada especial descoberta em 17/02/2025</p>
+    <h1>👶 Jornada do Dante 👶</h1>
+    <p class="subtitle">Descoberto em 17/02/2025 • Nascido em 12/10/2025</p>
   </header>
   
   <div class="container">
+    <!-- Estatísticas -->
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-label">Gestação</div>
+        <div class="stat-number" id="weeks-total">38</div>
+        <div class="stat-label">Semanas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Da Descoberta</div>
+        <div class="stat-number" id="days-discovery">238</div>
+        <div class="stat-label">Dias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Desde o Nascimento</div>
+        <div class="stat-number" id="days-since-birth">7</div>
+        <div class="stat-label">Dias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Idade do Dante</div>
+        <div class="stat-number" id="baby-age">0</div>
+        <div class="stat-label">Meses</div>
+      </div>
+    </div>
+    
+    <!-- Linha do Tempo -->
+    <div class="timeline">
+      <h2 class="timeline-header">Linha do Tempo da Gestação</h2>
+      <div class="timeline-bar">
+        <div class="timeline-marker" style="left: 0%;">
+          <div class="timeline-marker-dot"></div>
+          <div class="timeline-marker-label">21/01/2025<br>Início</div>
+        </div>
+        <div class="timeline-marker" style="left: 10%;">
+          <div class="timeline-marker-dot"></div>
+          <div class="timeline-marker-label">17/02/2025<br>Descoberta 🎉</div>
+        </div>
+        <div class="timeline-marker birth" style="left: 100%;">
+          <div class="timeline-marker-dot"></div>
+          <div class="timeline-marker-label">12/10/2025<br>Nascimento 💖</div>
+        </div>
+      </div>
+    </div>
+    
     <div class="calendar-container">
       <div class="calendar-header">
         <h2>Calendário <span id="year-display">2025</span></h2>
@@ -209,13 +419,39 @@
   </div>
   
   <footer>
-    <p>Desenvolvido com amor ❤️</p>
+    <p>💝 Feito com muito amor para celebrar a chegada do Dante 💝</p>
+    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Uma jornada inesquecível de 38 semanas</p>
   </footer>
 
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // Data de início da gestação
-      const startDate = new Date(2025, 0, 21); // 21/01/2025 (mês é 0-indexed)
+      // Datas importantes
+      const startDate = new Date(2025, 0, 21); // 21/01/2025
+      const discoveryDate = new Date(2025, 1, 17); // 17/02/2025
+      const birthDate = new Date(2025, 9, 12); // 12/10/2025
+      const currentDate = new Date();
+      
+      // Calcular e atualizar estatísticas
+      updateStats();
+      
+      function updateStats() {
+        // Semanas de gestação (até o nascimento)
+        const gestationDays = Math.floor((birthDate - startDate) / (1000 * 60 * 60 * 24));
+        const gestationWeeks = Math.floor(gestationDays / 7);
+        document.getElementById('weeks-total').textContent = gestationWeeks;
+        
+        // Dias desde a descoberta até o nascimento
+        const discoveryDays = Math.floor((birthDate - discoveryDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('days-discovery').textContent = discoveryDays;
+        
+        // Dias desde o nascimento
+        const daysSinceBirth = Math.floor((currentDate - birthDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('days-since-birth').textContent = daysSinceBirth;
+        
+        // Idade em meses
+        const monthsSinceBirth = Math.floor(daysSinceBirth / 30);
+        document.getElementById('baby-age').textContent = monthsSinceBirth;
+      }
       
       // Configurar o seletor de ano
       const yearSelector = document.getElementById('year-selector');
@@ -233,8 +469,6 @@
       function renderCalendar(year) {
         const calendarContainer = document.getElementById('calendar');
         calendarContainer.innerHTML = '';
-        
-        const currentDate = new Date();
         
         // Criar cada mês
         for (let month = 0; month < 12; month++) {
@@ -264,7 +498,7 @@
           const daysElement = document.createElement('div');
           daysElement.className = 'days';
           
-          // Obter o primeiro dia do mês
+          // Obter o primeiro e último dia do mês
           const firstDay = new Date(year, month, 1);
           const lastDay = new Date(year, month + 1, 0);
           
@@ -287,35 +521,42 @@
             dayNumber.textContent = day;
             dayElement.appendChild(dayNumber);
             
-            // Verificar se é depois da data de início da gestação + 7 dias (semana 0)
-            const sevenDaysAfterStart = new Date(startDate);
-            sevenDaysAfterStart.setDate(startDate.getDate() + 7);
-            
-            if (date >= sevenDaysAfterStart) {
-              // Calcular semana de gestação (considerando que semana 1 começa após 7 dias do início)
-              const diffTime = Math.abs(date - startDate);
-              const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-              const weekNum = Math.floor(diffDays / 7);  // Agora começa do 1, não do 0
+            // Verificar se é o dia do nascimento
+            if (date.getDate() === birthDate.getDate() && 
+                date.getMonth() === birthDate.getMonth() && 
+                date.getFullYear() === birthDate.getFullYear()) {
+              dayElement.classList.add('birth-day');
+            } else {
+              // Verificar se está no período da gestação (ANTES do nascimento)
+              const sevenDaysAfterStart = new Date(startDate);
+              sevenDaysAfterStart.setDate(startDate.getDate() + 7);
               
-              if (weekNum <= 42 && weekNum >= 1) { // 42 semanas é considerado o máximo da gestação
-                dayElement.classList.add('pregnancy');
+              if (date >= sevenDaysAfterStart && date < birthDate) {
+                // Calcular semana de gestação
+                const diffTime = date - startDate;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const weekNum = Math.floor(diffDays / 7);
                 
-                // Adicionar número da semana
-                const weekElement = document.createElement('span');
-                weekElement.className = 'pregnancy-week';
-                weekElement.textContent = weekNum;
-                dayElement.appendChild(weekElement);
+                if (weekNum >= 1) {
+                  dayElement.classList.add('pregnancy');
+                  
+                  // Adicionar número da semana
+                  const weekElement = document.createElement('span');
+                  weekElement.className = 'pregnancy-week';
+                  weekElement.textContent = weekNum;
+                  dayElement.appendChild(weekElement);
+                }
+              } else if (date >= startDate && date < sevenDaysAfterStart) {
+                // Semana 0 - apenas destacar sem mostrar o número
+                dayElement.classList.add('pregnancy');
               }
-            } else if (date >= startDate && date < sevenDaysAfterStart) {
-              // Semana 0 - apenas destacar sem mostrar o número
-              dayElement.classList.add('pregnancy');
-            }
-            
-            // Verificar se é o dia atual
-            if (date.getDate() === currentDate.getDate() && 
-                date.getMonth() === currentDate.getMonth() && 
-                date.getFullYear() === currentDate.getFullYear()) {
-              dayElement.classList.add('current-day');
+              
+              // Verificar se é o dia atual
+              if (date.getDate() === currentDate.getDate() && 
+                  date.getMonth() === currentDate.getMonth() && 
+                  date.getFullYear() === currentDate.getFullYear()) {
+                dayElement.classList.add('current-day');
+              }
             }
             
             daysElement.appendChild(dayElement);
