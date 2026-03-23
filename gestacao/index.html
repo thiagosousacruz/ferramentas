@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jornada do Dante - Calendário Gestacional</title>
+  <title>Dante - Painel de Acompanhamento 👶🏽</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     :root {
       --primary-color: #9a8c98;
@@ -12,560 +13,759 @@
       --text-color: #4a4e69;
       --accent-color: #22223b;
       --heart-color: #ff6b9d;
+      --success-color: #6bcf7f;
+      --warning-color: #ffa500;
     }
-    
-    body, html {
+
+    * {
       margin: 0;
       padding: 0;
-      font-family: 'Arial', sans-serif;
-      background-color: var(--background-color);
-      color: var(--text-color);
+      box-sizing: border-box;
     }
-    
+
+    body, html {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--background-color) 0%, #f5ede5 100%);
+      color: var(--text-color);
+      min-height: 100vh;
+    }
+
     header {
-      background-color: var(--primary-color);
+      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
       color: white;
       text-align: center;
-      padding: 1.5rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      padding: 2rem 1rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
-    
-    h1, h2 {
-      margin: 0;
+
+    header h1 {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
     }
-    
+
     .subtitle {
-      font-weight: normal;
-      margin-top: 0.5rem;
-      font-size: 1rem;
+      font-size: 1.1rem;
+      font-weight: 300;
+      opacity: 0.95;
     }
-    
+
     .container {
       max-width: 1200px;
-      margin: 2rem auto;
-      padding: 0 1rem;
+      margin: 0 auto;
+      padding: 2rem 1rem;
     }
-    
-    .stats-container {
+
+    /* Cards de Estatísticas */
+    .stats-grid {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
       margin-bottom: 2rem;
     }
-    
+
     .stat-card {
       background: white;
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 1.5rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--heart-color);
       text-align: center;
-      transition: transform 0.3s ease;
     }
-    
+
     .stat-card:hover {
-      transform: translateY(-5px);
+      transform: translateY(-8px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
     }
-    
-    .stat-number {
+
+    .stat-card.weight {
+      border-left-color: var(--secondary-color);
+    }
+
+    .stat-card.height {
+      border-left-color: var(--success-color);
+    }
+
+    .stat-card.age {
+      border-left-color: var(--heart-color);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-color);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+      opacity: 0.8;
+    }
+
+    .stat-value {
       font-size: 2.5rem;
-      font-weight: bold;
+      font-weight: 700;
       color: var(--primary-color);
       margin: 0.5rem 0;
     }
-    
-    .stat-label {
+
+    .stat-unit {
+      font-size: 0.85rem;
       color: var(--text-color);
-      font-size: 0.9rem;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      opacity: 0.7;
     }
-    
-    .timeline {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      margin-bottom: 2rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    
-    .timeline-header {
-      text-align: center;
-      margin-bottom: 2rem;
-      color: var(--accent-color);
-    }
-    
-    .timeline-bar {
-      position: relative;
-      height: 60px;
-      background: linear-gradient(to right, 
-        rgba(201, 173, 167, 0.3) 0%, 
-        rgba(201, 173, 167, 0.5) 50%, 
-        rgba(255, 107, 157, 0.4) 100%);
-      border-radius: 30px;
-      overflow: visible;
-      margin-top: 2rem;
-    }
-    
-    .timeline-marker {
-      position: absolute;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-    
-    .timeline-marker-dot {
-      width: 16px;
-      height: 16px;
-      background: var(--primary-color);
-      border-radius: 50%;
-      margin: 0 auto 0.5rem;
-      border: 3px solid white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .timeline-marker.birth .timeline-marker-dot {
-      width: 24px;
-      height: 24px;
-      background: var(--heart-color);
-      animation: pulse 2s infinite;
-    }
-    
-    .timeline-marker-label {
-      font-size: 0.75rem;
-      color: var(--text-color);
-      white-space: nowrap;
-      margin-top: 2rem;
+
+    .stat-change {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background-color: rgba(107, 207, 127, 0.1);
+      color: var(--success-color);
       font-weight: 600;
     }
-    
-    @keyframes pulse {
-      0%, 100% {
-        box-shadow: 0 0 0 0 rgba(255, 107, 157, 0.7);
-      }
-      50% {
-        box-shadow: 0 0 0 8px rgba(255, 107, 157, 0);
-      }
+
+    /* Gráficos */
+    .charts-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
     }
-    
-    .calendar-container {
-      margin-top: 2rem;
-    }
-    
-    .calendar-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    
-    .year-selector {
-      padding: 0.5rem;
-      border-radius: 4px;
-      border: 1px solid var(--primary-color);
+
+    .chart-container {
       background: white;
-      color: var(--text-color);
-      cursor: pointer;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      position: relative;
     }
-    
-    .calendar {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 1rem;
-    }
-    
-    .month {
-      background-color: white;
-      border-radius: 8px;
-      padding: 1rem;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-    
-    .month-header {
-      text-align: center;
-      margin-bottom: 0.5rem;
+
+    .chart-title {
+      font-size: 1.3rem;
+      font-weight: 600;
       color: var(--accent-color);
-      font-size: 1.2rem;
-      font-weight: bold;
-    }
-    
-    .weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      margin-bottom: 1.5rem;
       text-align: center;
-      font-weight: bold;
-      font-size: 0.8rem;
-      color: var(--primary-color);
-      margin-bottom: 0.5rem;
     }
-    
-    .days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-    
-    .day {
-      aspect-ratio: 1;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+
+    .chart-canvas {
       position: relative;
-      font-size: 0.9rem;
-      border-radius: 4px;
+      height: 300px;
     }
-    
-    .day.empty {
-      background-color: transparent;
+
+    /* Tabela de Dados */
+    .table-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+      overflow-x: auto;
     }
-    
-    .day-number {
-      position: absolute;
-      top: 2px;
-      left: 2px;
-      font-size: 0.8rem;
+
+    .table-section h2 {
+      color: var(--accent-color);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
     }
-    
-    .pregnancy-week {
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: var(--primary-color);
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
     }
-    
-    .current-day {
-      background-color: var(--secondary-color);
-      border-radius: 50%;
-      color: white;
-    }
-    
-    .pregnancy {
-      background-color: rgba(201, 173, 167, 0.3);
-      border-radius: 4px;
-    }
-    
-    .birth-day {
-      background: linear-gradient(135deg, #ff6b9d 0%, #ff8fab 100%);
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
-      animation: birthPulse 2s infinite;
-      position: relative;
-      overflow: visible;
-    }
-    
-    .birth-day .day-number {
-      color: white;
-      font-weight: bold;
-      font-size: 1rem;
-      z-index: 2;
-    }
-    
-    .birth-day::before {
-      content: '💖';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.5rem;
-      animation: heartbeat 1.5s infinite;
-      z-index: 1;
-    }
-    
-    @keyframes birthPulse {
-      0%, 100% {
-        box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
-      }
-      50% {
-        box-shadow: 0 6px 25px rgba(255, 107, 157, 0.6);
-      }
-    }
-    
-    @keyframes heartbeat {
-      0%, 100% {
-        transform: translate(-50%, -50%) scale(1);
-      }
-      25% {
-        transform: translate(-50%, -50%) scale(1.2);
-      }
-      50% {
-        transform: translate(-50%, -50%) scale(1);
-      }
-    }
-    
-    footer {
-      text-align: center;
-      margin-top: 2rem;
-      padding: 1.5rem;
+
+    thead {
       background-color: var(--primary-color);
       color: white;
     }
-    
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background-color: rgba(201, 173, 167, 0.1);
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    .date-cell {
+      font-weight: 600;
+      color: var(--accent-color);
+    }
+
+    .recent-tag {
+      display: inline-block;
+      background-color: var(--heart-color);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-left: 0.5rem;
+    }
+
+    /* Formulário de Novo Registro */
+    .form-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+    }
+
+    .form-section h2 {
+      color: var(--accent-color);
+      margin-bottom: 1.5rem;
+      font-size: 1.3rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+      align-items: end;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    .form-group input {
+      padding: 0.75rem;
+      border: 2px solid var(--secondary-color);
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--heart-color);
+      box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+    }
+
+    button {
+      padding: 0.75rem 2rem;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      color: var(--text-color);
+      margin-top: 2rem;
+      font-size: 0.95rem;
+    }
+
     footer p {
       margin: 0.5rem 0;
     }
-    
-    /* Tablet */
-    @media (min-width: 768px) {
-      .calendar {
+
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--secondary-color), transparent);
+      margin: 3rem 0;
+    }
+
+    /* Responsivo */
+    @media (max-width: 768px) {
+      header h1 {
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        font-size: 0.95rem;
+      }
+
+      .stats-grid {
         grid-template-columns: repeat(2, 1fr);
       }
-      
-      .stats-container {
-        grid-template-columns: repeat(2, 1fr);
+
+      .charts-section {
+        grid-template-columns: 1fr;
       }
-      
-      .month-header {
-        font-size: 1.3rem;
+
+      .chart-canvas {
+        height: 250px;
       }
-      
-      .day-number {
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      table {
         font-size: 0.9rem;
       }
-      
-      .pregnancy-week {
-        font-size: 0.9rem;
+
+      th, td {
+        padding: 0.75rem;
       }
     }
-    
-    /* Desktop */
-    @media (min-width: 1024px) {
-      .calendar {
-        grid-template-columns: repeat(3, 1fr);
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem;
       }
-      
-      .stats-container {
-        grid-template-columns: repeat(4, 1fr);
+
+      .stats-grid {
+        grid-template-columns: 1fr;
       }
-      
-      .month-header {
-        font-size: 1.4rem;
+
+      .stat-value {
+        font-size: 2rem;
       }
-      
-      .day {
-        font-size: 1rem;
+
+      header {
+        padding: 1.5rem 1rem;
       }
-      
-      .day-number {
-        font-size: 1rem;
+
+      header h1 {
+        font-size: 1.5rem;
       }
-      
-      .pregnancy-week {
-        font-size: 1rem;
+
+      .chart-container {
+        padding: 1.5rem;
       }
+
+      th, td {
+        padding: 0.5rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    .animation-pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.7;
+      }
+    }
+
+    .milestone {
+      background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(201, 173, 167, 0.1));
+      border-left: 4px solid var(--heart-color);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .milestone-title {
+      font-weight: 700;
+      color: var(--accent-color);
+      margin-bottom: 0.25rem;
+    }
+
+    .milestone-text {
+      font-size: 0.9rem;
+      color: var(--text-color);
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>👶 Jornada do Dante 👶</h1>
-    <p class="subtitle">Descoberto em 17/02/2025 • Nascido em 12/10/2025</p>
+    <h1>👶🏽 Jornada do Dante 💗</h1>
+    <p class="subtitle">Acompanhando o crescimento de um bebê muito amado</p>
   </header>
-  
+
   <div class="container">
-    <!-- Estatísticas -->
-    <div class="stats-container">
-      <div class="stat-card">
-        <div class="stat-label">Gestação</div>
-        <div class="stat-number" id="weeks-total">38</div>
-        <div class="stat-label">Semanas</div>
+    <!-- Cards de Estatísticas -->
+    <div class="stats-grid">
+      <div class="stat-card age">
+        <div class="stat-label">Idade</div>
+        <div class="stat-value" id="age-display">5</div>
+        <div class="stat-unit">meses</div>
+        <div class="stat-change" id="age-details">Nascido em 12/10/2025</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Da Descoberta</div>
-        <div class="stat-number" id="days-discovery">238</div>
-        <div class="stat-label">Dias</div>
+
+      <div class="stat-card weight">
+        <div class="stat-label">Peso Atual</div>
+        <div class="stat-value" id="weight-display">7.84</div>
+        <div class="stat-unit">kg</div>
+        <div class="stat-change" id="weight-change">+0.61 kg desde o nascimento</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-label">Desde o Nascimento</div>
-        <div class="stat-number" id="days-since-birth">7</div>
-        <div class="stat-label">Dias</div>
+
+      <div class="stat-card height">
+        <div class="stat-label">Altura Atual</div>
+        <div class="stat-value" id="height-display">65</div>
+        <div class="stat-unit">cm</div>
+        <div class="stat-change" id="height-change">+18.5 cm desde o nascimento</div>
       </div>
+
       <div class="stat-card">
-        <div class="stat-label">Idade do Dante</div>
-        <div class="stat-number" id="baby-age">0</div>
-        <div class="stat-label">Meses</div>
+        <div class="stat-label">Última Medição</div>
+        <div class="stat-value" id="last-measure">12/03</div>
+        <div class="stat-unit">2026</div>
+        <div class="stat-change" id="days-since">Há 10 dias</div>
       </div>
     </div>
-    
-    <!-- Linha do Tempo -->
-    <div class="timeline">
-      <h2 class="timeline-header">Linha do Tempo da Gestação</h2>
-      <div class="timeline-bar">
-        <div class="timeline-marker" style="left: 0%;">
-          <div class="timeline-marker-dot"></div>
-          <div class="timeline-marker-label">21/01/2025<br>Início</div>
+
+    <!-- Marcos de Desenvolvimento -->
+    <div class="milestone">
+      <div class="milestone-title">✨ Marcos de Desenvolvimento</div>
+      <div class="milestone-text">
+        Aos 5 meses, Dante está cada vez maior e mais forte! Continue acompanhando seu crescimento saudável.
+      </div>
+    </div>
+
+    <!-- Gráficos de Crescimento -->
+    <div class="charts-section">
+      <div class="chart-container">
+        <div class="chart-title">📊 Evolução do Peso</div>
+        <div class="chart-canvas">
+          <canvas id="weightChart"></canvas>
         </div>
-        <div class="timeline-marker" style="left: 10%;">
-          <div class="timeline-marker-dot"></div>
-          <div class="timeline-marker-label">17/02/2025<br>Descoberta 🎉</div>
-        </div>
-        <div class="timeline-marker birth" style="left: 100%;">
-          <div class="timeline-marker-dot"></div>
-          <div class="timeline-marker-label">12/10/2025<br>Nascimento 💖</div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">📏 Evolução da Altura</div>
+        <div class="chart-canvas">
+          <canvas id="heightChart"></canvas>
         </div>
       </div>
     </div>
-    
-    <div class="calendar-container">
-      <div class="calendar-header">
-        <h2>Calendário <span id="year-display">2025</span></h2>
-        <select id="year-selector" class="year-selector">
-          <option value="2025">2025</option>
-          <option value="2026">2026</option>
-        </select>
-      </div>
-      
-      <div id="calendar" class="calendar">
-        <!-- Meses serão inseridos aqui via JavaScript -->
+
+    <div class="divider"></div>
+
+    <!-- Tabela de Dados -->
+    <div class="table-section">
+      <h2>📋 Histórico Completo de Medições</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Peso (kg)</th>
+            <th>Altura (cm)</th>
+            <th>Idade</th>
+          </tr>
+        </thead>
+        <tbody id="measurements-table">
+          <!-- Preenchido via JavaScript -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Formulário para Adicionar Novo Registro -->
+    <div class="form-section">
+      <h2>➕ Registrar Nova Medição</h2>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="new-date">Data</label>
+          <input type="date" id="new-date" required>
+        </div>
+        <div class="form-group">
+          <label for="new-weight">Peso (kg)</label>
+          <input type="number" id="new-weight" step="0.01" placeholder="7.50" required>
+        </div>
+        <div class="form-group">
+          <label for="new-height">Altura (cm)</label>
+          <input type="number" id="new-height" step="0.01" placeholder="65" required>
+        </div>
+        <button onclick="addMeasurement()">Adicionar Medição</button>
       </div>
     </div>
   </div>
-  
+
   <footer>
-    <p>💝 Feito com muito amor para celebrar a chegada do Dante 💝</p>
-    <p style="font-size: 0.9rem; margin-top: 0.5rem;">Uma jornada inesquecível de 38 semanas</p>
+    <p>💝 Painel de Acompanhamento do Dante 💝</p>
+    <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.7;">Criado com muito amor para avós, padrinhos e toda a família</p>
   </footer>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Datas importantes
-      const startDate = new Date(2025, 0, 21); // 21/01/2025
-      const discoveryDate = new Date(2025, 1, 17); // 17/02/2025
-      const birthDate = new Date(2025, 9, 12); // 12/10/2025
-      const currentDate = new Date();
-      
-      // Calcular e atualizar estatísticas
-      updateStats();
-      
-      function updateStats() {
-        // Semanas de gestação (até o nascimento)
-        const gestationDays = Math.floor((birthDate - startDate) / (1000 * 60 * 60 * 24));
-        const gestationWeeks = Math.floor(gestationDays / 7);
-        document.getElementById('weeks-total').textContent = gestationWeeks;
-        
-        // Dias desde a descoberta até o nascimento
-        const discoveryDays = Math.floor((birthDate - discoveryDate) / (1000 * 60 * 60 * 24));
-        document.getElementById('days-discovery').textContent = discoveryDays;
-        
-        // Dias desde o nascimento
-        const daysSinceBirth = Math.floor((currentDate - birthDate) / (1000 * 60 * 60 * 24));
-        document.getElementById('days-since-birth').textContent = daysSinceBirth;
-        
-        // Idade em meses
-        const monthsSinceBirth = Math.floor(daysSinceBirth / 30);
-        document.getElementById('baby-age').textContent = monthsSinceBirth;
+    // Dados iniciais de medições
+    const measurements = [
+      { date: '2025-10-12', weight: 2.91, height: 46.5 },
+      { date: '2025-10-13', weight: 2.75, height: 46.7 },
+      { date: '2025-10-15', weight: 2.77, height: 46.9 },
+      { date: '2025-10-22', weight: 2.83, height: 47.0 },
+      { date: '2025-10-27', weight: 3.07, height: 50.0 },
+      { date: '2025-11-17', weight: 3.95, height: 52.0 },
+      { date: '2025-12-12', weight: 4.97, height: 56.0 },
+      { date: '2026-01-12', weight: 6.21, height: 59.0 },
+      { date: '2026-02-12', weight: 7.23, height: 63.0 },
+      { date: '2026-03-12', weight: 7.84, height: 65.0 }
+    ];
+
+    const birthDate = new Date('2025-10-12');
+
+    // Carregar dados do localStorage se disponível
+    function loadFromLocalStorage() {
+      const saved = localStorage.getItem('danteMeasurements');
+      if (saved) {
+        return JSON.parse(saved);
       }
+      return measurements;
+    }
+
+    // Salvar dados no localStorage
+    function saveToLocalStorage(data) {
+      localStorage.setItem('danteMeasurements', JSON.stringify(data));
+    }
+
+    // Calcular idade em meses
+    function calculateAgeInMonths(date) {
+      const today = date || new Date();
+      let months = today.getMonth() - birthDate.getMonth() + (today.getFullYear() - birthDate.getFullYear()) * 12;
+      if (today.getDate() < birthDate.getDate()) months--;
+      return months;
+    }
+
+    // Calcular dias desde uma data
+    function daysSince(date) {
+      const today = new Date();
+      const diffTime = today - date;
+      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    // Atualizar Cards de Estatísticas
+    function updateStats() {
+      const storedMeasurements = loadFromLocalStorage();
+      const lastMeasure = storedMeasurements[storedMeasurements.length - 1];
+      const firstMeasure = storedMeasurements[0];
+      const lastDate = new Date(lastMeasure.date);
+
+      // Idade
+      const ageMonths = calculateAgeInMonths();
+      document.getElementById('age-display').textContent = ageMonths;
       
-      // Configurar o seletor de ano
-      const yearSelector = document.getElementById('year-selector');
-      const yearDisplay = document.getElementById('year-display');
+      // Peso
+      const weightChange = (lastMeasure.weight - firstMeasure.weight).toFixed(2);
+      document.getElementById('weight-display').textContent = lastMeasure.weight;
+      document.getElementById('weight-change').textContent = `+${weightChange} kg desde o nascimento`;
+
+      // Altura
+      const heightChange = (lastMeasure.height - firstMeasure.height).toFixed(1);
+      document.getElementById('height-display').textContent = lastMeasure.height;
+      document.getElementById('height-change').textContent = `+${heightChange} cm desde o nascimento`;
+
+      // Última medição
+      const days = daysSince(lastDate);
+      const dateStr = lastDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      const yearStr = lastDate.getFullYear();
+      document.getElementById('last-measure').textContent = dateStr;
+      document.getElementById('last-measure').parentElement.querySelector('.stat-unit').textContent = yearStr;
       
-      yearSelector.addEventListener('change', function() {
-        const selectedYear = parseInt(this.value);
-        yearDisplay.textContent = selectedYear;
-        renderCalendar(selectedYear);
-      });
-      
-      // Renderizar o calendário inicial
-      renderCalendar(2025);
-      
-      function renderCalendar(year) {
-        const calendarContainer = document.getElementById('calendar');
-        calendarContainer.innerHTML = '';
+      let daysText = days === 0 ? 'Hoje' : days === 1 ? 'Ontem' : `Há ${days} dias`;
+      document.getElementById('days-since').textContent = daysText;
+    }
+
+    // Renderizar Tabela
+    function renderTable() {
+      const storedMeasurements = loadFromLocalStorage();
+      const tbody = document.getElementById('measurements-table');
+      tbody.innerHTML = '';
+
+      const sortedMeasurements = [...storedMeasurements].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+      sortedMeasurements.forEach((measure, index) => {
+        const date = new Date(measure.date);
+        const dateStr = date.toLocaleDateString('pt-BR');
+        const ageMonths = calculateAgeInMonths(date);
         
-        // Criar cada mês
-        for (let month = 0; month < 12; month++) {
-          const monthElement = document.createElement('div');
-          monthElement.className = 'month';
-          
-          // Cabeçalho do mês
-          const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 
-                             'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-          const monthHeader = document.createElement('div');
-          monthHeader.className = 'month-header';
-          monthHeader.textContent = monthNames[month];
-          monthElement.appendChild(monthHeader);
-          
-          // Dias da semana
-          const weekdaysElement = document.createElement('div');
-          weekdaysElement.className = 'weekdays';
-          const weekdays = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-          weekdays.forEach(day => {
-            const dayElement = document.createElement('div');
-            dayElement.textContent = day;
-            weekdaysElement.appendChild(dayElement);
-          });
-          monthElement.appendChild(weekdaysElement);
-          
-          // Dias do mês
-          const daysElement = document.createElement('div');
-          daysElement.className = 'days';
-          
-          // Obter o primeiro e último dia do mês
-          const firstDay = new Date(year, month, 1);
-          const lastDay = new Date(year, month + 1, 0);
-          
-          // Adicionar dias vazios antes do primeiro dia
-          for (let i = 0; i < firstDay.getDay(); i++) {
-            const emptyDay = document.createElement('div');
-            emptyDay.className = 'day empty';
-            daysElement.appendChild(emptyDay);
-          }
-          
-          // Adicionar dias do mês
-          for (let day = 1; day <= lastDay.getDate(); day++) {
-            const date = new Date(year, month, day);
-            const dayElement = document.createElement('div');
-            dayElement.className = 'day';
-            
-            // Número do dia
-            const dayNumber = document.createElement('span');
-            dayNumber.className = 'day-number';
-            dayNumber.textContent = day;
-            dayElement.appendChild(dayNumber);
-            
-            // Verificar se é o dia do nascimento
-            if (date.getDate() === birthDate.getDate() && 
-                date.getMonth() === birthDate.getMonth() && 
-                date.getFullYear() === birthDate.getFullYear()) {
-              dayElement.classList.add('birth-day');
-            } else {
-              // Verificar se está no período da gestação (ANTES do nascimento)
-              const sevenDaysAfterStart = new Date(startDate);
-              sevenDaysAfterStart.setDate(startDate.getDate() + 7);
-              
-              if (date >= sevenDaysAfterStart && date < birthDate) {
-                // Calcular semana de gestação
-                const diffTime = date - startDate;
-                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                const weekNum = Math.floor(diffDays / 7);
-                
-                if (weekNum >= 1) {
-                  dayElement.classList.add('pregnancy');
-                  
-                  // Adicionar número da semana
-                  const weekElement = document.createElement('span');
-                  weekElement.className = 'pregnancy-week';
-                  weekElement.textContent = weekNum;
-                  dayElement.appendChild(weekElement);
+        let ageText = `${ageMonths} meses`;
+        if (ageMonths === 0) ageText = 'Recém-nascido';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td class="date-cell">
+            ${dateStr}
+            ${index === 0 ? '<span class="recent-tag">Última</span>' : ''}
+          </td>
+          <td>${measure.weight}</td>
+          <td>${measure.height}</td>
+          <td>${ageText}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Criar Gráficos
+    function createCharts() {
+      const storedMeasurements = loadFromLocalStorage();
+      const sortedMeasurements = [...storedMeasurements].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      const labels = sortedMeasurements.map(m => {
+        const date = new Date(m.date);
+        return date.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
+      });
+
+      const weights = sortedMeasurements.map(m => m.weight);
+      const heights = sortedMeasurements.map(m => m.height);
+
+      // Gráfico de Peso
+      const weightCtx = document.getElementById('weightChart').getContext('2d');
+      new Chart(weightCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Peso (kg)',
+            data: weights,
+            borderColor: '#c9ada7',
+            backgroundColor: 'rgba(201, 173, 167, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointBackgroundColor: '#ff6b9d',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return value.toFixed(1) + ' kg';
                 }
-              } else if (date >= startDate && date < sevenDaysAfterStart) {
-                // Semana 0 - apenas destacar sem mostrar o número
-                dayElement.classList.add('pregnancy');
-              }
-              
-              // Verificar se é o dia atual
-              if (date.getDate() === currentDate.getDate() && 
-                  date.getMonth() === currentDate.getMonth() && 
-                  date.getFullYear() === currentDate.getFullYear()) {
-                dayElement.classList.add('current-day');
               }
             }
-            
-            daysElement.appendChild(dayElement);
           }
-          
-          monthElement.appendChild(daysElement);
-          calendarContainer.appendChild(monthElement);
         }
+      });
+
+      // Gráfico de Altura
+      const heightCtx = document.getElementById('heightChart').getContext('2d');
+      new Chart(heightCtx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Altura (cm)',
+            data: heights,
+            borderColor: '#6bcf7f',
+            backgroundColor: 'rgba(107, 207, 127, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 5,
+            pointBackgroundColor: '#ff6b9d',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 7
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              ticks: {
+                callback: function(value) {
+                  return value.toFixed(0) + ' cm';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Adicionar Nova Medição
+    function addMeasurement() {
+      const dateInput = document.getElementById('new-date').value;
+      const weightInput = parseFloat(document.getElementById('new-weight').value);
+      const heightInput = parseFloat(document.getElementById('new-height').value);
+
+      if (!dateInput || !weightInput || !heightInput) {
+        alert('Por favor, preencha todos os campos!');
+        return;
       }
+
+      const storedMeasurements = loadFromLocalStorage();
+      
+      // Verificar se a data já existe
+      const exists = storedMeasurements.some(m => m.date === dateInput);
+      if (exists) {
+        // Atualizar existente
+        const index = storedMeasurements.findIndex(m => m.date === dateInput);
+        storedMeasurements[index] = { date: dateInput, weight: weightInput, height: heightInput };
+      } else {
+        // Adicionar nova
+        storedMeasurements.push({ date: dateInput, weight: weightInput, height: heightInput });
+      }
+
+      saveToLocalStorage(storedMeasurements);
+
+      // Limpar formulário
+      document.getElementById('new-date').value = '';
+      document.getElementById('new-weight').value = '';
+      document.getElementById('new-height').value = '';
+
+      // Atualizar página
+      updateStats();
+      renderTable();
+      
+      // Remover gráficos antigos e criar novos
+      location.reload();
+    }
+
+    // Inicializar ao carregar a página
+    document.addEventListener('DOMContentLoaded', function() {
+      updateStats();
+      renderTable();
+      createCharts();
+
+      // Definir data padrão como hoje
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('new-date').value = today;
     });
   </script>
 </body>
