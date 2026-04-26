@@ -86,6 +86,11 @@ let isRunning;
 let isPaused;
 let isGameOver;
 let highScores = [];
+let needsRedraw;
+let boardBackdrop;
+
+context.imageSmoothingEnabled = false;
+nextContext.imageSmoothingEnabled = false;
 
 function loadHighScores() {
   try {
@@ -188,6 +193,7 @@ function resetGame() {
   isGameOver = false;
   currentPiece = null;
   nextPiece = createPiece();
+  needsRedraw = true;
 
   updateHud();
   draw();
@@ -212,6 +218,7 @@ function startGame() {
 
   isRunning = true;
   isPaused = false;
+  needsRedraw = true;
   hideOverlay();
   cancelAnimationFrame(animationFrameId);
   animationFrameId = requestAnimationFrame(update);
@@ -225,6 +232,7 @@ function pauseGame() {
   isPaused = !isPaused;
 
   if (isPaused) {
+    needsRedraw = true;
     showOverlay("Pause", "Toque em P para voltar.");
     cancelAnimationFrame(animationFrameId);
     return;
@@ -232,6 +240,7 @@ function pauseGame() {
 
   hideOverlay();
   lastTime = 0;
+  needsRedraw = true;
   animationFrameId = requestAnimationFrame(update);
 }
 
@@ -243,6 +252,7 @@ function gameOver() {
   const gameOverMessage = enteredTopFive
     ? "Nova pontuacao no top 5. Toque em R para reiniciar."
     : "Toque em R para reiniciar.";
+  needsRedraw = true;
   showOverlay("Fim", gameOverMessage);
 }
 
@@ -254,6 +264,17 @@ function showOverlay(title, text) {
 
 function hideOverlay() {
   overlay.classList.remove("visible");
+}
+
+function buildBoardBackdrop() {
+  const backdrop = document.createElement("canvas");
+  backdrop.width = canvas.width;
+  backdrop.height = canvas.height;
+  const backdropContext = backdrop.getContext("2d");
+
+  backdropContext.imageSmoothingEnabled = false;
+  drawGrid(backdropContext, COLS, ROWS, BLOCK_SIZE);
+  return backdrop;
 }
 
 function update(time = 0) {
@@ -269,7 +290,10 @@ function update(time = 0) {
     moveDown();
   }
 
-  draw();
+  if (needsRedraw) {
+    draw();
+  }
+
   animationFrameId = requestAnimationFrame(update);
 }
 
@@ -282,6 +306,7 @@ function spawnPiece() {
   nextPiece = createPiece();
   currentPiece.x = Math.floor(COLS / 2) - Math.ceil(currentPiece.matrix[0].length / 2);
   currentPiece.y = 0;
+  needsRedraw = true;
   drawNextPiece();
 
   if (collides(board, currentPiece)) {
@@ -319,6 +344,36 @@ function merge(boardToMerge, piece) {
   });
 }
 
+function getGhostYPosition(piece) {
+  let ghostY = piece.y;
+
+  while (true) {
+    ghostY += 1;
+
+    const blocked = piece.matrix.some((row, y) =>
+      row.some((value, x) => {
+        if (!value) {
+          return false;
+        }
+
+        const boardX = piece.x + x;
+        const boardY = ghostY + y;
+
+        return (
+          boardX < 0 ||
+          boardX >= COLS ||
+          boardY >= ROWS ||
+          (boardY >= 0 && board[boardY][boardX] !== EMPTY)
+        );
+      })
+    );
+
+    if (blocked) {
+      return ghostY - 1;
+    }
+  }
+}
+
 function rotate(matrix) {
   return matrix[0].map((_, index) => matrix.map((row) => row[index]).reverse());
 }
@@ -337,6 +392,7 @@ function rotatePiece() {
   for (const offset of offsets) {
     currentPiece.x = previousX + offset;
     if (!collides(board, currentPiece)) {
+      needsRedraw = true;
       draw();
       return;
     }
@@ -357,6 +413,7 @@ function move(offset) {
     return;
   }
 
+  needsRedraw = true;
   draw();
 }
 
@@ -375,6 +432,7 @@ function moveDown() {
     spawnPiece();
   }
 
+  needsRedraw = true;
   draw();
 }
 
@@ -391,6 +449,7 @@ function hardDrop() {
   merge(board, currentPiece);
   clearLines();
   spawnPiece();
+  needsRedraw = true;
   draw();
 }
 
@@ -414,6 +473,7 @@ function clearLines() {
   level = Math.floor(lines / 10) + 1;
   const lineScores = { 1: 100, 2: 300, 3: 500, 4: 800 };
   score += (lineScores[cleared] || 0) * level;
+  needsRedraw = true;
   updateHud();
 }
 
@@ -456,7 +516,7 @@ function drawGrid(ctx, width, height, size) {
 
 function drawBoard() {
   context.clearRect(0, 0, canvas.width, canvas.height);
-  drawGrid(context, COLS, ROWS, BLOCK_SIZE);
+  context.drawImage(boardBackdrop, 0, 0);
 
   board.forEach((row, y) => {
     row.forEach((value, x) => {
@@ -482,28 +542,18 @@ function drawGhostPiece() {
     return;
   }
 
-  const ghost = {
-    ...currentPiece,
-    matrix: currentPiece.matrix.map((row) => [...row]),
-    y: currentPiece.y
-  };
+  const ghostY = getGhostYPosition(currentPiece);
 
-  while (!collides(board, ghost)) {
-    ghost.y += 1;
-  }
-
-  ghost.y -= 1;
-
-  ghost.matrix.forEach((row, y) => {
+  currentPiece.matrix.forEach((row, y) => {
     row.forEach((value, x) => {
       if (!value) {
         return;
       }
 
       context.fillStyle = "rgba(47, 71, 48, 0.18)";
-      context.fillRect((ghost.x + x) * BLOCK_SIZE, (ghost.y + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+      context.fillRect((currentPiece.x + x) * BLOCK_SIZE, (ghostY + y) * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
       context.strokeStyle = "rgba(47, 71, 48, 0.28)";
-      context.strokeRect((ghost.x + x) * BLOCK_SIZE + 1, (ghost.y + y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
+      context.strokeRect((currentPiece.x + x) * BLOCK_SIZE + 1, (ghostY + y) * BLOCK_SIZE + 1, BLOCK_SIZE - 2, BLOCK_SIZE - 2);
     });
   });
 }
@@ -532,6 +582,7 @@ function drawNextPiece() {
 }
 
 function draw() {
+  needsRedraw = false;
   drawBoard();
   if (currentPiece) {
     drawGhostPiece();
@@ -608,6 +659,7 @@ restartButton.addEventListener("click", () => {
   startGame();
 });
 
+boardBackdrop = buildBoardBackdrop();
 highScores = loadHighScores();
 renderHighScores();
 resetGame();
