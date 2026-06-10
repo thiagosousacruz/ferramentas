@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sudoku Quest - Sua Jornada Lógica</title>
+    <!-- Google Fonts para tipografia premium -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="theme-dark">
+    <!-- Efeito de Fundo Abstrato -->
+    <div class="bg-glow"></div>
+
+    <div class="app-container">
+        <!-- CABEÇALHO -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" class="logo-icon">
+                        <rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2"/>
+                        <path d="M9 3v18M15 3v18M3 9h18M3 15h18" stroke="currentColor" stroke-width="1"/>
+                        <rect x="16" y="4" width="4" height="4" rx="1" fill="currentColor"/>
+                    </svg>
+                    <h1>Sudoku <span class="accent-text">Quest</span></h1>
+                </div>
+            </div>
+            
+            <!-- Barra de XP e Perfil do Jogador -->
+            <div class="player-profile" id="profile-button">
+                <div class="profile-avatar">
+                    <span id="player-level-badge">1</span>
+                </div>
+                <div class="profile-info-mini">
+                    <div class="profile-rank" id="player-rank-name">Iniciante</div>
+                    <div class="xp-bar-container">
+                        <div class="xp-bar-fill" id="player-xp-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-actions">
+                <button id="btn-stats" class="icon-btn" title="Estatísticas">
+                    <svg viewBox="0 0 24 24" class="icon"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z" fill="currentColor"/></svg>
+                </button>
+                <button id="btn-settings" class="icon-btn" title="Configurações">
+                    <svg viewBox="0 0 24 24" class="icon"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
+                </button>
+                <button id="btn-help" class="icon-btn" title="Como Jogar">
+                    <svg viewBox="0 0 24 24" class="icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 16h-2v-2h2v2zm1.07-7.75l-.9.92C12.45 11.9 12 12.5 12 14h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" fill="currentColor"/></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- BARRA DE STATUS DO JOGO -->
+        <section class="game-status-bar">
+            <div class="status-left">
+                <span id="current-mode-badge" class="mode-badge">Modo Clássico</span>
+                <span id="difficulty-text" class="difficulty-text">Médio</span>
+            </div>
+            <div class="status-right">
+                <div class="status-indicator timer-container" id="timer-wrapper">
+                    <svg viewBox="0 0 24 24" class="status-icon"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" fill="currentColor"/></svg>
+                    <span id="game-timer">00:00</span>
+                    <button id="btn-pause" class="pause-btn" title="Pausar">
+                        <svg viewBox="0 0 24 24" class="pause-icon" id="pause-icon"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/></svg>
+                    </button>
+                </div>
+                <div class="status-indicator mistakes-container" id="mistakes-wrapper">
+                    <span class="status-label">Erros:</span>
+                    <span id="mistakes-count" class="mistakes-count">0/3</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONTEÚDO PRINCIPAL (TABULEIRO E MENUS) -->
+        <main class="main-content">
+            <!-- Tela de Pausa (Overlay sobre o tabuleiro) -->
+            <div id="pause-overlay" class="board-overlay hidden">
+                <div class="overlay-content">
+                    <svg viewBox="0 0 24 24" class="overlay-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="currentColor"/></svg>
+                    <h2>Jogo Pausado</h2>
+                    <p>Sua mente está descansando...</p>
+                    <button id="btn-resume" class="primary-btn">Retomar Jogo</button>
+                </div>
+            </div>
+
+            <!-- Tabuleiro de Sudoku (9x9) -->
+            <div class="board-wrapper">
+                <div class="sudoku-board" id="sudoku-board" role="grid" aria-label="Tabuleiro de Sudoku">
+                    <!-- Gerado dinamicamente via JS -->
+                </div>
+            </div>
+        </main>
+
+        <!-- PAINEL DE AÇÕES DE JOGO -->
+        <section class="action-panel">
+            <button id="btn-undo" class="action-btn" title="Desfazer Última Jogada">
+                <div class="action-icon-wrapper">
+                    <svg viewBox="0 0 24 24" class="action-icon"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z" fill="currentColor"/></svg>
+                </div>
+                <span class="action-label">Desfazer</span>
+            </button>
+            <button id="btn-erase" class="action-btn" title="Apagar Célula Selecionada">
+                <div class="action-icon-wrapper">
+                    <svg viewBox="0 0 24 24" class="action-icon"><path d="M16.24 7.76l-1.41-1.41L12 9.17 9.17 6.34 7.76 7.76 10.59 10.59 7.76 13.41l1.41 1.41L12 12.01l2.83 2.83 1.41-1.41-2.83-2.83z" fill="none"/><path d="M19 4H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H5V6h14v12z" fill="currentColor"/></svg>
+                </div>
+                <span class="action-label">Apagar</span>
+            </button>
+            <button id="btn-notes" class="action-btn" title="Ativar Anotações (Modo Lápis)">
+                <div class="action-icon-wrapper">
+                    <svg viewBox="0 0 24 24" class="action-icon"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+                    <span class="notes-status-indicator" id="notes-indicator">OFF</span>
+                </div>
+                <span class="action-label">Anotações</span>
+            </button>
+            <button id="btn-hint" class="action-btn" title="Revelar uma Célula">
+                <div class="action-icon-wrapper">
+                    <svg viewBox="0 0 24 24" class="action-icon"><path d="M9 21c0 .55.45 1 1 1h4c.55 0 1-.45 1-1v-1H9v1zm3-19C8.14 2 5 5.14 5 9c0 2.38 1.19 4.47 3 5.74V17c0 .55.45 1 1 1h6c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-3.86-3.14-7-7-7zm2.85 11.1l-.85.6V16h-4v-3.3l-.85-.6C7.8 11.1 7 9.8 7 9c0-2.76 2.24-5 5-5s5 2.24 5 5c0 .8-.8 2.1-2.15 3.1z" fill="currentColor"/></svg>
+                </div>
+                <span class="action-label">Dica</span>
+            </button>
+        </section>
+
+        <!-- TECLADO NUMÉRICO -->
+        <section class="num-keypad" id="keypad" aria-label="Teclado numérico">
+            <button class="key-btn" data-val="1">1</button>
+            <button class="key-btn" data-val="2">2</button>
+            <button class="key-btn" data-val="3">3</button>
+            <button class="key-btn" data-val="4">4</button>
+            <button class="key-btn" data-val="5">5</button>
+            <button class="key-btn" data-val="6">6</button>
+            <button class="key-btn" data-val="7">7</button>
+            <button class="key-btn" data-val="8">8</button>
+            <button class="key-btn" data-val="9">9</button>
+        </section>
+
+        <!-- SELEÇÃO DE MODO E INÍCIO (TELA PRINCIPAL/RODAPÉ) -->
+        <footer class="app-footer">
+            <button id="btn-open-modes" class="primary-btn flex-btn">
+                <svg viewBox="0 0 24 24" class="btn-icon"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" fill="none"/><path d="M10.85 12.15l1.2-1.2c.48-.48.75-1.13.75-1.85 0-1.43-1.17-2.6-2.6-2.6s-2.6 1.17-2.6 2.6H6c0-2.54 2.06-4.6 4.6-4.6s4.6 2.06 4.6 4.6c0 1.25-.5 2.39-1.32 3.22l-1.2 1.2c-.47.47-.73 1.1-.73 1.78v.5h-1.5v-.5c0-.9.36-1.72.93-2.3zM11 18h2v-2h-2v2zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" fill="currentColor"/></svg>
+                Novo Jogo / Modos
+            </button>
+        </footer>
+    </div>
+
+    <!-- ==================== MODAIS ==================== -->
+
+    <!-- MODAL: SELEÇÃO DE MODOS / NOVO JOGO -->
+    <div id="modal-modes" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Selecione o Jogo</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Abas -->
+                <div class="modal-tabs">
+                    <button class="tab-btn active" data-tab="tab-classic">Clássico</button>
+                    <button class="tab-btn" data-tab="tab-campaign">Campanha</button>
+                    <button class="tab-btn" data-tab="tab-daily">Diário</button>
+                </div>
+
+                <!-- Conteúdo Aba Clássico -->
+                <div class="tab-content" id="tab-classic">
+                    <p class="tab-desc">Escolha um nível de dificuldade para gerar um novo tabuleiro clássico:</p>
+                    <div class="difficulty-grid">
+                        <button class="diff-btn easy" data-diff="easy">
+                            <span class="diff-title">Fácil</span>
+                            <span class="diff-xp">+50 XP</span>
+                        </button>
+                        <button class="diff-btn medium" data-diff="medium">
+                            <span class="diff-title">Médio</span>
+                            <span class="diff-xp">+100 XP</span>
+                        </button>
+                        <button class="diff-btn hard" data-diff="hard">
+                            <span class="diff-title">Difícil</span>
+                            <span class="diff-xp">+200 XP</span>
+                        </button>
+                        <button class="diff-btn expert" data-diff="expert">
+                            <span class="diff-title">Especialista</span>
+                            <span class="diff-xp">+400 XP</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Conteúdo Aba Campanha -->
+                <div class="tab-content hidden" id="tab-campaign">
+                    <p class="tab-desc">Avance na trilha de fases com dificuldade gradual. Cada fase vencida desbloqueia a próxima e concede bônus de XP!</p>
+                    <div class="campaign-progress-banner">
+                        <span id="campaign-unlocked-count">Progresso: Fase 1/100</span>
+                    </div>
+                    <div class="campaign-levels-grid" id="campaign-levels-container">
+                        <!-- Níveis de campanha gerados dinamicamente -->
+                    </div>
+                </div>
+
+                <!-- Conteúdo Aba Diário -->
+                <div class="tab-content hidden" id="tab-daily">
+                    <p class="tab-desc">Complete o desafio especial de hoje. O tabuleiro é igual para todos os jogadores do mundo hoje!</p>
+                    <div class="daily-challenge-card">
+                        <div class="daily-date" id="daily-challenge-date">09 de Junho, 2026</div>
+                        <div class="daily-reward">Recompensa: <span class="accent-text">300 XP + Emblema Diário</span></div>
+                        <button id="btn-start-daily" class="primary-btn max-width-btn">Jogar Desafio de Hoje</button>
+                        <div class="daily-status" id="daily-challenge-status">Você ainda não completou o desafio de hoje.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ESTATÍSTICAS E PERFIL -->
+    <div id="modal-stats" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Perfil e Estatísticas</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body scrollable-body">
+                <!-- Seção Perfil -->
+                <div class="profile-card">
+                    <div class="profile-avatar-large">
+                        <span id="player-level-badge-lg">1</span>
+                    </div>
+                    <div class="profile-details">
+                        <h3 id="player-rank-lg">Sudoku Iniciante</h3>
+                        <p class="xp-text-lg" id="player-xp-text-lg">0 / 100 XP</p>
+                        <div class="xp-bar-container large">
+                            <div class="xp-bar-fill" id="player-xp-fill-lg" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Painel de Números Rápidos -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-games-played">0</span>
+                        <span class="stat-label">Partidas Jogadas</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-win-rate">0%</span>
+                        <span class="stat-label">Taxa de Vitória</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-win-streak">0</span>
+                        <span class="stat-label">Sequência Atual</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value" id="stat-max-streak">0</span>
+                        <span class="stat-label">Recorde Sequência</span>
+                    </div>
+                </div>
+
+                <!-- Recordes por Dificuldade -->
+                <h3>Melhores Tempos (Recordes)</h3>
+                <div class="records-list">
+                    <div class="record-item">
+                        <span class="record-diff-name easy">Fácil</span>
+                        <span class="record-time" id="record-time-easy">--:--</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-diff-name medium">Médio</span>
+                        <span class="record-time" id="record-time-medium">--:--</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-diff-name hard">Difícil</span>
+                        <span class="record-time" id="record-time-hard">--:--</span>
+                    </div>
+                    <div class="record-item">
+                        <span class="record-diff-name expert">Especialista</span>
+                        <span class="record-time" id="record-time-expert">--:--</span>
+                    </div>
+                </div>
+
+                <!-- Conquistas -->
+                <h3>Conquistas Desbloqueadas</h3>
+                <div class="achievements-list" id="achievements-container">
+                    <!-- Conquistas geradas dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CONFIGURAÇÕES -->
+    <div id="modal-settings" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Configurações</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Escolha de Temas -->
+                <div class="setting-section">
+                    <h3>Tema Visual</h3>
+                    <div class="theme-picker">
+                        <button class="theme-option theme-opt-dark active" data-theme="dark" title="Modo Escuro">
+                            <span class="theme-dot" style="background: #111827;"></span>
+                            Escuro
+                        </button>
+                        <button class="theme-option theme-opt-light" data-theme="light" title="Modo Claro">
+                            <span class="theme-dot" style="background: #f3f4f6;"></span>
+                            Claro
+                        </button>
+                        <button class="theme-option theme-opt-cyberpunk" data-theme="cyberpunk" title="Cyberpunk">
+                            <span class="theme-dot" style="background: #020208; border-color: #ff007f;"></span>
+                            Cyberpunk
+                        </button>
+                        <button class="theme-option theme-opt-forest" data-theme="forest" title="Menta Florestal">
+                            <span class="theme-dot" style="background: #0f1d18;"></span>
+                            Menta
+                        </button>
+                        <button class="theme-option theme-opt-midnight" data-theme="midnight" title="Azul da Meia Noite">
+                            <span class="theme-dot" style="background: #0b132b;"></span>
+                            Noite
+                        </button>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Opções de Gameplay -->
+                <div class="setting-section">
+                    <h3>Ajudas Visuais e Regras</h3>
+                    
+                    <div class="setting-toggle">
+                        <div class="setting-info">
+                            <span class="setting-name">Auto-Verificar Erros</span>
+                            <span class="setting-desc">Valida os números inseridos imediatamente e exibe em vermelho se estiverem incorretos.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="set-auto-check" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle">
+                        <div class="setting-info">
+                            <span class="setting-name">Limite de 3 Erros</span>
+                            <span class="setting-desc">O jogo é encerrado (Derrota) se você cometer 3 erros na mesma partida.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="set-mistake-limit" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle">
+                        <div class="setting-info">
+                            <span class="setting-name">Destacar Números Iguais</span>
+                            <span class="setting-desc">Destaca todas as células com o mesmo número da célula selecionada.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="set-highlight-same" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle">
+                        <div class="setting-info">
+                            <span class="setting-name">Destacar Linha/Coluna/Bloco</span>
+                            <span class="setting-desc">Destaca a área de influência da célula selecionada.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="set-highlight-area" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <div class="setting-toggle">
+                        <div class="setting-info">
+                            <span class="setting-name">Exibir Cronômetro</span>
+                            <span class="setting-desc">Mostra o tempo de jogo durante a partida.</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="set-show-timer" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: COMO JOGAR / AJUDA -->
+    <div id="modal-help" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Como Jogar Sudoku</h2>
+                <button class="close-modal-btn">&times;</button>
+            </div>
+            <div class="modal-body scrollable-body">
+                <h3>O Objetivo</h3>
+                <p>Preencher a grade 9x9 de forma que cada linha, cada coluna e cada um dos nove blocos 3x3 contenham todos os números de 1 a 9, sem nenhuma repetição.</p>
+                
+                <div class="divider"></div>
+                
+                <h3>As Três Regras de Ouro</h3>
+                <div class="help-rule-item">
+                    <span class="rule-num">1</span>
+                    <p><strong>Linhas:</strong> Cada linha horizontal deve conter os números de 1 a 9 sem repetir.</p>
+                </div>
+                <div class="help-rule-item">
+                    <span class="rule-num">2</span>
+                    <p><strong>Colunas:</strong> Cada coluna vertical deve conter os números de 1 a 9 sem repetir.</p>
+                </div>
+                <div class="help-rule-item">
+                    <span class="rule-num">3</span>
+                    <p><strong>Blocos 3x3:</strong> Cada subgrade delimitada em negrito deve conter os números de 1 a 9 sem repetir.</p>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3>Dicas e Funções</h3>
+                <ul>
+                    <li><strong>Anotações (Lápis):</strong> Use o botão Anotações para preencher candidatos temporários em células vazias. Muito útil em dificuldades elevadas!</li>
+                    <li><strong>Apagar:</strong> Limpa o número digitado na célula (desde que não seja um número original fixo).</li>
+                    <li><strong>Desfazer:</strong> Se arrependeu de uma jogada? Desfaça rapidamente.</li>
+                    <li><strong>Dica:</strong> Se travar, clique em Dica para preencher o valor correto de uma célula selecionada.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: FIM DE JOGO (VITÓRIA OU DERROTA) -->
+    <div id="modal-gameover" class="modal-overlay hidden">
+        <div class="modal-card gameover-card">
+            <div class="modal-body text-center">
+                <div id="gameover-animation-container" class="gameover-art">
+                    <!-- Ícone animado via CSS -->
+                </div>
+                <h1 id="gameover-title">Vitória!</h1>
+                <p id="gameover-message" class="gameover-msg">Você completou o tabuleiro com maestria.</p>
+                
+                <div class="gameover-stats-panel">
+                    <div class="go-stat-item">
+                        <span class="go-stat-label">Modo</span>
+                        <span id="go-stat-mode" class="go-stat-value">Clássico - Médio</span>
+                    </div>
+                    <div class="go-stat-item">
+                        <span class="go-stat-label">Tempo</span>
+                        <span id="go-stat-time" class="go-stat-value">05:24</span>
+                    </div>
+                    <div class="go-stat-item">
+                        <span class="go-stat-label">Erros Cometidos</span>
+                        <span id="go-stat-mistakes" class="go-stat-value">1/3</span>
+                    </div>
+                </div>
+
+                <!-- Recompensa de XP -->
+                <div class="xp-gain-card">
+                    <div class="xp-gain-value" id="go-xp-gain">+150 XP</div>
+                    <div class="xp-progress-bar-go">
+                        <div class="xp-bar-fill" id="go-xp-bar-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="xp-labels-go">
+                        <span id="go-level-current">Nível 1</span>
+                        <span id="go-level-next">Nível 2</span>
+                    </div>
+                </div>
+
+                <!-- Subida de Nível Alerta -->
+                <div id="level-up-alert" class="level-up-alert hidden">
+                    <div class="level-up-sparkle">✨</div>
+                    <h3>NOVO NÍVEL ALCANÇADO!</h3>
+                    <p>Você subiu para o nível <span id="level-up-new-val" class="accent-text font-bold">2</span>!</p>
+                </div>
+
+                <div class="gameover-actions">
+                    <button id="btn-go-restart" class="primary-btn max-width-btn">Jogar Novamente</button>
+                    <button id="btn-go-home" class="secondary-btn max-width-btn">Voltar para Modos</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Canvas para efeito de Confetes de Vitória -->
+    <canvas id="confetti-canvas" class="confetti-canvas hidden"></canvas>
+
+    <!-- SCRIPTS -->
+    <script src="js/sudoku.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
