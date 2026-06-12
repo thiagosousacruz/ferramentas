@@ -333,37 +333,42 @@ class UIManager {
     handleKeypadClick(val) {
         if (this.game.isFinished || this.game.isPaused) return;
 
-        // Se estiver no modo Notas, o clique rápido trava o número para notas
+        const keyBtn = this.keypadEl.querySelector(`.key-btn[data-val="${val}"]`);
+        if (keyBtn && keyBtn.classList.contains('completed-key')) return;
+
         if (this.isNoteMode) {
-            if (this.activeNumber === val) {
-                // Clique rápido no mesmo número travado: NÃO destrava. Apenas insere nota se houver célula selecionada
-                if (this.selectedCellIndex !== -1) {
-                    this.handleNumberInput(val);
-                }
+            if (this.selectedCellIndex === -1) {
+                // Alterna a trava se não houver célula selecionada
+                this.activeNumber = this.activeNumber === val ? -1 : val;
             } else {
-                this.activeNumber = val; // Trava o novo número selecionado (transfere a trava)
-                if (this.selectedCellIndex !== -1) {
+                if (this.activeNumber === val) {
+                    this.handleNumberInput(val);
+                } else {
+                    this.activeNumber = val;
                     this.handleNumberInput(val);
                 }
             }
             this.updateKeypadActiveUI();
+            this.highlightCells();
         } else {
-            // Se algum número já está travado
-            if (this.activeNumber !== -1) {
-                if (this.activeNumber === val) {
-                    // Clique rápido no mesmo número travado: NÃO destrava. Apenas insere na célula selecionada
-                    if (this.selectedCellIndex !== -1) {
+            if (this.selectedCellIndex === -1) {
+                // Alterna a trava se não houver célula selecionada
+                this.activeNumber = this.activeNumber === val ? -1 : val;
+            } else {
+                if (this.activeNumber !== -1) {
+                    if (this.activeNumber === val) {
                         this.handleNumberInput(val);
+                    } else {
+                        // Transfere a trava para o novo número, sem inserir imediatamente
+                        this.activeNumber = val;
                     }
                 } else {
-                    // Clique rápido em OUTRO número: transfere a trava para o novo número, SEM inserir imediatamente
-                    this.activeNumber = val;
+                    // Sem trava: insere diretamente
+                    this.handleNumberInput(val);
                 }
-                this.updateKeypadActiveUI();
-            } else {
-                // Comportamento normal sem trava: apenas insere na célula selecionada
-                this.handleNumberInput(val);
             }
+            this.updateKeypadActiveUI();
+            this.highlightCells();
         }
     }
 
@@ -436,11 +441,36 @@ class UIManager {
      * Se sim, esconde o teclado numérico normal e mostra o botão de autocompletar.
      */
     checkAutocompleteVisibility() {
-        if (!this.game) return;
+        if (!this.game || this.game.isFinished || this.game.isPaused) {
+            this.keypadEl.classList.remove('hidden');
+            this.autocompleteContainer.classList.add('hidden');
+            return;
+        }
 
-        const emptyCount = this.game.currentGrid.filter(val => val === 0).length;
+        const counts = new Array(10).fill(0);
 
-        if (emptyCount === 1 && !this.game.isFinished && !this.game.isPaused) {
+        // Conta quantos números estão posicionados CORRETAMENTE
+        for (let i = 0; i < 81; i++) {
+            const currentVal = this.game.currentGrid[i];
+            const solvedVal = this.game.solvedGrid[i];
+            
+            if (currentVal !== 0 && currentVal === solvedVal) {
+                counts[currentVal]++;
+            }
+        }
+
+        // Verifica quais números de 1 a 9 estão incompletos
+        const incompleteNumbers = [];
+        for (let num = 1; num <= 9; num++) {
+            if (counts[num] < 9) {
+                incompleteNumbers.push(num);
+            }
+        }
+
+        // Se faltar apenas um único número (independente da quantidade de casas vazias)
+        if (incompleteNumbers.length === 1) {
+            const lastNum = incompleteNumbers[0];
+            this.btnAutocomplete.innerText = `✨ Auto-completar Último Número (${lastNum})`;
             this.keypadEl.classList.add('hidden');
             this.autocompleteContainer.classList.remove('hidden');
         } else {
@@ -450,34 +480,58 @@ class UIManager {
     }
 
     /**
-     * Preenche automaticamente a última célula vazia do tabuleiro com o gabarito.
+     * Preenche automaticamente todos os valores remanescentes do último número no tabuleiro.
      */
     handleAutocomplete() {
         if (!this.game || this.game.isFinished || this.game.isPaused) return;
 
-        const lastIndex = this.game.currentGrid.indexOf(0);
-        if (lastIndex === -1) return;
-
-        const correctVal = this.game.solvedGrid[lastIndex];
-
-        // Insere o valor correto na última célula
-        const res = this.game.makeMove(lastIndex, correctVal, false);
-
-        if (res.success) {
-            // Atualiza a visualização da célula no tabuleiro
-            const cellEl = this.boardEl.querySelector(`[data-index="${lastIndex}"]`);
-            if (cellEl) {
-                const valEl = cellEl.querySelector('.cell-value');
-                valEl.innerText = correctVal;
-                valEl.className = 'cell-value cell-value-pop';
-
-                const notesGrid = cellEl.querySelector('.cell-notes-grid');
-                if (notesGrid) notesGrid.innerHTML = '';
-
-                cellEl.classList.remove('user-entered', 'invalid');
-                cellEl.classList.add('clue'); // Transforma em pista visual final
+        const counts = new Array(10).fill(0);
+        for (let i = 0; i < 81; i++) {
+            const currentVal = this.game.currentGrid[i];
+            const solvedVal = this.game.solvedGrid[i];
+            if (currentVal !== 0 && currentVal === solvedVal) {
+                counts[currentVal]++;
             }
+        }
 
+        const incompleteNumbers = [];
+        for (let num = 1; num <= 9; num++) {
+            if (counts[num] < 9) {
+                incompleteNumbers.push(num);
+            }
+        }
+
+        if (incompleteNumbers.length !== 1) return;
+        const lastNum = incompleteNumbers[0];
+
+        let filledAny = false;
+        let lastMoveRes = null;
+
+        for (let i = 0; i < 81; i++) {
+            if (this.game.solvedGrid[i] === lastNum && this.game.currentGrid[i] !== lastNum) {
+                const res = this.game.makeMove(i, lastNum, false);
+                if (res.success) {
+                    filledAny = true;
+                    lastMoveRes = res;
+
+                    // Atualiza a visualização da célula no tabuleiro
+                    const cellEl = this.boardEl.querySelector(`[data-index="${i}"]`);
+                    if (cellEl) {
+                        const valEl = cellEl.querySelector('.cell-value');
+                        valEl.innerText = lastNum;
+                        valEl.className = 'cell-value cell-value-pop';
+
+                        const notesGrid = cellEl.querySelector('.cell-notes-grid');
+                        if (notesGrid) notesGrid.innerHTML = '';
+
+                        cellEl.classList.remove('user-entered', 'invalid');
+                        cellEl.classList.add('clue'); // Transforma em pista visual final
+                    }
+                }
+            }
+        }
+
+        if (filledAny) {
             this.updateCompletedNumbers();
             this.checkAutocompleteVisibility();
             this.highlightCells();
@@ -485,8 +539,8 @@ class UIManager {
             // Salva o estado final
             StorageManager.saveActiveGame(this.game.saveState());
 
-            // Aciona o fim de jogo
-            if (res.isWin) {
+            // Aciona o fim de jogo se for vitória
+            if (lastMoveRes && lastMoveRes.isWin) {
                 this.triggerGameOver(true);
             }
         }
@@ -660,22 +714,25 @@ class UIManager {
             c.classList.remove('highlighted', 'same-number');
         });
 
-        if (this.selectedCellIndex === -1) return;
+        // Determinar o valor a destacar
+        let highlightVal = 0;
+        if (this.activeNumber !== -1) {
+            highlightVal = this.activeNumber;
+        } else if (this.selectedCellIndex !== -1) {
+            highlightVal = this.game.currentGrid[this.selectedCellIndex];
+        }
 
-        const index = this.selectedCellIndex;
-        const row = Math.floor(index / 9);
-        const col = index % 9;
-        const selectedVal = this.game.currentGrid[index];
+        // 1. Destacar Área (Mesma linha, coluna ou bloco da célula selecionada)
+        if (this.selectedCellIndex !== -1 && this.settings.highlightArea) {
+            const index = this.selectedCellIndex;
+            const row = Math.floor(index / 9);
+            const col = index % 9;
 
-        for (let i = 0; i < 81; i++) {
-            if (i === index) continue;
+            for (let i = 0; i < 81; i++) {
+                if (i === index) continue;
+                const cRow = Math.floor(i / 9);
+                const cCol = i % 9;
 
-            const cRow = Math.floor(i / 9);
-            const cCol = i % 9;
-            const cVal = this.game.currentGrid[i];
-
-            // 1. Destacar Área (Mesma linha, coluna ou bloco)
-            if (this.settings.highlightArea) {
                 const sameRow = cRow === row;
                 const sameCol = cCol === col;
                 const sameBox = Math.floor(cRow / 3) === Math.floor(row / 3) && Math.floor(cCol / 3) === Math.floor(col / 3);
@@ -684,10 +741,16 @@ class UIManager {
                     cells[i].classList.add('highlighted');
                 }
             }
+        }
 
-            // 2. Destacar Números Iguais
-            if (this.settings.highlightSame && selectedVal !== 0 && cVal === selectedVal) {
-                cells[i].classList.add('same-number');
+        // 2. Destacar Números Iguais
+        if (this.settings.highlightSame && highlightVal !== 0) {
+            for (let i = 0; i < 81; i++) {
+                if (i === this.selectedCellIndex) continue; // Pula a célula selecionada
+                const cVal = this.game.currentGrid[i];
+                if (cVal === highlightVal) {
+                    cells[i].classList.add('same-number');
+                }
             }
         }
     }
@@ -743,6 +806,10 @@ class UIManager {
                     cellEl.classList.remove('invalid');
                     // Limpa notas da linha/col/bloco que foram afetadas
                     this.cleanRelatedNotesOnBoard(index, val);
+
+                    // Auto-deseleção: Se a jogada foi correta, desmarca a célula selecionada
+                    this.selectedCellIndex = -1;
+                    cellEl.classList.remove('selected');
                 }
             } else {
                 // Efeito de toggle limpou a célula
@@ -948,40 +1015,7 @@ class UIManager {
         // Atalhos de números 1-9
         if (/^[1-9]$/.test(key)) {
             const val = parseInt(key);
-            
-            // Ignorar números já concluídos
-            const keyBtn = this.keypadEl.querySelector(`.key-btn[data-val="${val}"]`);
-            if (keyBtn && keyBtn.classList.contains('completed-key')) return;
-
-            if (this.isNoteMode) {
-                if (this.activeNumber === val) {
-                    // Clique rápido no mesmo número: não destrava, apenas insere se tiver célula selecionada
-                    if (this.selectedCellIndex !== -1) {
-                        this.handleNumberInput(val);
-                    }
-                } else {
-                    this.activeNumber = val; // Transfere a trava
-                    if (this.selectedCellIndex !== -1) {
-                        this.handleNumberInput(val);
-                    }
-                }
-                this.updateKeypadActiveUI();
-            } else {
-                if (this.activeNumber !== -1) {
-                    if (this.activeNumber === val) {
-                        // Clique rápido no mesmo número: não destrava, apenas insere se tiver célula selecionada
-                        if (this.selectedCellIndex !== -1) {
-                            this.handleNumberInput(val);
-                        }
-                    } else {
-                        this.activeNumber = val; // Transfere a trava
-                    }
-                    this.updateKeypadActiveUI();
-                } else {
-                    // Sem trava: comportamento normal de inserir na célula selecionada
-                    this.handleNumberInput(val);
-                }
-            }
+            this.handleKeypadClick(val);
             return;
         }
 
