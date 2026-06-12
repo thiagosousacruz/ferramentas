@@ -95,6 +95,10 @@ class UIManager {
         
         // Canvas Confete
         this.confettiCanvas = document.getElementById('confetti-canvas');
+
+        // Autocomplete
+        this.autocompleteContainer = document.getElementById('autocomplete-container');
+        this.btnAutocomplete = document.getElementById('btn-autocomplete');
     }
 
     /**
@@ -266,6 +270,9 @@ class UIManager {
             this.openModesModal();
         });
 
+        // Autocomplete da última célula
+        this.btnAutocomplete.addEventListener('click', () => this.handleAutocomplete());
+
         // Entrada do Teclado Físico
         document.addEventListener('keydown', (e) => this.handleKeyDown(e));
     }
@@ -424,6 +431,67 @@ class UIManager {
         }
     }
 
+    /**
+     * Verifica se resta apenas 1 célula em branco no tabuleiro.
+     * Se sim, esconde o teclado numérico normal e mostra o botão de autocompletar.
+     */
+    checkAutocompleteVisibility() {
+        if (!this.game) return;
+
+        const emptyCount = this.game.currentGrid.filter(val => val === 0).length;
+
+        if (emptyCount === 1 && !this.game.isFinished && !this.game.isPaused) {
+            this.keypadEl.classList.add('hidden');
+            this.autocompleteContainer.classList.remove('hidden');
+        } else {
+            this.keypadEl.classList.remove('hidden');
+            this.autocompleteContainer.classList.add('hidden');
+        }
+    }
+
+    /**
+     * Preenche automaticamente a última célula vazia do tabuleiro com o gabarito.
+     */
+    handleAutocomplete() {
+        if (!this.game || this.game.isFinished || this.game.isPaused) return;
+
+        const lastIndex = this.game.currentGrid.indexOf(0);
+        if (lastIndex === -1) return;
+
+        const correctVal = this.game.solvedGrid[lastIndex];
+
+        // Insere o valor correto na última célula
+        const res = this.game.makeMove(lastIndex, correctVal, false);
+
+        if (res.success) {
+            // Atualiza a visualização da célula no tabuleiro
+            const cellEl = this.boardEl.querySelector(`[data-index="${lastIndex}"]`);
+            if (cellEl) {
+                const valEl = cellEl.querySelector('.cell-value');
+                valEl.innerText = correctVal;
+                valEl.className = 'cell-value cell-value-pop';
+
+                const notesGrid = cellEl.querySelector('.cell-notes-grid');
+                if (notesGrid) notesGrid.innerHTML = '';
+
+                cellEl.classList.remove('user-entered', 'invalid');
+                cellEl.classList.add('clue'); // Transforma em pista visual final
+            }
+
+            this.updateCompletedNumbers();
+            this.checkAutocompleteVisibility();
+            this.highlightCells();
+
+            // Salva o estado final
+            StorageManager.saveActiveGame(this.game.saveState());
+
+            // Aciona o fim de jogo
+            if (res.isWin) {
+                this.triggerGameOver(true);
+            }
+        }
+    }
+
     // ==================== CONTROLE DO JOGO E TABULEIRO ====================
 
     /**
@@ -443,6 +511,7 @@ class UIManager {
         this.updateStatusUI();
         this.renderBoard();
         this.updateCompletedNumbers(); // Inativa números completos na carga inicial
+        this.checkAutocompleteVisibility(); // Verifica se exibe autocompletar na carga
         this.startTimer();
         
         if (this.game.isPaused) {
@@ -685,6 +754,7 @@ class UIManager {
         }
 
         this.updateCompletedNumbers(); // Inativa números completos no teclado
+        this.checkAutocompleteVisibility(); // Verifica se deve exibir autocompletar
         this.highlightCells();
         
         // Auto-save a cada jogada
@@ -746,6 +816,7 @@ class UIManager {
 
             this.renderCellNotes(index);
             this.updateCompletedNumbers(); // Atualiza números completos no teclado
+            this.checkAutocompleteVisibility(); // Verifica se deve exibir autocompletar
             this.highlightCells();
             
             StorageManager.saveActiveGame(this.game.saveState());
@@ -795,6 +866,7 @@ class UIManager {
             cellEl.classList.add('selected');
 
             this.updateCompletedNumbers(); // Atualiza números completos no teclado
+            this.checkAutocompleteVisibility(); // Verifica se deve exibir autocompletar
             this.highlightCells();
             this.updateMistakesUI(); // Recalcula se o erro foi desfeito
             
@@ -830,6 +902,7 @@ class UIManager {
 
             this.cleanRelatedNotesOnBoard(index, res.val);
             this.updateCompletedNumbers(); // Atualiza números completos no teclado
+            this.checkAutocompleteVisibility(); // Verifica se deve exibir autocompletar
             this.highlightCells();
             
             StorageManager.saveActiveGame(this.game.saveState());
@@ -1053,12 +1126,17 @@ class UIManager {
             this.pauseOverlay.classList.remove('hidden');
             pauseIcon.innerHTML = '<path d="M8 5v14l11-7z" fill="currentColor"/>'; // Troca ícone para play
             this.btnPause.title = 'Retomar';
+            this.keypadEl.classList.add('hidden');
+            this.autocompleteContainer.classList.add('hidden');
         } else {
             this.pauseOverlay.classList.add('hidden');
             pauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" fill="currentColor"/>'; // Troca ícone para pause
             this.btnPause.title = 'Pausar';
             // Ajusta o cronômetro para compensar o tempo pausado
             this.game.startTime = Date.now() - (this.game.timer * 1000);
+            
+            // Restaura o teclado ou o botão de autocomplete
+            this.checkAutocompleteVisibility();
         }
 
         StorageManager.saveActiveGame(this.game.saveState());

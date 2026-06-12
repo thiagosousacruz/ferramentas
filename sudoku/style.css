@@ -519,7 +519,11 @@ body {
 }
 
 .sudoku-cell.same-number {
-    background-color: var(--cell-same-num);
+    background-color: var(--cell-same-num) !important;
+    color: var(--accent-color) !important; /* Cor de destaque com alto contraste */
+    font-weight: 800;
+    box-shadow: inset 0 0 0 2px var(--accent-color) !important; /* Borda interna brilhante */
+    text-shadow: 0 0 4px var(--accent-glow);
 }
 
 .sudoku-cell.selected {
@@ -724,6 +728,10 @@ body {
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.1s ease, background-color 0.2s ease, border-color 0.2s ease;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .key-btn.active-number {
@@ -1537,4 +1545,24 @@ input:checked + .slider:before {
     .num-keypad {
         gap: 4px;
     }
+}
+
+/* Estilo do Autocomplete */
+.autocomplete-container {
+    width: 100%;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.autocomplete-btn {
+    height: 52px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    animation: pulse 1s infinite alternate;
 }
