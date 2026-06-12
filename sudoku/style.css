@@ -733,6 +733,14 @@ body {
     box-shadow: 0 0 12px var(--primary-glow) !important;
 }
 
+.key-btn.completed-key {
+    opacity: 0.15 !important;
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
 .key-btn:active {
     transform: scale(0.92);
 }

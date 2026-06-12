@@ -149,30 +149,54 @@ class UIManager {
             this.closeAllModals();
         });
 
-        // Teclado Numérico Virtual
-        this.keypadEl.addEventListener('click', (e) => {
-            const btn = e.target.closest('.key-btn');
-            if (!btn) return;
-            const val = parseInt(btn.getAttribute('data-val'));
-            
-            if (this.isNoteMode) {
-                // Modo Anotação com número travado
-                if (this.activeNumber === val) {
-                    this.activeNumber = -1; // Desmarca se clicar de novo
-                } else {
-                    this.activeNumber = val; // Marca o número ativo
-                    // Se houver uma célula selecionada, aplica a nota nela imediatamente
-                    if (this.selectedCellIndex !== -1) {
-                        this.handleNumberInput(val);
-                    }
+        // Teclado Numérico Virtual (com suporte a toque, clique e pressionamento longo)
+        const keys = this.keypadEl.querySelectorAll('.key-btn');
+        keys.forEach(keyBtn => {
+            const val = parseInt(keyBtn.getAttribute('data-val'));
+            let holdTimer = null;
+            let longPressedTriggered = false;
+
+            const startPress = (e) => {
+                if (keyBtn.classList.contains('completed-key') || this.game.isFinished || this.game.isPaused) return;
+                longPressedTriggered = false;
+                
+                // Configura o timer para clique longo (500ms)
+                holdTimer = setTimeout(() => {
+                    this.handleKeypadLongPress(val);
+                    longPressedTriggered = true;
+                }, 500);
+            };
+
+            const endPress = (e) => {
+                if (holdTimer) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
                 }
-                this.updateKeypadActiveUI();
-            } else {
-                // Modo Normal: comportamento tradicional
-                this.activeNumber = -1;
-                this.updateKeypadActiveUI();
-                this.handleNumberInput(val);
-            }
+                
+                if (!longPressedTriggered && !keyBtn.classList.contains('completed-key')) {
+                    // Foi um clique rápido normal
+                    this.handleKeypadClick(val);
+                }
+                
+                // Evita cliques fantasmas no celular
+                if (e.cancelable) {
+                    e.preventDefault();
+                }
+            };
+
+            // Eventos para Desktop
+            keyBtn.addEventListener('mousedown', startPress);
+            keyBtn.addEventListener('mouseup', endPress);
+            keyBtn.addEventListener('mouseleave', () => {
+                if (holdTimer) {
+                    clearTimeout(holdTimer);
+                    holdTimer = null;
+                }
+            });
+
+            // Eventos para Celulares (Mobile First)
+            keyBtn.addEventListener('touchstart', startPress, { passive: true });
+            keyBtn.addEventListener('touchend', endPress);
         });
 
         // Ações Rápidas do Tabuleiro
@@ -288,12 +312,115 @@ class UIManager {
         const keys = this.keypadEl.querySelectorAll('.key-btn');
         keys.forEach(k => {
             const val = parseInt(k.getAttribute('data-val'));
-            if (this.isNoteMode && this.activeNumber === val) {
+            if (this.activeNumber === val) {
                 k.classList.add('active-number');
             } else {
                 k.classList.remove('active-number');
             }
         });
+    }
+
+    /**
+     * Trata o clique rápido normal no botão do teclado numérico.
+     */
+    handleKeypadClick(val) {
+        if (this.game.isFinished || this.game.isPaused) return;
+
+        // Se estiver no modo Notas, o clique rápido trava o número para notas
+        if (this.isNoteMode) {
+            if (this.activeNumber === val) {
+                this.activeNumber = -1; // Desmarca se clicar de novo
+            } else {
+                this.activeNumber = val; // Marca o número ativo
+                if (this.selectedCellIndex !== -1) {
+                    this.handleNumberInput(val);
+                }
+            }
+            this.updateKeypadActiveUI();
+        } else {
+            // Se o número já estava travado por clique longo, e clicamos nele de novo ou em outro número
+            if (this.activeNumber !== -1) {
+                if (this.activeNumber === val) {
+                    this.activeNumber = -1; // Desmarca se clicar no mesmo número travado
+                } else {
+                    this.activeNumber = val; // Trava o novo número selecionado
+                    if (this.selectedCellIndex !== -1) {
+                        this.handleNumberInput(val);
+                    }
+                }
+                this.updateKeypadActiveUI();
+            } else {
+                // Comportamento normal sem trava: apenas insere na célula selecionada
+                this.handleNumberInput(val);
+            }
+        }
+    }
+
+    /**
+     * Trata o pressionamento longo (Hold) no botão do teclado numérico.
+     * Trava o número para inserção em massa tanto no modo normal quanto anotações.
+     */
+    handleKeypadLongPress(val) {
+        if (this.game.isFinished || this.game.isPaused) return;
+
+        // Vibração física rápida no celular para indicar que travou (feedback premium)
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
+
+        if (this.activeNumber === val) {
+            this.activeNumber = -1; // Destrava se já estava ativo
+        } else {
+            this.activeNumber = val; // Trava o número
+            // Se houver célula selecionada, insere nela imediatamente
+            if (this.selectedCellIndex !== -1) {
+                this.handleNumberInput(val);
+            }
+        }
+        
+        this.updateKeypadActiveUI();
+    }
+
+    /**
+     * Verifica quais números de 1 a 9 foram adicionados corretamente em todos os 9 lugares
+     * e desativa/inativa as respectivas teclas do teclado numérico.
+     */
+    updateCompletedNumbers() {
+        if (!this.game) return;
+        const counts = new Array(10).fill(0);
+
+        // Conta quantos números estão posicionados CORRETAMENTE
+        for (let i = 0; i < 81; i++) {
+            const currentVal = this.game.currentGrid[i];
+            const solvedVal = this.game.solvedGrid[i];
+            
+            // Um número está correto se ele é igual ao gabarito resolvido
+            if (currentVal !== 0 && currentVal === solvedVal) {
+                counts[currentVal]++;
+            }
+        }
+
+        // Atualiza o teclado
+        for (let num = 1; num <= 9; num++) {
+            const keyBtn = this.keypadEl.querySelector(`.key-btn[data-val="${num}"]`);
+            if (!keyBtn) continue;
+
+            if (counts[num] === 9) {
+                // Número completo! Fica inativo no teclado
+                keyBtn.classList.add('completed-key');
+                keyBtn.disabled = true;
+
+                // Se o número concluído era o número travado ativo, destrava ele
+                if (this.activeNumber === num) {
+                    this.activeNumber = -1;
+                    this.updateKeypadActiveUI();
+                }
+            } else {
+                // Caso contrário, garante que está ativo
+                keyBtn.classList.remove('completed-key');
+                keyBtn.disabled = false;
+            }
+        }
     }
 
     // ==================== CONTROLE DO JOGO E TABULEIRO ====================
@@ -314,6 +441,7 @@ class UIManager {
         this.updateHeaderProfile();
         this.updateStatusUI();
         this.renderBoard();
+        this.updateCompletedNumbers(); // Inativa números completos na carga inicial
         this.startTimer();
         
         if (this.game.isPaused) {
@@ -433,9 +561,19 @@ class UIManager {
             targetCell.classList.add('selected');
         }
 
-        // Se estiver com número travado no modo anotações, insere a nota imediatamente
-        if (this.isNoteMode && this.activeNumber !== -1 && this.game.originalGrid[index] === 0 && this.game.currentGrid[index] === 0) {
-            this.handleNumberInput(this.activeNumber);
+        // Se houver um número travado (activeNumber), insere-o imediatamente na célula
+        if (this.activeNumber !== -1 && this.game.originalGrid[index] === 0) {
+            if (this.isNoteMode) {
+                // No modo anotações, só insere nota se a célula não tiver valor definitivo
+                if (this.game.currentGrid[index] === 0) {
+                    this.handleNumberInput(this.activeNumber);
+                } else {
+                    this.highlightCells();
+                }
+            } else {
+                // No modo normal, insere o valor na célula
+                this.handleNumberInput(this.activeNumber);
+            }
         } else {
             this.highlightCells();
         }
@@ -545,6 +683,7 @@ class UIManager {
             }
         }
 
+        this.updateCompletedNumbers(); // Inativa números completos no teclado
         this.highlightCells();
         
         // Auto-save a cada jogada
@@ -600,7 +739,12 @@ class UIManager {
             valEl.innerText = '';
             cellEl.classList.remove('user-entered', 'invalid');
             
+            // Destrava o número selecionado no teclado
+            this.activeNumber = -1;
+            this.updateKeypadActiveUI();
+
             this.renderCellNotes(index);
+            this.updateCompletedNumbers(); // Atualiza números completos no teclado
             this.highlightCells();
             
             StorageManager.saveActiveGame(this.game.saveState());
@@ -617,6 +761,10 @@ class UIManager {
         if (res.success) {
             this.selectedCellIndex = res.index;
             
+            // Destrava o número selecionado no teclado
+            this.activeNumber = -1;
+            this.updateKeypadActiveUI();
+
             // Re-renderiza a célula modificada
             const cellEl = this.boardEl.querySelector(`[data-index="${res.index}"]`);
             const valEl = cellEl.querySelector('.cell-value');
@@ -645,6 +793,7 @@ class UIManager {
             allCells.forEach(c => c.classList.remove('selected'));
             cellEl.classList.add('selected');
 
+            this.updateCompletedNumbers(); // Atualiza números completos no teclado
             this.highlightCells();
             this.updateMistakesUI(); // Recalcula se o erro foi desfeito
             
@@ -674,7 +823,12 @@ class UIManager {
             cellEl.classList.remove('user-entered', 'invalid');
             cellEl.classList.add('clue'); // Transforma em pista para bloquear novos inputs nela
 
+            // Destrava o número selecionado no teclado
+            this.activeNumber = -1;
+            this.updateKeypadActiveUI();
+
             this.cleanRelatedNotesOnBoard(index, res.val);
+            this.updateCompletedNumbers(); // Atualiza números completos no teclado
             this.highlightCells();
             
             StorageManager.saveActiveGame(this.game.saveState());
@@ -869,6 +1023,10 @@ class UIManager {
         if (!this.game) return;
         this.game.isPaused = pauseState;
         
+        // Destrava o número selecionado ao pausar
+        this.activeNumber = -1;
+        this.updateKeypadActiveUI();
+
         const pauseIcon = document.getElementById('pause-icon');
 
         if (pauseState) {
