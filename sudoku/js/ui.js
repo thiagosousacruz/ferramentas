@@ -329,24 +329,28 @@ class UIManager {
         // Se estiver no modo Notas, o clique rápido trava o número para notas
         if (this.isNoteMode) {
             if (this.activeNumber === val) {
-                this.activeNumber = -1; // Desmarca se clicar de novo
+                // Clique rápido no mesmo número travado: NÃO destrava. Apenas insere nota se houver célula selecionada
+                if (this.selectedCellIndex !== -1) {
+                    this.handleNumberInput(val);
+                }
             } else {
-                this.activeNumber = val; // Marca o número ativo
+                this.activeNumber = val; // Trava o novo número selecionado (transfere a trava)
                 if (this.selectedCellIndex !== -1) {
                     this.handleNumberInput(val);
                 }
             }
             this.updateKeypadActiveUI();
         } else {
-            // Se o número já estava travado por clique longo, e clicamos nele de novo ou em outro número
+            // Se algum número já está travado
             if (this.activeNumber !== -1) {
                 if (this.activeNumber === val) {
-                    this.activeNumber = -1; // Desmarca se clicar no mesmo número travado
-                } else {
-                    this.activeNumber = val; // Trava o novo número selecionado
+                    // Clique rápido no mesmo número travado: NÃO destrava. Apenas insere na célula selecionada
                     if (this.selectedCellIndex !== -1) {
                         this.handleNumberInput(val);
                     }
+                } else {
+                    // Clique rápido em OUTRO número: transfere a trava para o novo número, SEM inserir imediatamente
+                    this.activeNumber = val;
                 }
                 this.updateKeypadActiveUI();
             } else {
@@ -363,19 +367,16 @@ class UIManager {
     handleKeypadLongPress(val) {
         if (this.game.isFinished || this.game.isPaused) return;
 
-        // Vibração física rápida no celular para indicar que travou (feedback premium)
+        // Vibração física rápida no celular para indicar que travou/destravou (feedback premium)
         if (navigator.vibrate) {
             navigator.vibrate(50);
         }
 
         if (this.activeNumber === val) {
-            this.activeNumber = -1; // Destrava se já estava ativo
+            this.activeNumber = -1; // SÓ destrava se o botão for segurado de novo pelo tempo do clique longo!
         } else {
             this.activeNumber = val; // Trava o número
-            // Se houver célula selecionada, insere nela imediatamente
-            if (this.selectedCellIndex !== -1) {
-                this.handleNumberInput(val);
-            }
+            // NÃO insere imediatamente na célula selecionada para evitar erros acidentais
         }
         
         this.updateKeypadActiveUI();
@@ -874,20 +875,39 @@ class UIManager {
         // Atalhos de números 1-9
         if (/^[1-9]$/.test(key)) {
             const val = parseInt(key);
+            
+            // Ignorar números já concluídos
+            const keyBtn = this.keypadEl.querySelector(`.key-btn[data-val="${val}"]`);
+            if (keyBtn && keyBtn.classList.contains('completed-key')) return;
+
             if (this.isNoteMode) {
                 if (this.activeNumber === val) {
-                    this.activeNumber = -1; // Desmarca se pressionar de novo
+                    // Clique rápido no mesmo número: não destrava, apenas insere se tiver célula selecionada
+                    if (this.selectedCellIndex !== -1) {
+                        this.handleNumberInput(val);
+                    }
                 } else {
-                    this.activeNumber = val; // Marca o número ativo
+                    this.activeNumber = val; // Transfere a trava
                     if (this.selectedCellIndex !== -1) {
                         this.handleNumberInput(val);
                     }
                 }
                 this.updateKeypadActiveUI();
             } else {
-                this.activeNumber = -1;
-                this.updateKeypadActiveUI();
-                this.handleNumberInput(val);
+                if (this.activeNumber !== -1) {
+                    if (this.activeNumber === val) {
+                        // Clique rápido no mesmo número: não destrava, apenas insere se tiver célula selecionada
+                        if (this.selectedCellIndex !== -1) {
+                            this.handleNumberInput(val);
+                        }
+                    } else {
+                        this.activeNumber = val; // Transfere a trava
+                    }
+                    this.updateKeypadActiveUI();
+                } else {
+                    // Sem trava: comportamento normal de inserir na célula selecionada
+                    this.handleNumberInput(val);
+                }
             }
             return;
         }

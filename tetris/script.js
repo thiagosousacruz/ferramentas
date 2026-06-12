@@ -282,6 +282,9 @@ function update(time = 0) {
     return;
   }
 
+  if (lastTime === 0) {
+    lastTime = time;
+  }
   const deltaTime = time - lastTime;
   lastTime = time;
   dropCounter += deltaTime;
@@ -393,7 +396,6 @@ function rotatePiece() {
     currentPiece.x = previousX + offset;
     if (!collides(board, currentPiece)) {
       needsRedraw = true;
-      draw();
       return;
     }
   }
@@ -414,7 +416,6 @@ function move(offset) {
   }
 
   needsRedraw = true;
-  draw();
 }
 
 function moveDown() {
@@ -433,7 +434,6 @@ function moveDown() {
   }
 
   needsRedraw = true;
-  draw();
 }
 
 function hardDrop() {
@@ -450,7 +450,6 @@ function hardDrop() {
   clearLines();
   spawnPiece();
   needsRedraw = true;
-  draw();
 }
 
 function clearLines() {
@@ -657,6 +656,12 @@ restartButton.addEventListener("click", () => {
   cancelAnimationFrame(animationFrameId);
   resetGame();
   startGame();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden && isRunning && !isPaused && !isGameOver) {
+    pauseGame();
+  }
 });
 
 boardBackdrop = buildBoardBackdrop();
