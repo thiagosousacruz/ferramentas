@@ -336,40 +336,24 @@ class UIManager {
         const keyBtn = this.keypadEl.querySelector(`.key-btn[data-val="${val}"]`);
         if (keyBtn && keyBtn.classList.contains('completed-key')) return;
 
-        if (this.isNoteMode) {
-            if (this.selectedCellIndex === -1) {
-                // Alterna a trava se não houver célula selecionada
-                this.activeNumber = this.activeNumber === val ? -1 : val;
-            } else {
+        if (this.selectedCellIndex === -1) {
+            // Alterna a trava se não houver célula selecionada
+            this.activeNumber = this.activeNumber === val ? -1 : val;
+        } else {
+            if (this.activeNumber !== -1) {
                 if (this.activeNumber === val) {
                     this.handleNumberInput(val);
                 } else {
+                    // Transfere a trava para o novo número, sem inserir imediatamente (evita erros)
                     this.activeNumber = val;
-                    this.handleNumberInput(val);
                 }
-            }
-            this.updateKeypadActiveUI();
-            this.highlightCells();
-        } else {
-            if (this.selectedCellIndex === -1) {
-                // Alterna a trava se não houver célula selecionada
-                this.activeNumber = this.activeNumber === val ? -1 : val;
             } else {
-                if (this.activeNumber !== -1) {
-                    if (this.activeNumber === val) {
-                        this.handleNumberInput(val);
-                    } else {
-                        // Transfere a trava para o novo número, sem inserir imediatamente
-                        this.activeNumber = val;
-                    }
-                } else {
-                    // Sem trava: insere diretamente
-                    this.handleNumberInput(val);
-                }
+                // Sem trava: insere diretamente
+                this.handleNumberInput(val);
             }
-            this.updateKeypadActiveUI();
-            this.highlightCells();
         }
+        this.updateKeypadActiveUI();
+        this.highlightCells();
     }
 
     /**
@@ -906,6 +890,7 @@ class UIManager {
 
             // Re-renderiza a célula modificada
             const cellEl = this.boardEl.querySelector(`[data-index="${res.index}"]`);
+            cellEl.classList.remove('clue');
             const valEl = cellEl.querySelector('.cell-value');
             
             if (res.val !== 0) {
@@ -945,9 +930,28 @@ class UIManager {
      * Concede uma dica ao jogador na célula selecionada.
      */
     handleHint() {
-        if (this.selectedCellIndex === -1 || this.game.isFinished || this.game.isPaused) return;
+        if (this.game.isFinished || this.game.isPaused) return;
 
-        const index = this.selectedCellIndex;
+        let index = this.selectedCellIndex;
+
+        // Se nenhuma célula selecionada, ou se a selecionada for pista original, ou se já estiver correta:
+        if (index === -1 || 
+            this.game.originalGrid[index] !== 0 || 
+            this.game.currentGrid[index] === this.game.solvedGrid[index]) {
+            
+            // Encontra todas as células elegíveis para dica (editáveis e não corretas)
+            const candidateIndices = [];
+            for (let i = 0; i < 81; i++) {
+                if (this.game.originalGrid[i] === 0 && this.game.currentGrid[i] !== this.game.solvedGrid[i]) {
+                    candidateIndices.push(i);
+                }
+            }
+            if (candidateIndices.length === 0) return; // Tabuleiro já resolvido ou sem candidatos
+            
+            // Escolhe um candidato aleatório
+            index = candidateIndices[Math.floor(Math.random() * candidateIndices.length)];
+        }
+
         const res = this.game.getHint(index);
 
         if (res.success) {
@@ -966,6 +970,11 @@ class UIManager {
             // Destrava o número selecionado no teclado
             this.activeNumber = -1;
             this.updateKeypadActiveUI();
+
+            // Auto-deseleção: Remove a seleção da célula após receber a dica
+            this.selectedCellIndex = -1;
+            const cells = this.boardEl.querySelectorAll('.sudoku-cell');
+            cells.forEach(c => c.classList.remove('selected'));
 
             this.cleanRelatedNotesOnBoard(index, res.val);
             this.updateCompletedNumbers(); // Atualiza números completos no teclado
@@ -998,6 +1007,12 @@ class UIManager {
             // Limpa o número travado ao desativar anotações
             this.activeNumber = -1;
             this.updateKeypadActiveUI();
+
+            // Desmarca a célula selecionada ao desligar o modo de anotações
+            this.selectedCellIndex = -1;
+            const cells = this.boardEl.querySelectorAll('.sudoku-cell');
+            cells.forEach(c => c.classList.remove('selected'));
+            this.highlightCells();
         }
     }
 

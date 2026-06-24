@@ -440,6 +440,7 @@ class SudokuGame {
 
         this.currentGrid[index] = oldVal;
         this.notes[index] = [...oldNotes];
+        this.originalGrid[index] = 0; // Se desfez a ação (incluindo dica), volta a ser editável
 
         return {
             success: true,
@@ -473,6 +474,7 @@ class SudokuGame {
         // Preenche com o gabarito
         this.currentGrid[index] = correctVal;
         this.notes[index] = newNotes;
+        this.originalGrid[index] = correctVal; // Trava a célula revelada como pista permanente
 
         this.history.push({
             index,
