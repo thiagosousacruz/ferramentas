@@ -3,487 +3,1238 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#7D3CFF">
     <title>Placar Fortnite 1x1</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --fortnite-yellow: #FFD700;
-            --fortnite-purple: #7D3CFF;
-            --fortnite-pink: #ff3df5;
-            --fortnite-blue: #00BFFF;
-            --fortnite-black: #2B2B2B;
-            --fortnite-red: #FF4655;
-            --leader-color: var(--fortnite-yellow);
+            --violeta: #7D3CFF;
+            --ciano: #00BFFF;
+            --azul: #2FD4FF;
+            --rosa: #FF3DF5;
+            --ouro: #FFD700;
+            --empate: #9A8FC0;
+            --tinta: rgba(26, 14, 61, 0.82);
+            --tinta-solida: #1A0E3D;
+            --texto: #FFFFFF;
+            --suave: rgba(255, 255, 255, 0.72);
+            --linha: rgba(255, 255, 255, 0.12);
+            --display: 'Bungee', 'Arial Black', sans-serif;
+            --corpo: 'Rubik', system-ui, sans-serif;
+            --tabbar: 64px;
         }
 
         * {
             box-sizing: border-box;
-            font-family: 'Arial Black', sans-serif;
             margin: 0;
             padding: 0;
         }
 
+        html {
+            -webkit-text-size-adjust: 100%;
+        }
+
         body {
-            background: linear-gradient(135deg, var(--fortnite-purple), var(--fortnite-blue));
+            background: linear-gradient(135deg, var(--violeta), var(--ciano));
+            background-color: var(--violeta);
             min-height: 100vh;
-            padding: 20px;
-            color: white;
-            text-align: center;
+            color: var(--texto);
+            font-family: var(--corpo);
+            font-size: 16px;
+            line-height: 1.45;
+            padding: 20px 16px calc(var(--tabbar) + 32px + env(safe-area-inset-bottom));
+        }
+
+        button,
+        input {
+            font: inherit;
+            color: inherit;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--texto);
+            outline-offset: 2px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 560px;
             margin: 0 auto;
         }
 
-        .header h1 {
-            color: var(--fortnite-yellow);
-            text-shadow: 2px 2px var(--fortnite-red);
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        .button-container button {
-            padding: 15px;
-            background: var(--fortnite-red);
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .button-container button:hover {
-            transform: scale(1.05);
-            background: #FF1A2F;
-        }
-
         .hidden {
+            display: none !important;
+        }
+
+        /* Cabeçalho */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: clamp(1.6rem, 8vw, 2.1rem);
+            line-height: 1.05;
+            color: var(--ouro);
+            text-shadow: 3px 3px 0 var(--tinta-solida);
+        }
+
+        .header p {
+            color: var(--suave);
+            font-size: 0.95rem;
+            margin-top: 4px;
+        }
+
+        .refresh {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--tinta);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        /* Anos */
+        .years {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin-bottom: 16px;
+            scrollbar-width: none;
+        }
+
+        .years::-webkit-scrollbar {
             display: none;
         }
 
-        .score-board {
-            background: var(--fortnite-black);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        .year-chip {
+            flex-shrink: 0;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(26, 14, 61, 0.45);
+            font-weight: 600;
+            font-size: 0.95rem;
         }
 
-        .players-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        .year-chip[aria-pressed="true"] {
+            background: var(--texto);
+            color: var(--tinta-solida);
         }
 
-        .player {
-            background: linear-gradient(45deg, #3A3A3A, #2B2B2B);
+        /* Painéis */
+        .panel {
+            background: var(--tinta);
             border-radius: 10px;
-            padding: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 24px 0 8px;
+        }
+
+        .status {
             text-align: center;
+            padding: 32px 16px;
+            color: var(--suave);
+        }
+
+        .status button {
+            margin-top: 12px;
+        }
+
+        /* Duelo / cabo de guerra */
+        .duel {
+            background: var(--tinta);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .duel-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .duel-row> :last-child {
+            text-align: right;
+        }
+
+        .duel-name {
+            font-family: var(--display);
+            font-size: 1rem;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+        }
+
+        .duel-name.thithizinho,
+        .duel-score.thithizinho {
+            color: var(--azul);
+        }
+
+        .duel-name.pattynha,
+        .duel-score.pattynha {
+            color: var(--rosa);
+        }
+
+        .crown {
+            margin: 0 4px;
+        }
+
+        .duel-score {
+            font-family: var(--display);
+            font-size: clamp(3.5rem, 18vw, 5.5rem);
+            line-height: 1;
+            margin: 8px 0 16px;
+        }
+
+        .tug {
             position: relative;
-            transition: color 0.3s;
+            height: 20px;
+            border-radius: 999px;
+            background: var(--rosa);
+            overflow: hidden;
         }
 
-        .player-name {
-            font-size: 1.5rem;
-            color: var(--fortnite-yellow);
-            margin-bottom: 10px;
+        .tug-fill {
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: calc(var(--share, 50) * 1%);
+            background: var(--azul);
+            clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+            transition: width 0.9s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .total-wins {
-            font-size: 3rem;
-            color: var(--fortnite-blue);
+        .tug.empty {
+            background: var(--linha);
         }
 
-        .kills-counter {
-            font-size: 1.2rem;
-            color: var(--fortnite-red);
+        .tug.empty .tug-fill {
+            display: none;
         }
 
-        .form-container {
-            background: var(--fortnite-black);
-            padding: 20px;
-            border-radius: 15px;
-            margin-top: 30px;
+        .lead {
+            margin-top: 12px;
+            color: var(--suave);
         }
 
-        input {
+        .lead strong {
+            color: var(--texto);
+            font-weight: 600;
+        }
+
+        /* Comparativo */
+        .compare {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            border: 2px solid var(--fortnite-blue);
-            border-radius: 5px;
-            background: #1A1A1A;
-            color: white;
-            font-size: 1.2rem;
+            border-collapse: collapse;
+        }
+
+        .compare td {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--linha);
+        }
+
+        .compare tr:last-child td {
+            border-bottom: none;
+        }
+
+        .compare td:first-child {
+            color: var(--azul);
+            font-weight: 600;
+            width: 30%;
+        }
+
+        .compare td:nth-child(2) {
+            text-align: center;
+            color: var(--suave);
+            font-size: 0.875rem;
+        }
+
+        .compare td:last-child {
+            color: var(--rosa);
+            font-weight: 600;
+            text-align: right;
+            width: 30%;
+        }
+
+        .note {
+            margin-top: 12px;
+            color: var(--suave);
+            font-size: 0.95rem;
+        }
+
+        /* Listas */
+        .rows {
+            list-style: none;
+            background: var(--tinta);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .rows li+li {
+            border-top: 1px solid var(--linha);
+        }
+
+        .match {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-left: 4px solid var(--empate);
+        }
+
+        .match.thithizinho {
+            border-left-color: var(--azul);
+        }
+
+        .match.pattynha {
+            border-left-color: var(--rosa);
+        }
+
+        .match-date {
+            color: var(--suave);
+        }
+
+        .match-score {
+            font-family: var(--display);
+            font-size: 1.1rem;
+        }
+
+        .match-score .thithizinho {
+            color: var(--azul);
+        }
+
+        .match-score .pattynha {
+            color: var(--rosa);
+        }
+
+        .match-score .lost {
+            opacity: 0.55;
+        }
+
+        .year-row {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 16px;
+            text-align: left;
+        }
+
+        .year-row[aria-pressed="true"] {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .year-row .y {
+            font-family: var(--display);
+            font-size: 1.1rem;
+        }
+
+        .year-row .who {
+            font-weight: 600;
+        }
+
+        .year-row .who small {
+            display: block;
+            font-weight: 400;
+            color: var(--suave);
+            font-size: 0.875rem;
+        }
+
+        .year-row .sc {
+            font-family: var(--display);
+            white-space: nowrap;
+        }
+
+        /* Botões */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: var(--texto);
+            color: var(--tinta-solida);
+            font-weight: 600;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: progress;
+        }
+
+        .btn.block {
+            width: 100%;
+            padding: 16px;
+            font-size: 1.1rem;
+        }
+
+        /* Registrar */
+        .steppers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stepper {
+            border: 2px solid var(--azul);
+            border-radius: 10px;
+            padding: 12px 8px;
             text-align: center;
         }
 
-        @media (min-width: 768px) {
-            .players-container {
-                flex-direction: row;
-                justify-content: center;
-            }
-
-            .player {
-                width: 45%;
-            }
+        .stepper.pattynha {
+            border-color: var(--rosa);
         }
 
-        .calendar-container {
-            background: var(--fortnite-black);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 20px 0;
+        .stepper label {
+            display: block;
+            font-family: var(--display);
+            font-size: 0.9rem;
+            color: var(--azul);
+            margin-bottom: 8px;
         }
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
+        .stepper.pattynha label {
+            color: var(--rosa);
+        }
+
+        .stepper-row {
+            display: grid;
+            grid-template-columns: 34px 1fr 34px;
             align-items: center;
-            margin-bottom: 20px;
+            gap: 4px;
         }
 
-        .calendar-grid {
+        .stepper-row button {
+            height: 34px;
+            border-radius: 50%;
+            background: var(--linha);
+            font-size: 1.3rem;
+            line-height: 1;
+        }
+
+        .stepper input {
+            width: 100%;
+            min-width: 0;
+            background: transparent;
+            border: none;
+            text-align: center;
+            font-family: var(--display);
+            font-size: 2.25rem;
+            -moz-appearance: textfield;
+        }
+
+        .stepper input::-webkit-outer-spin-button,
+        .stepper input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+        }
+
+        .field {
+            display: block;
+            margin-bottom: 16px;
+        }
+
+        .field span {
+            display: block;
+            color: var(--suave);
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .field input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--linha);
+            background: rgba(0, 0, 0, 0.25);
+            font-size: 1.1rem;
+            color-scheme: dark;
+        }
+
+        /* Calendário */
+        .cal-header {
+            display: grid;
+            grid-template-columns: 44px 1fr 44px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .cal-header h2 {
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .cal-header button {
+            height: 44px;
+            border-radius: 50%;
+            background: var(--linha);
+            font-size: 1rem;
+        }
+
+        .cal-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
+            gap: 6px;
         }
 
-        .calendar-day {
-            background: rgba(255, 255, 255, 0.1);
+        .cal-weekdays div {
+            text-align: center;
+            color: var(--suave);
+            font-size: 0.8rem;
+            padding-bottom: 4px;
+        }
+
+        .cal-day {
+            aspect-ratio: 1 / 1;
             border-radius: 50%;
-            aspect-ratio: 1/1;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
             font-size: 0.9rem;
-            padding: 5px;
+            background: rgba(255, 255, 255, 0.07);
         }
 
-        .calendar-day.pattynha-win::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--fortnite-pink);
-            border-radius: 50%;
-            opacity: 0.7;
+        .cal-day.thithizinho {
+            background: var(--azul);
+            color: var(--tinta-solida);
+            font-weight: 600;
         }
 
-        .calendar-day.thithizinho-win::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: var(--fortnite-blue);
-            border-radius: 50%;
-            opacity: 0.7;
+        .cal-day.pattynha {
+            background: var(--rosa);
+            color: var(--tinta-solida);
+            font-weight: 600;
         }
 
-        .monthly-score {
-            margin-top: 20px;
+        .cal-day.tie {
+            background: var(--empate);
+            color: var(--tinta-solida);
+            font-weight: 600;
+        }
+
+        .cal-day.today {
+            box-shadow: inset 0 0 0 2px var(--texto);
+        }
+
+        .legend {
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+            margin-top: 12px;
+            font-size: 0.875rem;
+            color: var(--suave);
         }
 
-        .player.mini {
-            background: linear-gradient(45deg, #3A3A3A, #2B2B2B);
-            border-radius: 10px;
-            padding: 10px;
-            width: 150px;
+        .legend span::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 6px;
+            background: var(--empate);
         }
 
-        .player.mini .player-name {
-            font-size: 1rem;
-            margin-bottom: 5px;
+        .legend .thithizinho::before {
+            background: var(--azul);
         }
 
-        .player.mini .total-wins {
+        .legend .pattynha::before {
+            background: var(--rosa);
+        }
+
+        .month-score {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--linha);
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .month-score .n {
+            font-family: var(--display);
             font-size: 2rem;
+            line-height: 1;
+        }
+
+        .month-score .thithizinho {
+            color: var(--azul);
+        }
+
+        .month-score .pattynha {
+            color: var(--rosa);
+            text-align: right;
+        }
+
+        .month-score .mid {
+            color: var(--suave);
+            font-size: 0.875rem;
+            text-align: center;
+        }
+
+        /* Abas */
+        .tabbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            background: var(--tinta-solida);
+            padding-bottom: env(safe-area-inset-bottom);
+            z-index: 10;
+        }
+
+        .tabbar button {
+            height: var(--tabbar);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+            font-size: 0.8rem;
+            color: var(--suave);
+            border-top: 3px solid transparent;
+        }
+
+        .tabbar button .ic {
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .tabbar button[aria-current="page"] {
+            color: var(--texto);
+            font-weight: 600;
+            border-top-color: var(--texto);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            left: 50%;
+            bottom: calc(var(--tabbar) + 16px + env(safe-area-inset-bottom));
+            transform: translate(-50%, 20px);
+            max-width: calc(100% - 32px);
+            padding: 12px 20px;
+            border-radius: 10px;
+            background: var(--texto);
+            color: var(--tinta-solida);
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s, transform 0.2s;
+            z-index: 20;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        .toast.erro {
+            background: #FFD1D6;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .tug-fill,
+            .toast {
+                transition: none;
+            }
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🏆 Placar Fortnite 1x1 🎮</h1>
-        </div>
+        <header class="header">
+            <div>
+                <h1>Fortnite 1x1</h1>
+                <p>Placar de vitórias da Pattynha e do Thithizinho</p>
+            </div>
+            <button class="refresh" id="refresh" aria-label="Atualizar dados">↻</button>
+        </header>
 
-        <div class="button-container">
-            <button onclick="showView('placar')">📊 Ver Placar</button>
-            <button onclick="showView('inserir')">✍️ Inserir Resultado</button>
-            <button onclick="showView('calendario'); generateCalendar()">📅 Calendário</button>
-        </div>
+        <nav class="years" id="years" aria-label="Escolher ano"></nav>
 
-        <div id="placar" class="score-board">
-            <div class="players-container">
-                <div class="player" id="player1">
-                    <div class="player-name">Thithizinho</div>
-                    <div class="total-wins">0</div>
-                    <div class="kills-counter">💀 Kills: 0</div>
+        <!-- Placar -->
+        <main id="placar">
+            <div class="status" id="status">Carregando partidas…</div>
+
+            <div id="scoreContent" class="hidden">
+                <section class="duel" aria-live="polite">
+                    <div class="duel-row">
+                        <div class="duel-name thithizinho" id="nameT">Thithizinho</div>
+                        <div class="duel-name pattynha" id="nameP">Pattynha</div>
+                    </div>
+                    <div class="duel-row">
+                        <div class="duel-score thithizinho" id="winsT">0</div>
+                        <div class="duel-score pattynha" id="winsP">0</div>
+                    </div>
+                    <div class="tug" id="tug" role="img">
+                        <div class="tug-fill"></div>
+                    </div>
+                    <p class="lead" id="lead"></p>
+                </section>
+
+                <section class="panel" id="comparePanel">
+                    <table class="compare">
+                        <tbody id="compareBody"></tbody>
+                    </table>
+                    <p class="note" id="streakNote"></p>
+                </section>
+
+                <div id="recentBlock">
+                    <h2 class="section-title">Últimas partidas</h2>
+                    <ul class="rows" id="recentList"></ul>
                 </div>
 
-                <div class="player" id="player2">
-                    <div class="player-name">Pattynha</div>
-                    <div class="total-wins">0</div>
-                    <div class="kills-counter">💀 Kills: 0</div>
+                <div id="historyBlock">
+                    <h2 class="section-title">Por ano</h2>
+                    <ul class="rows" id="historyList"></ul>
                 </div>
             </div>
-        </div>
+        </main>
 
-        <div id="inserir" class="form-container hidden">
-            <h2>➕ Adicionar Resultado</h2>
-            <input type="date" id="matchDate">
-            <input type="number" id="thithizinho" placeholder="Kills Thithizinho">
-            <input type="number" id="pattynha" placeholder="Kills Pattynha">
-            <input type="password" id="confirmCode" placeholder="Insira o código de autenticação">
-
-            <button onclick="saveResult()">Salvar Resultado 🚀</button>
-        </div>
-
-        <div id="calendario" class="calendar-container hidden">
-            <div class="calendar-header">
-                <button id="prevMonth">◀</button>
-                <h2 id="currentMonth"></h2>
-                <button id="nextMonth">▶</button>
-            </div>
-            <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="monthly-score">
-                <div class="player mini">
-                    <div class="player-name">Thithizinho</div>
-                    <div class="total-wins" id="thithizinho-monthly">0</div>
+        <!-- Registrar -->
+        <section id="inserir" class="hidden">
+            <h2 class="section-title">Registrar partida</h2>
+            <div class="panel">
+                <div class="steppers">
+                    <div class="stepper thithizinho">
+                        <label for="thithizinho">Thithizinho</label>
+                        <div class="stepper-row">
+                            <button type="button" data-target="thithizinho" data-step="-1" aria-label="Menos uma kill para Thithizinho">−</button>
+                            <input type="number" id="thithizinho" inputmode="numeric" min="0" value="0">
+                            <button type="button" data-target="thithizinho" data-step="1" aria-label="Mais uma kill para Thithizinho">+</button>
+                        </div>
+                    </div>
+                    <div class="stepper pattynha">
+                        <label for="pattynha">Pattynha</label>
+                        <div class="stepper-row">
+                            <button type="button" data-target="pattynha" data-step="-1" aria-label="Menos uma kill para Pattynha">−</button>
+                            <input type="number" id="pattynha" inputmode="numeric" min="0" value="0">
+                            <button type="button" data-target="pattynha" data-step="1" aria-label="Mais uma kill para Pattynha">+</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="player mini">
-                    <div class="player-name">Pattynha</div>
-                    <div class="total-wins" id="pattynha-monthly">0</div>
+
+                <label class="field">
+                    <span>Data da partida</span>
+                    <input type="date" id="matchDate">
+                </label>
+
+                <label class="field">
+                    <span>Código de autenticação</span>
+                    <input type="password" id="confirmCode" inputmode="numeric" autocomplete="off">
+                </label>
+
+                <button class="btn block" id="saveBtn" type="button">Salvar partida 🚀</button>
+            </div>
+        </section>
+
+        <!-- Calendário -->
+        <section id="calendario" class="hidden">
+            <div class="panel">
+                <div class="cal-header">
+                    <button id="prevMonth" aria-label="Mês anterior">◀</button>
+                    <h2 id="currentMonth"></h2>
+                    <button id="nextMonth" aria-label="Próximo mês">▶</button>
+                </div>
+                <div class="cal-grid cal-weekdays" aria-hidden="true">
+                    <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+                </div>
+                <div class="cal-grid" id="calendarGrid"></div>
+                <div class="legend">
+                    <span class="thithizinho">Thithizinho venceu</span>
+                    <span class="pattynha">Pattynha venceu</span>
+                    <span>Empate</span>
+                </div>
+                <div class="month-score">
+                    <div class="n thithizinho" id="thithizinho-monthly">0</div>
+                    <div class="mid" id="monthLabel">no mês</div>
+                    <div class="n pattynha" id="pattynha-monthly">0</div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
+    <nav class="tabbar" aria-label="Seções">
+        <button data-view="placar" aria-current="page"><span class="ic">📊</span>Placar</button>
+        <button data-view="inserir"><span class="ic">✍️</span>Registrar</button>
+        <button data-view="calendario"><span class="ic">📅</span>Calendário</button>
+    </nav>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
     <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec';
+        const AUTH_CODE = '1123';
+        const TZ = 'America/Sao_Paulo';
+        const ALL = 'geral';
+        const T = { id: 'thithizinho', name: 'Thithizinho', col: 'Thithizinho' };
+        const P = { id: 'pattynha', name: 'Pattynha', col: 'Pattynha' };
+        const PLAYERS = [T, P];
+        const nameOf = id => PLAYERS.find(p => p.id === id).name;
+
+        const $ = sel => document.querySelector(sel);
+
+        const store = {
+            get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } },
+            set(k, v) { try { localStorage.setItem(k, v); } catch (e) { /* sem storage */ } }
+        };
+
+        // ---------- Datas (sempre no fuso de Brasília) ----------
+        const dayFmt = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
+
+        function dateKey(value) {
+            if (value instanceof Date) {
+                const parts = Object.fromEntries(dayFmt.formatToParts(value).map(p => [p.type, p.value]));
+                return `${parts.year}-${parts.month}-${parts.day}`;
+            }
+            const s = String(value ?? '').trim();
+            if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+            const d = new Date(s);
+            return isNaN(d) ? null : dateKey(d);
+        }
+
+        const todayKey = () => dateKey(new Date());
+        const currentYear = () => todayKey().slice(0, 4);
+
+        function keyToLocalDate(key) {
+            const [y, m, d] = key.split('-').map(Number);
+            return new Date(y, m - 1, d);
+        }
+
+        function formatDay(key) {
+            return keyToLocalDate(key).toLocaleDateString('pt-BR', { weekday: 'short', day: 'numeric', month: 'short' });
+        }
+
+        // ---------- Estado ----------
+        const state = {
+            matches: [],
+            year: currentYear(),
+            cal: null
+        };
+
+        function toNum(v) {
+            if (v === null || v === undefined || String(v).trim() === '') return NaN;
+            return Number(v);
+        }
+
+        function normalize(data) {
+            if (!Array.isArray(data)) throw new Error('resposta inesperada da planilha');
+            const list = [];
+            data.forEach(entry => {
+                if (!entry) return;
+                const date = dateKey(entry.Data);
+                const t = toNum(entry[T.col]);
+                const p = toNum(entry[P.col]);
+                if (!date || isNaN(t) || isNaN(p)) return;
+                const winner = t > p ? T.id : p > t ? P.id : null;
+                list.push({ date, year: date.slice(0, 4), [T.id]: t, [P.id]: p, winner });
+            });
+            return list.sort((a, b) => a.date.localeCompare(b.date));
+        }
+
+        const matchesFor = year => year === ALL ? state.matches : state.matches.filter(m => m.year === year);
+
+        function summarize(list) {
+            const s = {
+                games: list.length,
+                ties: 0,
+                wins: { [T.id]: 0, [P.id]: 0 },
+                kills: { [T.id]: 0, [P.id]: 0 },
+                best: { [T.id]: 0, [P.id]: 0 },
+                streak: { who: null, len: 0 }
+            };
+            let run = { who: null, len: 0 };
+            list.forEach(m => {
+                PLAYERS.forEach(pl => { s.kills[pl.id] += m[pl.id]; });
+                if (m.winner) {
+                    s.wins[m.winner]++;
+                    run = run.who === m.winner ? { who: m.winner, len: run.len + 1 } : { who: m.winner, len: 1 };
+                    s.best[m.winner] = Math.max(s.best[m.winner], run.len);
+                } else {
+                    s.ties++;
+                    run = { who: null, len: 0 };
+                }
+            });
+            s.streak = run;
+            return s;
+        }
+
+        function yearsAvailable() {
+            const set = new Set(state.matches.map(m => m.year));
+            set.add(currentYear());
+            return [...set].sort();
+        }
+
+        // ---------- Render ----------
+        function render() {
+            const years = yearsAvailable();
+            if (state.year !== ALL && !years.includes(state.year)) state.year = currentYear();
+            renderYears(years);
+            const list = matchesFor(state.year);
+            renderScore(list);
+            renderRecent(list);
+            renderHistory();
+            setCalendarForYear(state.year);
+        }
+
+        function renderYears(years) {
+            const nav = $('#years');
+            nav.innerHTML = '';
+            [...years, ALL].forEach(y => {
+                const b = document.createElement('button');
+                b.className = 'year-chip';
+                b.textContent = y === ALL ? 'Geral' : y;
+                b.setAttribute('aria-pressed', String(y === state.year));
+                b.addEventListener('click', () => selectYear(y));
+                nav.appendChild(b);
+            });
+            const active = nav.querySelector('[aria-pressed="true"]');
+            if (active) active.scrollIntoView({ block: 'nearest', inline: 'center' });
+        }
+
+        function selectYear(y) {
+            state.year = y;
+            render();
+        }
+
+        function renderScore(list) {
+            const s = summarize(list);
+            const wt = s.wins[T.id], wp = s.wins[P.id];
+            const when = state.year === ALL ? 'no geral' : `em ${state.year}`;
+
+            $('#winsT').textContent = wt;
+            $('#winsP').textContent = wp;
+            $('#nameT').innerHTML = T.name + (wt > wp ? '<span class="crown" aria-label="líder">👑</span>' : '');
+            $('#nameP').innerHTML = (wp > wt ? '<span class="crown" aria-label="líder">👑</span>' : '') + P.name;
+
+            const tug = $('#tug');
+            const total = wt + wp;
+            tug.classList.toggle('empty', total === 0);
+            tug.style.setProperty('--share', total ? (wt / total) * 100 : 50);
+            tug.setAttribute('aria-label', `Vitórias ${when}: ${T.name} ${wt}, ${P.name} ${wp}`);
+
+            const lead = $('#lead');
+            if (s.games === 0) {
+                lead.innerHTML = `Nenhuma partida ${when} ainda. <button class="btn" style="margin-top:12px" onclick="showView('inserir')">Registrar a primeira</button>`;
+            } else if (wt === wp) {
+                lead.innerHTML = `Empatados ${when}, <strong>${wt} a ${wp}</strong>.`;
+            } else {
+                const leader = wt > wp ? T.name : P.name;
+                const diff = Math.abs(wt - wp);
+                lead.innerHTML = `<strong>${leader}</strong> na frente ${when} por ${diff} ${diff === 1 ? 'vitória' : 'vitórias'}.`;
+            }
+
+            const comparePanel = $('#comparePanel');
+            comparePanel.classList.toggle('hidden', s.games === 0);
+            if (s.games === 0) return;
+
+            const pct = id => Math.round((s.wins[id] / s.games) * 100) + '%';
+            const avg = id => (s.kills[id] / s.games).toLocaleString('pt-BR', { maximumFractionDigits: 1 });
+            const rows = [
+                [pct(T.id), 'Aproveitamento', pct(P.id)],
+                [s.kills[T.id], 'Kills', s.kills[P.id]],
+                [avg(T.id), 'Média de kills', avg(P.id)],
+                [s.best[T.id], 'Maior sequência', s.best[P.id]]
+            ];
+            $('#compareBody').innerHTML = rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+
+            const notes = [];
+            if (s.streak.who) {
+                notes.push(s.streak.len === 1
+                    ? `${nameOf(s.streak.who)} venceu a última.`
+                    : `${nameOf(s.streak.who)} venceu as últimas ${s.streak.len}.`);
+            }
+            notes.push(`${s.games} ${s.games === 1 ? 'partida' : 'partidas'}${s.ties ? `, ${s.ties} ${s.ties === 1 ? 'empate' : 'empates'}` : ''}.`);
+            $('#streakNote').textContent = notes.join(' ');
+        }
+
+        function renderRecent(list) {
+            const recent = list.slice(-8).reverse();
+            $('#recentBlock').classList.toggle('hidden', recent.length === 0);
+            $('#recentList').innerHTML = recent.map(m => {
+                const cls = id => `${id}${m.winner && m.winner !== id ? ' lost' : ''}`;
+                const label = m.winner ? `${nameOf(m.winner)} venceu` : 'Empate';
+                return `<li class="match ${m.winner || ''}" aria-label="${formatDay(m.date)}: ${label}, ${m[T.id]} a ${m[P.id]}">
+                    <span class="match-date">${formatDay(m.date)}</span>
+                    <span class="match-score"><span class="${cls(T.id)}">${m[T.id]}</span> x <span class="${cls(P.id)}">${m[P.id]}</span></span>
+                </li>`;
+            }).join('');
+        }
+
+        function renderHistory() {
+            const years = [...new Set(state.matches.map(m => m.year))].sort().reverse();
+            $('#historyBlock').classList.toggle('hidden', years.length === 0);
+            const list = $('#historyList');
+            list.innerHTML = '';
+            years.forEach(y => {
+                const s = summarize(matchesFor(y));
+                const wt = s.wins[T.id], wp = s.wins[P.id];
+                const ongoing = y === currentYear();
+                let who;
+                if (wt === wp) who = 'Empate';
+                else {
+                    const leader = wt > wp ? T.name : P.name;
+                    who = ongoing ? `${leader} lidera` : `🏆 ${leader}`;
+                }
+                const li = document.createElement('li');
+                li.innerHTML = `<button class="year-row" aria-pressed="${y === state.year}">
+                    <span class="y">${y}</span>
+                    <span class="who">${who}<small>${s.games} ${s.games === 1 ? 'partida' : 'partidas'}${ongoing ? ', em andamento' : ''}</small></span>
+                    <span class="sc"><span style="color:var(--azul)">${wt}</span> x <span style="color:var(--rosa)">${wp}</span></span>
+                </button>`;
+                li.querySelector('button').addEventListener('click', () => {
+                    selectYear(y);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+                list.appendChild(li);
+            });
+        }
+
+        // ---------- Calendário ----------
+        function setCalendarForYear(year) {
+            const today = keyToLocalDate(todayKey());
+            if (year === ALL || year === currentYear()) {
+                state.cal = new Date(today.getFullYear(), today.getMonth(), 1);
+            } else {
+                const last = matchesFor(year).slice(-1)[0];
+                const month = last ? Number(last.date.slice(5, 7)) - 1 : 11;
+                state.cal = new Date(Number(year), month, 1);
+            }
+            generateCalendar();
+        }
+
+        function generateCalendar() {
+            if (!state.cal) return;
+            const y = state.cal.getFullYear();
+            const mo = state.cal.getMonth();
+            const monthName = state.cal.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            $('#currentMonth').textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+            const byDate = {};
+            state.matches.forEach(m => { byDate[m.date] = m; });
+
+            const grid = $('#calendarGrid');
+            grid.innerHTML = '';
+            const firstWeekday = new Date(y, mo, 1).getDay();
+            const lastDay = new Date(y, mo + 1, 0).getDate();
+            const today = todayKey();
+            const monthly = { [T.id]: 0, [P.id]: 0 };
+
+            for (let i = 0; i < firstWeekday; i++) grid.appendChild(document.createElement('div'));
+
+            for (let day = 1; day <= lastDay; day++) {
+                const key = `${y}-${String(mo + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const el = document.createElement('div');
+                el.className = 'cal-day';
+                el.textContent = day;
+                const m = byDate[key];
+                if (m) {
+                    el.classList.add(m.winner || 'tie');
+                    el.title = `${T.name} ${m[T.id]} x ${m[P.id]} ${P.name}`;
+                    if (m.winner) monthly[m.winner]++;
+                }
+                if (key === today) el.classList.add('today');
+                grid.appendChild(el);
+            }
+
+            $('#thithizinho-monthly').textContent = monthly[T.id];
+            $('#pattynha-monthly').textContent = monthly[P.id];
+            $('#monthLabel').textContent = `vitórias em ${state.cal.toLocaleDateString('pt-BR', { month: 'long' })}`;
+        }
+
+        $('#prevMonth').addEventListener('click', () => {
+            state.cal.setMonth(state.cal.getMonth() - 1);
+            generateCalendar();
+        });
+
+        $('#nextMonth').addEventListener('click', () => {
+            state.cal.setMonth(state.cal.getMonth() + 1);
+            generateCalendar();
+        });
+
+        // ---------- Navegação ----------
         function showView(view) {
             ['placar', 'inserir', 'calendario'].forEach(id => {
                 document.getElementById(id).classList.toggle('hidden', id !== view);
             });
+            document.querySelectorAll('.tabbar button').forEach(b => {
+                if (b.dataset.view === view) b.setAttribute('aria-current', 'page');
+                else b.removeAttribute('aria-current');
+            });
+            $('#years').classList.toggle('hidden', view === 'inserir');
+            window.scrollTo({ top: 0 });
         }
 
-        let currentDate = new Date();
-        let matchResults = {};
+        document.querySelectorAll('.tabbar button').forEach(b => {
+            b.addEventListener('click', () => showView(b.dataset.view));
+        });
 
-        function generateCalendar() {
-            const calendarGrid = document.getElementById('calendarGrid');
-            const currentMonthElement = document.getElementById('currentMonth');
+        // ---------- Toast ----------
+        let toastTimer;
+        function toast(msg, kind) {
+            const el = $('#toast');
+            el.textContent = msg;
+            el.classList.toggle('erro', kind === 'erro');
+            el.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+        }
 
-            currentMonthElement.textContent = currentDate.toLocaleDateString('pt-BR', {
-                month: 'long',
-                year: 'numeric'
-            }).toUpperCase();
-
-            calendarGrid.innerHTML = '';
-
-            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-            const lastDay = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-
-            // Adiciona os espaços vazios para os dias antes do primeiro dia do mês
-            for (let i = 0; i < firstDay.getDay(); i++) {
-                calendarGrid.appendChild(document.createElement('div'));
+        // ---------- Dados ----------
+        async function fetchData() {
+            const status = $('#status');
+            if (!state.matches.length) {
+                status.textContent = 'Carregando partidas…';
+                status.classList.remove('hidden');
             }
-
-            let monthlyWins = {
-                thithizinho: 0,
-                pattynha: 0
-            };
-
-            for (let day = 1; day <= lastDay.getDate(); day++) {
-                const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-                const formattedDay = String(day).padStart(2, '0');
-                const dateStr = `${currentDate.getFullYear()}-${month}-${formattedDay}`;
-
-                const dayElement = document.createElement('div');
-                dayElement.className = 'calendar-day';
-                dayElement.textContent = day;
-
-                if (matchResults[dateStr]) {
-                    const winner = matchResults[dateStr].winner;
-                    dayElement.classList.add(winner + '-win');
-                    monthlyWins[winner]++;
+            try {
+                const response = await fetch(`${API_URL}?method=GET`);
+                if (!response.ok) throw new Error(`a planilha respondeu com erro ${response.status}`);
+                state.matches = normalize(await response.json());
+                status.classList.add('hidden');
+                $('#scoreContent').classList.remove('hidden');
+                render();
+            } catch (error) {
+                console.error(error);
+                if (state.matches.length) {
+                    toast('Não foi possível atualizar. Confira a conexão.', 'erro');
+                    return;
                 }
-
-                calendarGrid.appendChild(dayElement);
-            }
-
-            // Atualiza o placar mensal
-            document.getElementById('thithizinho-monthly').textContent = monthlyWins.thithizinho;
-            document.getElementById('pattynha-monthly').textContent = monthlyWins.pattynha;
-
-            // Aplica destaque ao líder do mês
-            const thithizinhoMonthly = document.getElementById('thithizinho-monthly');
-            const pattynhaMonthly = document.getElementById('pattynha-monthly');
-
-            thithizinhoMonthly.style.color = '';
-            pattynhaMonthly.style.color = '';
-
-            if (monthlyWins.thithizinho > monthlyWins.pattynha) {
-                thithizinhoMonthly.style.color = 'var(--leader-color)';
-            } else if (monthlyWins.pattynha > monthlyWins.thithizinho) {
-                pattynhaMonthly.style.color = 'var(--leader-color)';
+                status.innerHTML = '';
+                const p = document.createElement('p');
+                p.textContent = `Não foi possível carregar a planilha (${error.message}).`;
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.textContent = 'Tentar de novo';
+                btn.addEventListener('click', fetchData);
+                status.append(p, btn);
             }
         }
 
-        function formatDateForComparison(dateStr) {
-            // Handle ISO date string
-            const date = new Date(dateStr);
-            return date.toISOString().split('T')[0];
+        $('#refresh').addEventListener('click', async () => {
+            await fetchData();
+            toast('Dados atualizados');
+        });
+
+        // ---------- Registrar ----------
+        document.querySelectorAll('[data-step]').forEach(b => {
+            b.addEventListener('click', () => {
+                const input = document.getElementById(b.dataset.target);
+                const v = Math.max(0, (parseInt(input.value, 10) || 0) + Number(b.dataset.step));
+                input.value = v;
+            });
+        });
+
+        function resetForm() {
+            $('#thithizinho').value = 0;
+            $('#pattynha').value = 0;
+            $('#matchDate').value = todayKey();
         }
 
-        function fetchData() {
-            fetch("https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec?method=GET")
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Dados recebidos da API:', data);
-
-                    let thithizinhoWins = 0;
-                    let pattynhaWins = 0;
-                    let thithizinhoKills = 0;
-                    let pattynhaKills = 0;
-                    matchResults = {};
-
-                    if (!data || !Array.isArray(data)) {
-                        throw new Error('Dados inválidos ou vazios');
-                    }
-
-                    data.forEach(entry => {
-                        if (!entry || !entry.Data || !entry.Thithizinho || !entry.Pattynha) {
-                            console.warn('Entrada inválida ignorada:', entry);
-                            return;
-                        }
-
-                        const tKills = parseInt(entry.Thithizinho);
-                        const pKills = parseInt(entry.Pattynha);
-                        const winner = tKills > pKills ? 'thithizinho' :
-                            pKills > tKills ? 'pattynha' : null;
-
-                        // Format date for calendar
-                        const formattedDate = formatDateForComparison(entry.Data);
-
-                        if (winner) {
-                            matchResults[formattedDate] = { winner };
-                        }
-
-                        thithizinhoKills += tKills;
-                        pattynhaKills += pKills;
-
-                        if (tKills > pKills) thithizinhoWins++;
-                        if (pKills > tKills) pattynhaWins++;
-                    });
-
-                    document.querySelector('#player1 .total-wins').textContent = thithizinhoWins;
-                    document.querySelector('#player2 .total-wins').textContent = pattynhaWins;
-                    document.querySelector('#player1 .kills-counter').textContent = `💀 Kills: ${thithizinhoKills}`;
-                    document.querySelector('#player2 .kills-counter').textContent = `💀 Kills: ${pattynhaKills}`;
-
-                    console.log('Processed match results:', matchResults);
-
-                    highlightLeader(thithizinhoWins, pattynhaWins);
-                    generateCalendar();
-                })
-                .catch(error => {
-                    console.error('Erro completo:', error);
-                    alert('Erro ao carregar dados: ' + error.message);
-                });
-        }
-
-        function highlightLeader(thithizinhoWins, pattynhaWins) {
-            document.querySelectorAll('.player-name').forEach(el => el.innerHTML = el.innerHTML.replace(' 👑', ''));
-            document.querySelectorAll('.total-wins').forEach(el => el.style.color = '');
-
-            if (thithizinhoWins > pattynhaWins) {
-                document.querySelector('#player1 .total-wins').style.color = 'var(--leader-color)';
-                document.querySelector('#player1 .player-name').innerHTML += ' 👑';
-            } else if (pattynhaWins > thithizinhoWins) {
-                document.querySelector('#player2 .total-wins').style.color = 'var(--leader-color)';
-                document.querySelector('#player2 .player-name').innerHTML += ' 👑';
-            }
-        }
+        // Trava contra envio duplicado: fica ativa do primeiro clique até alguns
+        // segundos depois da resposta da API (que costuma demorar).
+        const SAVE_COOLDOWN_MS = 3000;
+        let saving = false;
 
         async function saveResult() {
-            const inputCode = document.getElementById('confirmCode').value;
+            if (saving) return;
+            const code = $('#confirmCode').value.trim();
+            if (code !== AUTH_CODE) {
+                toast('Código incorreto. Confira e tente de novo.', 'erro');
+                return;
+            }
+            store.set('fn-code', code);
 
-            if (inputCode !== '1123') {
-                alert('Código de autenticação incorreto!');
+            const t = parseInt($('#thithizinho').value, 10) || 0;
+            const p = parseInt($('#pattynha').value, 10) || 0;
+            if (t < 0 || p < 0) {
+                toast('Kills não podem ser negativas.', 'erro');
+                return;
+            }
+            const date = $('#matchDate').value || todayKey();
+
+            if (state.matches.some(m => m.date === date) &&
+                !confirm(`Já existe uma partida em ${formatDay(date)}. Salvar outra mesmo assim?`)) {
                 return;
             }
 
-            const tKills = document.getElementById('thithizinho').value || '0';
-            const pKills = document.getElementById('pattynha').value || '0';
-            const matchDateInput = document.getElementById('matchDate').value;
-
-            // Ensure we're working with a valid date
-            let matchDate;
-            if (matchDateInput) {
-                matchDate = new Date(matchDateInput + 'T00:00:00-03:00'); // Force Brasilia timezone
-            } else {
-                matchDate = new Date();
-            }
-
-            // Format date as YYYY-MM-DD HH:mm:ss
-            const formattedDateString = matchDate.toISOString().split('T')[0] + ' 00:00:00';
-
             const requestBody = {
                 method: 'POST',
-                Data: formattedDateString,
-                Pattynha: pKills,
-                Thithizinho: tKills
+                Data: `${date} 00:00:00`,
+                Pattynha: String(p),
+                Thithizinho: String(t)
             };
 
-            console.log('Enviando dados para a API:', requestBody);
-
-            fetch('https://script.google.com/macros/s/AKfycbwasl5FiAnMCcuvMynXybMkNon0CzC3FUw2Jubi6JYtSJSl6LBKRbz079fV7CMyAUTg/exec', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: `method=POST&data=${encodeURIComponent(JSON.stringify(requestBody))}`
-            }).then(() => {
-                alert('Resultado salvo com sucesso! 🎉');
-                fetchData();
-            }).catch(() => {
-                alert('Erro ao salvar resultado!');
-            });
+            saving = true;
+            const btn = $('#saveBtn');
+            const label = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = 'Salvando…';
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `method=POST&data=${encodeURIComponent(JSON.stringify(requestBody))}`
+                });
+                if (response.type !== 'opaque' && !response.ok) throw new Error(response.status);
+                // Registra localmente na hora, para o aviso de data repetida já valer
+                // mesmo antes de a planilha devolver os dados atualizados.
+                state.matches.push({ date, year: date.slice(0, 4), [T.id]: t, [P.id]: p, winner: t > p ? T.id : p > t ? P.id : null });
+                toast('Partida salva 🎉');
+                resetForm();
+                state.year = date.slice(0, 4);
+                btn.textContent = 'Partida salva ✓';
+                await fetchData();
+                showView('placar');
+            } catch (error) {
+                console.error(error);
+                toast('Não foi possível salvar. Confira a conexão e tente de novo.', 'erro');
+            } finally {
+                setTimeout(() => {
+                    saving = false;
+                    btn.disabled = false;
+                    btn.textContent = label;
+                }, SAVE_COOLDOWN_MS);
+            }
         }
-        document.getElementById('prevMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() - 1);
-            generateCalendar();
-        });
 
-        document.getElementById('nextMonth').addEventListener('click', () => {
-            currentDate.setMonth(currentDate.getMonth() + 1);
-            generateCalendar();
-        });
+        $('#saveBtn').addEventListener('click', saveResult);
 
+        // ---------- Início ----------
+        resetForm();
+        $('#confirmCode').value = store.get('fn-code') || '';
         fetchData();
     </script>
 </body>
