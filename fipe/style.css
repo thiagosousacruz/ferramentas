@@ -113,3 +113,177 @@ h1 {
   font-size: 1.5em;
   margin-bottom: 20px;
 }
+
+/* ---------- Mensagens ---------- */
+.mensagem {
+  margin: 15px 0;
+  padding: 12px 15px;
+  border-radius: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.mensagem p {
+  margin: 0;
+}
+
+.mensagem.erro {
+  background-color: #fdecea;
+  color: #8a1c13;
+}
+
+.mensagem.aviso {
+  background-color: #fff6e0;
+  color: #6b4b00;
+}
+
+.mensagem.hidden {
+  display: none;
+}
+
+.btn-secundario,
+.btn-historico {
+  background-color: white;
+  color: var(--cor-botao);
+  border: 1px solid var(--cor-botao);
+  border-radius: 4px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9em;
+  white-space: nowrap;
+}
+
+.btn-secundario:hover,
+.btn-historico:hover {
+  background-color: var(--cor-botao);
+  color: white;
+}
+
+.dropdown li.mais {
+  color: #777;
+  font-style: italic;
+  cursor: default;
+}
+
+.dropdown li.mais:hover {
+  background-color: white;
+}
+
+.search-container input:disabled {
+  background-color: #f2f2f2;
+}
+
+/* ---------- Tabela de preços ---------- */
+.referencia {
+  color: #666;
+  font-size: 0.9em;
+  margin: 0 0 10px;
+}
+
+td.preco {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+td.acoes {
+  text-align: right;
+}
+
+/* ---------- Histórico ---------- */
+.historico {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+  scroll-margin-top: 20px;
+}
+
+.historico h2 {
+  color: var(--cor-titulo);
+  font-size: 1.2em;
+  margin: 0 0 4px;
+}
+
+.historico-veiculo,
+.historico-status {
+  color: #666;
+  margin: 0 0 15px;
+}
+
+.resumo {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.cartao {
+  background-color: var(--cor-fundo);
+  border-radius: 6px;
+  padding: 10px 12px;
+}
+
+.cartao-rotulo {
+  display: block;
+  color: #666;
+  font-size: 0.85em;
+  margin-bottom: 4px;
+}
+
+.cartao strong {
+  font-size: 1.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+.positiva {
+  color: #1e7b34;
+}
+
+.negativa {
+  color: #b3261e;
+}
+
+.grafico {
+  position: relative;
+  height: 260px;
+  margin-bottom: 20px;
+}
+
+.tabela-historico th {
+  background-color: var(--cor-titulo);
+}
+
+.tabela-historico tr:hover {
+  background-color: transparent;
+}
+
+@media (max-width: 480px) {
+  body {
+    margin: 10px;
+  }
+
+  .container {
+    width: auto;
+    padding: 15px;
+  }
+
+  th,
+  td {
+    padding: 8px 6px;
+    font-size: 0.9em;
+  }
+
+  .grafico {
+    height: 220px;
+  }
+
+  .rotulo-botao {
+    display: none;
+  }
+
+  .btn-historico {
+    padding: 6px 10px;
+  }
+}
