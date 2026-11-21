@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,14 +14,18 @@
             --cor-titulo: #2c3e50;
             --cor-destaque: #1976d2;
             --cor-secundaria: #6c757d;
+            --cor-alerta: #b26a00;
+            --cor-erro: #c62828;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: Arial, sans-serif;
             background-color: var(--cor-fundo);
             color: var(--cor-texto);
             margin: 0;
-            padding: 20px;
+            padding: 20px 16px;
         }
 
         h1 {
@@ -40,6 +44,22 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
 
+        .status {
+            margin-bottom: 15px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: #f1f3f5;
+            color: var(--cor-secundaria);
+        }
+
+        .status.erro {
+            background: #fdecea;
+            color: var(--cor-erro);
+        }
+
+        .status:empty { display: none; }
+
         .search-container {
             position: relative;
             margin-bottom: 20px;
@@ -56,7 +76,7 @@
         .dropdown-alimentos {
             position: absolute;
             width: 100%;
-            max-height: 200px;
+            max-height: 240px;
             overflow-y: auto;
             background: white;
             border: 1px solid #ddd;
@@ -72,8 +92,15 @@
             transition: background-color 0.2s;
         }
 
-        .dropdown-item:hover {
-            background-color: #f8f9fa;
+        .dropdown-item:hover,
+        .dropdown-item.ativo {
+            background-color: #e3f2fd;
+        }
+
+        .dropdown-vazio {
+            padding: 10px;
+            color: var(--cor-secundaria);
+            font-style: italic;
         }
 
         .input-group {
@@ -106,6 +133,16 @@
             background-color: var(--cor-botao-hover);
         }
 
+        button.secundario {
+            background-color: transparent;
+            color: var(--cor-secundaria);
+            border: 1px solid #ddd;
+        }
+
+        button.secundario:hover {
+            background-color: #f1f3f5;
+        }
+
         #lista {
             list-style: none;
             padding: 0;
@@ -122,7 +159,7 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background-color 0.2s;
-            flex-wrap: wrap;
+            gap: 10px;
         }
 
         #lista li:hover {
@@ -135,9 +172,17 @@
             padding-top: 8px;
             border-top: 1px solid #eee;
             display: flex;
+            flex-wrap: wrap;
             justify-content: space-between;
+            gap: 6px;
             font-size: 0.85rem;
             color: var(--cor-secundaria);
+        }
+
+        .aviso {
+            color: var(--cor-alerta);
+            font-size: 0.8rem;
+            margin-top: 6px;
         }
 
         .resultado {
@@ -166,6 +211,12 @@
             font-weight: bold;
         }
 
+        .acoes {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 15px;
+        }
+
         .previa-calorias {
             margin: 10px 0;
             padding: 12px;
@@ -173,24 +224,24 @@
             border-radius: 8px;
             color: var(--cor-destaque);
             text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            visibility: hidden;
             font-size: 0.9rem;
+            display: none;
         }
 
         .previa-calorias.visivel {
-            opacity: 1;
-            visibility: visible;
+            display: block;
+        }
+
+        .legenda {
+            margin-top: 15px;
+            font-size: 0.75rem;
+            color: var(--cor-secundaria);
+            text-align: center;
         }
 
         @media (min-width: 480px) {
             .input-group {
                 flex-direction: row;
-            }
-            
-            input[type="number"] {
-                width: 30%;
             }
 
             .total-nutricional {
@@ -202,112 +253,241 @@
 <body>
     <h1>🔥 Calculadora Nutricional 🍏</h1>
     <div class="container">
+        <div id="status" class="status">Carregando tabela TACO...</div>
+
         <div class="search-container">
-            <input type="text" 
-                   id="pesquisa" 
-                   placeholder="Pesquisar alimento..."
-                   oninput="filtrarAlimentos()"
-                   onfocus="filtrarAlimentos()">
-            <div class="dropdown-alimentos" id="dropdown"></div>
+            <input type="text"
+                   id="pesquisa"
+                   placeholder="Pesquisar alimento (ex.: feijao, arroz)..."
+                   autocomplete="off">
+            <div class="dropdown-alimentos" id="dropdown" role="listbox"></div>
         </div>
 
         <div class="input-group">
-            <input type="number" 
-                   id="quantidade" 
-                   placeholder="Gramas" 
-                   min="1" 
-                   oninput="atualizarPrevia()">
-            <button onclick="adicionarAlimento()">➕ Adicionar</button>
-            <div id="previa" class="previa-calorias"></div>
+            <input type="number"
+                   id="quantidade"
+                   placeholder="Gramas"
+                   min="1"
+                   step="any"
+                   inputmode="decimal">
+            <button id="btn-adicionar">➕ Adicionar</button>
         </div>
-        
+        <div id="previa" class="previa-calorias"></div>
+
         <ul id="lista"></ul>
 
         <div class="resultado">
-            <div>Total de Calorias: <span id="total-calorias" class="total-destaque">0.00</span> kcal</div>
+            <div>Total de Calorias: <span id="total-calorias" class="total-destaque">0</span> kcal</div>
             <div class="total-nutricional">
-                <div class="total-item">Proteínas: <span id="total-proteinas">0.00</span>g</div>
-                <div class="total-item">Carboidratos: <span id="total-carboidratos">0.00</span>g</div>
-                <div class="total-item">Lipídios: <span id="total-lipidios">0.00</span>g</div>
+                <div class="total-item">Proteínas: <span id="total-proteinas">0,0</span>g</div>
+                <div class="total-item">Carboidratos: <span id="total-carboidratos">0,0</span>g</div>
+                <div class="total-item">Lipídios: <span id="total-lipidios">0,0</span>g</div>
+                <div class="total-item">Fibras: <span id="total-fibras">0,0</span>g</div>
             </div>
+            <div id="aviso-total" class="aviso"></div>
+        </div>
+
+        <div class="acoes">
+            <button id="btn-limpar" class="secundario">🗑️ Limpar tudo</button>
+        </div>
+
+        <div class="legenda">
+            Valores por 100 g segundo a tabela TACO. "n/d" = não disponível na tabela
+            (aguardando reanálise ou não aplicável); "traço" conta como 0.
         </div>
     </div>
 
     <script>
-        let alimentos = [];
-        let selecionados = [];
-        let alimentoSelecionado = null;
+        const NUTRIENTES = ['calorias', 'proteinas', 'carboidratos', 'lipidios', 'fibras'];
+        const CHAVE_STORAGE = 'taco-calculadora-lista';
+        const MAX_RESULTADOS = 30;
 
-        async function carregarXLSX() {
-            const response = await fetch("assets/taco.xlsx");
-            const arrayBuffer = await response.arrayBuffer();
-            const workbook = XLSX.read(arrayBuffer, { type: "array" });
-            const sheet = workbook.Sheets["taco"];
-            const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-            
-            const cols = {
-                nome: 1,        // Coluna B
-                calorias: 3,    // Coluna D
-                proteinas: 4,   // Coluna E
-                lipidios: 5,    // Coluna F
-                carboidratos: 7 // Coluna H
-            };
-            
-            alimentos = data.slice(1).map(linha => ({
-                nome: linha[cols.nome]?.toString().trim(),
-                calorias: parseFloat((linha[cols.calorias] || "0").toString().replace(",", ".")) || 0,
-                proteinas: parseFloat((linha[cols.proteinas] || "0").toString().replace(",", ".")) || 0,
-                lipidios: parseFloat((linha[cols.lipidios] || "0").toString().replace(",", ".")) || 0,
-                carboidratos: parseFloat((linha[cols.carboidratos] || "0").toString().replace(",", ".")) || 0
-            })).filter(alimento => alimento.nome);
+        let alimentos = [];
+        let selecionados = [];          // { alimento, quantidade }
+        let alimentoSelecionado = null;
+        let resultadosAtuais = [];
+        let indiceAtivo = -1;
+
+        const $ = id => document.getElementById(id);
+
+        // "*" e "NA" = sem dado (null); "Tr" (traço) = 0
+        function parseValor(v) {
+            if (typeof v === 'number') return v;
+            if (v === undefined || v === null) return null;
+            const s = v.toString().trim();
+            if (s === '' || s === '*' || s.toUpperCase() === 'NA') return null;
+            if (s.toLowerCase() === 'tr') return 0;
+            const n = parseFloat(s.replace(',', '.'));
+            return isNaN(n) ? null : n;
         }
 
+        function normalizar(texto) {
+            return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().trim();
+        }
+
+        function parseNumeroUsuario(texto) {
+            if (texto === null || texto === undefined) return NaN;
+            return parseFloat(texto.toString().replace(',', '.'));
+        }
+
+        function fmt(valor, casas) {
+            if (valor === null) return 'n/d';
+            return valor.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+        }
+
+        function calcular(alimento, quantidade) {
+            const r = {};
+            NUTRIENTES.forEach(n => {
+                r[n] = alimento[n] === null ? null : (alimento[n] / 100) * quantidade;
+            });
+            return r;
+        }
+
+        function temDadoFaltando(alimento) {
+            return NUTRIENTES.some(n => alimento[n] === null);
+        }
+
+        function escapeHtml(s) {
+            return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        async function carregarXLSX() {
+            const status = $('status');
+            try {
+                if (typeof XLSX === 'undefined') throw new Error('biblioteca XLSX não carregou (sem internet?)');
+                const response = await fetch('assets/taco.xlsx');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const arrayBuffer = await response.arrayBuffer();
+                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+                const sheet = workbook.Sheets['taco'];
+                if (!sheet) throw new Error('aba "taco" não encontrada na planilha');
+                const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+                const cols = {
+                    nome: 1,         // B
+                    calorias: 3,     // D
+                    proteinas: 4,    // E
+                    lipidios: 5,     // F
+                    carboidratos: 7, // H
+                    fibras: 8        // I
+                };
+
+                alimentos = data.slice(1).map(linha => {
+                    const nome = linha[cols.nome]?.toString().replace(/\s+/g, ' ').trim();
+                    const a = { nome, busca: nome ? normalizar(nome) : '' };
+                    NUTRIENTES.forEach(n => { a[n] = parseValor(linha[cols[n]]); });
+                    return a;
+                }).filter(a => a.nome);
+
+                status.textContent = '';
+                status.classList.remove('erro');
+                restaurarLista();
+            } catch (e) {
+                console.error(e);
+                status.classList.add('erro');
+                status.textContent = location.protocol === 'file:'
+                    ? 'Não foi possível carregar a tabela abrindo o arquivo direto. Sirva a pasta com um servidor local (ex.: "python -m http.server") ou use a versão publicada.'
+                    : `Erro ao carregar a tabela TACO: ${e.message}`;
+            }
+        }
+
+        // ---------- Busca ----------
         function filtrarAlimentos() {
-            const termo = document.getElementById('pesquisa').value.toLowerCase();
-            const dropdown = document.getElementById('dropdown');
+            const textoBusca = $('pesquisa').value;
+            const termo = normalizar(textoBusca);
+            const dropdown = $('dropdown');
+
+            // texto mudou depois de selecionar => descarta seleção antiga
+            if (alimentoSelecionado && textoBusca !== alimentoSelecionado.nome) {
+                alimentoSelecionado = null;
+                atualizarPrevia();
+            }
+
             dropdown.innerHTML = '';
+            indiceAtivo = -1;
 
-            const resultados = alimentos.filter(alimento => 
-                alimento.nome.toLowerCase().includes(termo)
-            );
+            if (!termo) {
+                resultadosAtuais = [];
+                dropdown.style.display = 'none';
+                return;
+            }
 
-            if (resultados.length > 0 && termo.length > 0) {
-                resultados.forEach(alimento => {
+            const palavras = termo.split(/\s+/);
+            resultadosAtuais = alimentos
+                .filter(a => palavras.every(p => a.busca.includes(p)))
+                .sort((a, b) => (b.busca.startsWith(termo) - a.busca.startsWith(termo)) || a.nome.localeCompare(b.nome, 'pt-BR'))
+                .slice(0, MAX_RESULTADOS);
+
+            if (resultadosAtuais.length === 0) {
+                dropdown.innerHTML = '<div class="dropdown-vazio">Nenhum alimento encontrado</div>';
+            } else {
+                resultadosAtuais.forEach((alimento, i) => {
                     const div = document.createElement('div');
                     div.className = 'dropdown-item';
+                    div.setAttribute('role', 'option');
                     div.textContent = alimento.nome;
+                    div.onmousedown = e => e.preventDefault(); // mantém foco no input
                     div.onclick = () => selecionarAlimento(alimento);
                     dropdown.appendChild(div);
                 });
-                dropdown.style.display = 'block';
-            } else {
-                dropdown.style.display = 'none';
+            }
+            dropdown.style.display = 'block';
+        }
+
+        function marcarAtivo(novoIndice) {
+            const itens = $('dropdown').querySelectorAll('.dropdown-item');
+            if (!itens.length) return;
+            indiceAtivo = (novoIndice + itens.length) % itens.length;
+            itens.forEach((el, i) => el.classList.toggle('ativo', i === indiceAtivo));
+            itens[indiceAtivo].scrollIntoView({ block: 'nearest' });
+        }
+
+        function teclaPesquisa(e) {
+            const aberto = $('dropdown').style.display === 'block';
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (!aberto) filtrarAlimentos();
+                marcarAtivo(indiceAtivo + 1);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                marcarAtivo(indiceAtivo - 1);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (aberto && resultadosAtuais.length) {
+                    selecionarAlimento(resultadosAtuais[indiceAtivo >= 0 ? indiceAtivo : 0]);
+                } else if (alimentoSelecionado) {
+                    $('quantidade').focus();
+                }
+            } else if (e.key === 'Escape') {
+                $('dropdown').style.display = 'none';
             }
         }
 
         function selecionarAlimento(alimento) {
-            document.getElementById('pesquisa').value = alimento.nome;
+            $('pesquisa').value = alimento.nome;
             alimentoSelecionado = alimento;
-            document.getElementById('dropdown').style.display = 'none';
-            document.getElementById('quantidade').focus();
+            $('dropdown').style.display = 'none';
+            $('quantidade').focus();
             atualizarPrevia();
         }
 
+        // ---------- Prévia ----------
         function atualizarPrevia() {
-            const previa = document.getElementById('previa');
-            const quantidade = document.getElementById("quantidade").value;
+            const previa = $('previa');
+            const quantidade = parseNumeroUsuario($('quantidade').value);
 
-            if (alimentoSelecionado && quantidade && quantidade > 0) {
-                const calc = qtd => ((alimentoSelecionado[qtd] / 100) * quantidade).toFixed(2);
-                
+            if (alimentoSelecionado && quantidade > 0) {
+                const c = calcular(alimentoSelecionado, quantidade);
                 previa.innerHTML = `
-                    <div>Prévia nutricional (${quantidade}g):</div>
+                    <div>Prévia nutricional (${fmt(quantidade, 0)}g):</div>
                     <div style="margin-top: 5px;">
-                        <span style="color: var(--cor-destaque);">${calc('calorias')} kcal</span> |
-                        <span>Proteínas: ${calc('proteinas')}g</span> |
-                        <span>Carbs: ${calc('carboidratos')}g</span> |
-                        <span>Gorduras: ${calc('lipidios')}g</span>
+                        <strong>${fmt(c.calorias, 0)} kcal</strong> |
+                        Proteínas: ${fmt(c.proteinas, 1)}g |
+                        Carbs: ${fmt(c.carboidratos, 1)}g |
+                        Gorduras: ${fmt(c.lipidios, 1)}g |
+                        Fibras: ${fmt(c.fibras, 1)}g
                     </div>
+                    ${temDadoFaltando(alimentoSelecionado) ? '<div class="aviso">⚠️ A TACO não tem todos os valores deste alimento.</div>' : ''}
                 `;
                 previa.classList.add('visivel');
             } else {
@@ -315,107 +495,44 @@
             }
         }
 
+        // ---------- Lista ----------
         function adicionarAlimento() {
-            if (selecionados.length >= 5) {
-                alert("Máximo de 5 alimentos permitidos!");
-                return;
-            }
-
-            const quantidade = parseFloat(document.getElementById("quantidade").value);
-            
-            if (!quantidade || quantidade <= 0) {
-                alert("Insira uma quantidade válida!");
-                return;
-            }
+            const quantidade = parseNumeroUsuario($('quantidade').value);
 
             if (!alimentoSelecionado) {
-                alert("Selecione um alimento válido!");
+                alert('Selecione um alimento da lista!');
+                $('pesquisa').focus();
+                return;
+            }
+            if (!(quantidade > 0)) {
+                alert('Insira uma quantidade válida!');
+                $('quantidade').focus();
                 return;
             }
 
-            const calcularNutriente = (nutriente) => 
-                (alimentoSelecionado[nutriente] / 100) * quantidade;
-            
-            selecionados.push({
-                nome: alimentoSelecionado.nome,
-                quantidade,
-                caloriasTotais: calcularNutriente('calorias'),
-                proteinas: calcularNutriente('proteinas'),
-                carboidratos: calcularNutriente('carboidratos'),
-                lipidios: calcularNutriente('lipidios')
-            });
-            
-            // Limpar campos
-            document.getElementById('pesquisa').value = '';
-            document.getElementById('quantidade').value = '';
+            selecionados.push({ alimento: alimentoSelecionado, quantidade });
+
+            $('pesquisa').value = '';
+            $('quantidade').value = '';
             alimentoSelecionado = null;
-            document.getElementById('dropdown').style.display = 'none';
-            document.getElementById('previa').classList.remove('visivel');
-            
+            $('dropdown').style.display = 'none';
+            $('previa').classList.remove('visivel');
+            $('pesquisa').focus();
+
             atualizarLista();
         }
 
         function editarQuantidade(index) {
-            const novaQuantidade = prompt("Nova quantidade (gramas):", selecionados[index].quantidade);
-            if (novaQuantidade && !isNaN(novaQuantidade) && novaQuantidade > 0) {
-                const quantidadeNum = parseFloat(novaQuantidade);
-                const alimentoOriginal = alimentos.find(a => a.nome === selecionados[index].nome);
-                
-                selecionados[index] = {
-                    nome: selecionados[index].nome,
-                    quantidade: quantidadeNum,
-                    caloriasTotais: (alimentoOriginal.calorias / 100) * quantidadeNum,
-                    proteinas: (alimentoOriginal.proteinas / 100) * quantidadeNum,
-                    carboidratos: (alimentoOriginal.carboidratos / 100) * quantidadeNum,
-                    lipidios: (alimentoOriginal.lipidios / 100) * quantidadeNum
-                };
-                
-                atualizarLista();
+            const atual = selecionados[index].quantidade.toString().replace('.', ',');
+            const resposta = prompt('Nova quantidade (gramas):', atual);
+            if (resposta === null) return;
+            const nova = parseNumeroUsuario(resposta);
+            if (!(nova > 0)) {
+                alert('Quantidade inválida!');
+                return;
             }
-        }
-
-        function atualizarLista() {
-            const lista = document.getElementById("lista");
-            lista.innerHTML = "";
-            
-            let totais = {
-                calorias: 0,
-                proteinas: 0,
-                carboidratos: 0,
-                lipidios: 0
-            };
-
-            selecionados.forEach((item, index) => {
-                totais.calorias += item.caloriasTotais;
-                totais.proteinas += item.proteinas;
-                totais.carboidratos += item.carboidratos;
-                totais.lipidios += item.lipidios;
-
-                const li = document.createElement("li");
-                li.onclick = () => editarQuantidade(index);
-                li.innerHTML = `
-                    <div style="width: 100%;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <span>${item.nome} - ${item.quantidade}g</span>
-                            <span style="color: var(--cor-destaque);">${item.caloriasTotais.toFixed(2)} kcal</span>
-                        </div>
-                        <div class="info-nutricional">
-                            <span>Proteínas: ${item.proteinas.toFixed(2)}g</span>
-                            <span>Carbs: ${item.carboidratos.toFixed(2)}g</span>
-                            <span>Gorduras: ${item.lipidios.toFixed(2)}g</span>
-                        </div>
-                    </div>
-                    <button onclick="event.stopPropagation(); removerAlimento(${index})" 
-                            style="margin-left: 10px; padding: 4px 8px;">❌</button>
-                `;
-                lista.appendChild(li);
-            });
-
-            // Atualizar totais
-            document.getElementById("total-calorias").textContent = totais.calorias.toFixed(2);
-            document.getElementById("total-proteinas").textContent = totais.proteinas.toFixed(2);
-            document.getElementById("total-carboidratos").textContent = totais.carboidratos.toFixed(2);
-            document.getElementById("total-lipidios").textContent = totais.lipidios.toFixed(2);
+            selecionados[index].quantidade = nova;
+            atualizarLista();
         }
 
         function removerAlimento(index) {
@@ -424,25 +541,107 @@
         }
 
         function limparTudo() {
-            if (confirm("Tem certeza que deseja limpar todos os dados?")) {
+            if (!selecionados.length) return;
+            if (confirm('Tem certeza que deseja limpar todos os dados?')) {
                 selecionados = [];
-                document.getElementById('pesquisa').value = '';
-                document.getElementById('quantidade').value = '';
-                document.getElementById('previa').classList.remove('visivel');
-                document.getElementById('dropdown').style.display = 'none';
+                $('pesquisa').value = '';
+                $('quantidade').value = '';
+                alimentoSelecionado = null;
+                $('previa').classList.remove('visivel');
+                $('dropdown').style.display = 'none';
                 atualizarLista();
             }
         }
 
-        // Inicialização
-        carregarXLSX();
+        function atualizarLista() {
+            const lista = $('lista');
+            lista.innerHTML = '';
 
-        // Fechar dropdown ao clicar fora
+            const totais = { calorias: 0, proteinas: 0, carboidratos: 0, lipidios: 0, fibras: 0 };
+            let parcial = false;
+
+            selecionados.forEach((item, index) => {
+                const c = calcular(item.alimento, item.quantidade);
+                NUTRIENTES.forEach(n => {
+                    if (c[n] === null) parcial = true;
+                    else totais[n] += c[n];
+                });
+
+                const li = document.createElement('li');
+                li.title = 'Clique para editar a quantidade';
+                li.onclick = () => editarQuantidade(index);
+                li.innerHTML = `
+                    <div style="flex: 1; min-width: 0;">
+                        <div style="display: flex; justify-content: space-between; gap: 10px;">
+                            <span>${escapeHtml(item.alimento.nome)} - ${fmt(item.quantidade, item.quantidade % 1 ? 1 : 0)}g</span>
+                            <span style="color: var(--cor-destaque); white-space: nowrap;">${fmt(c.calorias, 0)} kcal</span>
+                        </div>
+                        <div class="info-nutricional">
+                            <span>Proteínas: ${fmt(c.proteinas, 1)}g</span>
+                            <span>Carbs: ${fmt(c.carboidratos, 1)}g</span>
+                            <span>Gorduras: ${fmt(c.lipidios, 1)}g</span>
+                            <span>Fibras: ${fmt(c.fibras, 1)}g</span>
+                        </div>
+                    </div>
+                `;
+                const btn = document.createElement('button');
+                btn.textContent = '❌';
+                btn.title = 'Remover';
+                btn.className = 'secundario';
+                btn.style.padding = '4px 8px';
+                btn.onclick = e => { e.stopPropagation(); removerAlimento(index); };
+                li.appendChild(btn);
+                lista.appendChild(li);
+            });
+
+            $('total-calorias').textContent = fmt(totais.calorias, 0);
+            $('total-proteinas').textContent = fmt(totais.proteinas, 1);
+            $('total-carboidratos').textContent = fmt(totais.carboidratos, 1);
+            $('total-lipidios').textContent = fmt(totais.lipidios, 1);
+            $('total-fibras').textContent = fmt(totais.fibras, 1);
+            $('aviso-total').textContent = parcial
+                ? '⚠️ Total parcial: algum alimento não tem todos os valores na TACO.'
+                : '';
+
+            salvarLista();
+        }
+
+        // ---------- Persistência ----------
+        function salvarLista() {
+            try {
+                const dados = selecionados.map(s => ({ nome: s.alimento.nome, quantidade: s.quantidade }));
+                localStorage.setItem(CHAVE_STORAGE, JSON.stringify(dados));
+            } catch (e) { /* storage indisponível: ignora */ }
+        }
+
+        function restaurarLista() {
+            try {
+                const dados = JSON.parse(localStorage.getItem(CHAVE_STORAGE) || '[]');
+                selecionados = dados
+                    .map(d => ({ alimento: alimentos.find(a => a.nome === d.nome), quantidade: d.quantidade }))
+                    .filter(s => s.alimento && s.quantidade > 0);
+            } catch (e) {
+                selecionados = [];
+            }
+            atualizarLista();
+        }
+
+        // ---------- Eventos ----------
+        $('pesquisa').addEventListener('input', filtrarAlimentos);
+        $('pesquisa').addEventListener('focus', () => { if ($('pesquisa').value && !alimentoSelecionado) filtrarAlimentos(); });
+        $('pesquisa').addEventListener('keydown', teclaPesquisa);
+        $('quantidade').addEventListener('input', atualizarPrevia);
+        $('quantidade').addEventListener('keydown', e => { if (e.key === 'Enter') adicionarAlimento(); });
+        $('btn-adicionar').addEventListener('click', adicionarAlimento);
+        $('btn-limpar').addEventListener('click', limparTudo);
+
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.search-container')) {
-                document.getElementById('dropdown').style.display = 'none';
+                $('dropdown').style.display = 'none';
             }
         });
+
+        carregarXLSX();
     </script>
 </body>
 </html>

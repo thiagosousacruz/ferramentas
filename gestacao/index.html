@@ -3,18 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
   <title>Dante - Painel de Acompanhamento 👶🏽</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <style>
     :root {
-      --primary-color: #9a8c98;
-      --secondary-color: #7fb3d5;
-      --background-color: #f2e9e4;
-      --text-color: #4a4e69;
-      --accent-color: #22223b;
-      --heart-color: #5dade2;
-      --success-color: #7fb3d5;
-      --warning-color: #ffa500;
+      --fundo: #f2e9e4;
+      --cartao: #ffffff;
+      --texto: #3d3f5c;
+      --texto-suave: #5d607a;
+      --destaque: #2f6f9a;
+      --destaque-escuro: #245a7f;
+      --lilas: #6d5f73;
+      --faixa-externa: rgba(109, 95, 115, 0.10);
+      --faixa-central: rgba(109, 95, 115, 0.22);
+      --alerta-fundo: #fff4dc;
+      --alerta-texto: #6b4b00;
+      --sombra: 0 4px 15px rgba(0, 0, 0, 0.07);
     }
 
     * {
@@ -23,149 +28,173 @@
       box-sizing: border-box;
     }
 
-    body, html {
+    body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, var(--background-color) 0%, #f5ede5 100%);
-      color: var(--text-color);
+      background: linear-gradient(135deg, var(--fundo) 0%, #f5ede5 100%);
+      color: var(--texto);
       min-height: 100vh;
+      line-height: 1.45;
     }
 
     header {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-      color: white;
+      background: linear-gradient(135deg, var(--lilas) 0%, var(--destaque) 100%);
+      color: #fff;
       text-align: center;
       padding: 2rem 1rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--sombra);
     }
 
     header h1 {
-      font-size: 2.5rem;
-      margin-bottom: 0.5rem;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      font-size: 2.2rem;
+      margin-bottom: 0.35rem;
     }
 
     .subtitle {
-      font-size: 1.1rem;
-      font-weight: 300;
-      opacity: 0.95;
+      font-size: 1.05rem;
     }
 
     .container {
-      max-width: 1200px;
+      max-width: 1100px;
       margin: 0 auto;
       padding: 2rem 1rem;
     }
 
-    /* Cards de Estatísticas */
+    .secao {
+      background: var(--cartao);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: var(--sombra);
+      margin-bottom: 1.5rem;
+    }
+
+    .secao h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    /* ---------- Cards ---------- */
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
     }
 
     .stat-card {
-      background: white;
+      background: var(--cartao);
       border-radius: 16px;
-      padding: 1.5rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      transition: all 0.3s ease;
-      border-left: 4px solid var(--heart-color);
+      padding: 1.25rem 1rem;
+      box-shadow: var(--sombra);
+      border-top: 4px solid var(--destaque);
       text-align: center;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-    }
-
-    .stat-card.weight {
-      border-left-color: var(--secondary-color);
-    }
-
-    .stat-card.height {
-      border-left-color: var(--secondary-color);
-    }
-
-    .stat-card.age {
-      border-left-color: var(--heart-color);
     }
 
     .stat-label {
-      font-size: 0.9rem;
-      color: var(--text-color);
+      font-size: 0.8rem;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 0.5rem;
-      opacity: 0.8;
+      color: var(--texto-suave);
     }
 
     .stat-value {
-      font-size: 2.5rem;
+      font-size: 2.3rem;
       font-weight: 700;
-      color: var(--primary-color);
-      margin: 0.5rem 0;
+      color: var(--texto);
+      margin: 0.25rem 0 0;
+      font-variant-numeric: tabular-nums;
     }
 
     .stat-unit {
-      font-size: 0.85rem;
-      color: var(--text-color);
-      opacity: 0.7;
+      font-size: 0.9rem;
+      color: var(--texto-suave);
     }
 
-    .stat-change {
-      font-size: 0.8rem;
-      margin-top: 0.5rem;
+    .stat-detalhe {
+      font-size: 0.85rem;
+      margin-top: 0.75rem;
       padding: 0.5rem;
       border-radius: 8px;
-      background-color: rgba(201, 173, 167, 0.1);
-      color: var(--secondary-color);
+      background-color: #eef4f9;
+      color: var(--destaque-escuro);
       font-weight: 600;
     }
 
-    /* Gráficos */
+    .stat-detalhe span {
+      display: block;
+      font-weight: 400;
+      color: var(--texto-suave);
+    }
+
+    /* ---------- Resumo ---------- */
+    .resumo {
+      border-left: 4px solid var(--destaque);
+    }
+
+    .resumo p + p {
+      margin-top: 0.5rem;
+    }
+
+    .resumo .aviso-medico {
+      font-size: 0.85rem;
+      color: var(--texto-suave);
+    }
+
+    .fora-da-faixa {
+      background: var(--alerta-fundo);
+      color: var(--alerta-texto);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+    }
+
+    /* ---------- Gráficos ---------- */
     .charts-section {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .chart-container {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      position: relative;
-    }
-
-    .chart-title {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: var(--accent-color);
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
       margin-bottom: 1.5rem;
-      text-align: center;
+    }
+
+    .charts-section .secao {
+      margin-bottom: 0;
     }
 
     .chart-canvas {
       position: relative;
-      height: 300px;
+      height: 320px;
     }
 
-    /* Tabela de Dados */
-    .table-section {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      margin-bottom: 2rem;
+    .legenda {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--texto-suave);
+    }
+
+    .legenda i {
+      display: inline-block;
+      width: 18px;
+      height: 10px;
+      margin-right: 0.35rem;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    .legenda .l-dante { background: var(--destaque); height: 4px; }
+    .legenda .l-mediana { border-top: 2px dashed var(--lilas); height: 0; }
+    .legenda .l-central { background: var(--faixa-central); }
+    .legenda .l-externa { background: var(--faixa-externa); border: 1px solid rgba(109, 95, 115, 0.25); }
+
+    .nota-grafico {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      color: var(--texto-suave);
+    }
+
+    /* ---------- Tabela ---------- */
+    .tabela-wrap {
       overflow-x: auto;
-    }
-
-    .table-section h2 {
-      color: var(--accent-color);
-      margin-bottom: 1.5rem;
-      font-size: 1.3rem;
     }
 
     table {
@@ -174,28 +203,22 @@
     }
 
     thead {
-      background-color: var(--primary-color);
-      color: white;
+      background-color: var(--lilas);
+      color: #fff;
     }
 
     th {
-      padding: 1rem;
+      padding: 0.75rem;
       text-align: left;
       font-weight: 600;
-      letter-spacing: 0.5px;
+      white-space: nowrap;
     }
 
     td {
-      padding: 1rem;
+      padding: 0.75rem;
       border-bottom: 1px solid #eee;
-    }
-
-    tbody tr {
-      transition: background-color 0.2s ease;
-    }
-
-    tbody tr:hover {
-      background-color: rgba(201, 173, 167, 0.1);
+      vertical-align: top;
+      font-variant-numeric: tabular-nums;
     }
 
     tbody tr:last-child td {
@@ -204,39 +227,61 @@
 
     .date-cell {
       font-weight: 600;
-      color: var(--accent-color);
+      white-space: nowrap;
     }
 
-    .recent-tag {
+    .idade-mobile {
+      display: none;
+      font-weight: 400;
+      font-size: 0.78rem;
+      color: var(--texto-suave);
+    }
+
+    .percentil {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--texto-suave);
+    }
+
+    .obs {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--texto-suave);
+      font-weight: 400;
+      font-style: italic;
+      white-space: normal;
+    }
+
+    .tag {
       display: inline-block;
-      background-color: var(--heart-color);
-      color: white;
-      padding: 0.25rem 0.75rem;
+      padding: 0.1rem 0.6rem;
       border-radius: 20px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 700;
-      margin-left: 0.5rem;
+      margin-left: 0.35rem;
+      vertical-align: middle;
     }
 
-    /* Formulário de Novo Registro */
-    .form-section {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-      margin-bottom: 2rem;
+    .tag-ultima { background-color: var(--destaque); color: #fff; }
+    .tag-local { background-color: var(--alerta-fundo); color: var(--alerta-texto); }
+
+    .btn-remover {
+      background: none;
+      border: none;
+      color: var(--texto-suave);
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-decoration: underline;
+      padding: 0;
+      margin-top: 0.25rem;
+      display: block;
     }
 
-    .form-section h2 {
-      color: var(--accent-color);
-      margin-bottom: 1.5rem;
-      font-size: 1.3rem;
-    }
-
+    /* ---------- Formulário ---------- */
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
       align-items: end;
     }
 
@@ -245,528 +290,903 @@
       flex-direction: column;
     }
 
+    .form-group.obs-campo {
+      grid-column: 1 / -1;
+    }
+
     .form-group label {
       font-weight: 600;
-      color: var(--text-color);
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
       font-size: 0.95rem;
     }
 
     .form-group input {
-      padding: 0.75rem;
-      border: 2px solid var(--secondary-color);
+      padding: 0.7rem;
+      border: 2px solid #b9cfe0;
       border-radius: 8px;
       font-size: 1rem;
-      transition: border-color 0.3s ease;
+      color: var(--texto);
+      background: #fff;
     }
 
     .form-group input:focus {
       outline: none;
-      border-color: var(--heart-color);
-      box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+      border-color: var(--destaque);
+      box-shadow: 0 0 0 3px rgba(47, 111, 154, 0.2);
     }
 
-    button {
-      padding: 0.75rem 2rem;
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      color: white;
+    .botao {
+      padding: 0.75rem 1.25rem;
+      background: var(--destaque);
+      color: #fff;
       border: none;
       border-radius: 8px;
       font-weight: 600;
       font-size: 1rem;
       cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+    .botao:hover {
+      background: var(--destaque-escuro);
     }
 
-    button:active {
-      transform: translateY(0);
+    .botao:focus-visible {
+      outline: 3px solid rgba(47, 111, 154, 0.4);
+      outline-offset: 2px;
     }
 
-    /* Footer */
-    footer {
-      text-align: center;
-      padding: 2rem 1rem;
-      color: var(--text-color);
-      margin-top: 2rem;
-      font-size: 0.95rem;
+    .botao-secundario {
+      background: #fff;
+      color: var(--destaque-escuro);
+      border: 2px solid var(--destaque);
     }
 
-    footer p {
-      margin: 0.5rem 0;
+    .botao-secundario:hover {
+      background: #eef4f9;
     }
 
-    .divider {
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--secondary-color), transparent);
-      margin: 3rem 0;
-    }
-
-    /* Responsivo */
-    @media (max-width: 768px) {
-      header h1 {
-        font-size: 1.8rem;
-      }
-
-      .subtitle {
-        font-size: 0.95rem;
-      }
-
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .charts-section {
-        grid-template-columns: 1fr;
-      }
-
-      .chart-canvas {
-        height: 250px;
-      }
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      table {
-        font-size: 0.9rem;
-      }
-
-      th, td {
-        padding: 0.75rem;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 1rem;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-value {
-        font-size: 2rem;
-      }
-
-      header {
-        padding: 1.5rem 1rem;
-      }
-
-      header h1 {
-        font-size: 1.5rem;
-      }
-
-      .chart-container {
-        padding: 1.5rem;
-      }
-
-      th, td {
-        padding: 0.5rem;
-        font-size: 0.85rem;
-      }
-    }
-
-    .animation-pulse {
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% {
-        opacity: 1;
-      }
-      50% {
-        opacity: 0.7;
-      }
-    }
-
-    .milestone {
-      background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(201, 173, 167, 0.1));
-      border-left: 4px solid var(--heart-color);
-      padding: 1rem;
-      border-radius: 8px;
+    .form-ajuda {
+      font-size: 0.85rem;
+      color: var(--texto-suave);
       margin-bottom: 1rem;
     }
 
-    .milestone-title {
-      font-weight: 700;
-      color: var(--accent-color);
-      margin-bottom: 0.25rem;
+    .locais {
+      margin-top: 1.25rem;
+      padding: 1rem;
+      border-radius: 8px;
+      background: var(--alerta-fundo);
+      color: var(--alerta-texto);
+      font-size: 0.9rem;
     }
 
-    .milestone-text {
+    .locais .botao {
+      margin-top: 0.75rem;
+    }
+
+    .mensagem {
+      margin-top: 0.75rem;
       font-size: 0.9rem;
-      color: var(--text-color);
+      min-height: 1.2em;
+    }
+
+    .mensagem.erro { color: #a3231a; }
+    .mensagem.ok { color: var(--destaque-escuro); }
+
+    .erro-carga {
+      background: #fdecea;
+      color: #8a1c13;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+    }
+
+    .hidden { display: none !important; }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem 1rem 2rem;
+      color: var(--texto-suave);
+      font-size: 0.95rem;
+    }
+
+    footer p + p {
+      font-size: 0.85rem;
+      margin-top: 0.35rem;
+    }
+
+    /* ---------- Responsivo ---------- */
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-section { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid .botao { order: 1; }
+    }
+
+    @media (max-width: 480px) {
+      header h1 { font-size: 1.6rem; }
+      .container { padding: 1rem 0.75rem; }
+      .stats-grid { gap: 0.75rem; }
+      .stat-card { padding: 1rem 0.6rem; }
+      .stat-value { font-size: 1.8rem; }
+      .stat-detalhe { font-size: 0.78rem; }
+      .secao { padding: 1.1rem; }
+      .chart-canvas { height: 280px; }
+      th, td { padding: 0.55rem 0.4rem; font-size: 0.85rem; }
+      .date-cell { white-space: normal; }
+      .tag { margin: 0.15rem 0.35rem 0 0; }
+      .col-idade { display: none; }
+      .idade-mobile { display: block; }
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>👶🏽 Jornada do Dante 💗</h1>
+    <h1>👶🏽 Jornada do Dante 💙</h1>
     <p class="subtitle">Acompanhando o crescimento de um bebê muito amado</p>
   </header>
 
-  <div class="container">
-    <!-- Cards de Estatísticas -->
+  <main class="container">
+    <div id="erro-carga" class="erro-carga hidden" role="alert"></div>
+
+    <!-- Cards -->
     <div class="stats-grid">
-      <div class="stat-card age">
-        <div class="stat-label">Idade</div>
-        <div class="stat-value" id="age-display">5</div>
-        <div class="stat-unit">meses</div>
-        <div class="stat-change" id="age-details">Nascido em 12/10/2025</div>
-      </div>
-
-      <div class="stat-card weight">
-        <div class="stat-label">Peso Atual</div>
-        <div class="stat-value" id="weight-display">7.84</div>
-        <div class="stat-unit">kg</div>
-        <div class="stat-change" id="weight-change">+0.61 kg desde o nascimento</div>
-      </div>
-
-      <div class="stat-card height">
-        <div class="stat-label">Altura Atual</div>
-        <div class="stat-value" id="height-display">65</div>
-        <div class="stat-unit">cm</div>
-        <div class="stat-change" id="height-change">+18.5 cm desde o nascimento</div>
-      </div>
-
       <div class="stat-card">
-        <div class="stat-label">Última Medição</div>
-        <div class="stat-value" id="last-measure">12/03</div>
-        <div class="stat-unit">2026</div>
-        <div class="stat-change" id="days-since">Há 10 dias</div>
+        <div class="stat-label">Idade</div>
+        <div class="stat-value" id="idade-valor">–</div>
+        <div class="stat-unit" id="idade-unidade">meses</div>
+        <div class="stat-detalhe" id="idade-detalhe">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Peso</div>
+        <div class="stat-value" id="peso-valor">–</div>
+        <div class="stat-unit">kg</div>
+        <div class="stat-detalhe" id="peso-detalhe">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Comprimento</div>
+        <div class="stat-value" id="comprimento-valor">–</div>
+        <div class="stat-unit">cm</div>
+        <div class="stat-detalhe" id="comprimento-detalhe">&nbsp;</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Última medição</div>
+        <div class="stat-value" id="ultima-valor">–</div>
+        <div class="stat-unit" id="ultima-ano">&nbsp;</div>
+        <div class="stat-detalhe" id="ultima-detalhe">&nbsp;</div>
       </div>
     </div>
 
-    <!-- Marcos de Desenvolvimento -->
-    <div class="milestone">
-      <div class="milestone-title">✨ Marcos de Desenvolvimento</div>
-      <div class="milestone-text">
-        Aos 5 meses, Dante está cada vez maior e mais forte! Continue acompanhando seu crescimento saudável.
-      </div>
-    </div>
+    <!-- Resumo -->
+    <section class="secao resumo" aria-labelledby="resumo-titulo">
+      <h2 id="resumo-titulo">✨ Como o Dante está crescendo</h2>
+      <div id="resumo-texto"><p>Carregando medições…</p></div>
+      <p class="aviso-medico">As curvas são o padrão de crescimento da OMS, as mesmas da Caderneta da Criança. Este painel ajuda a família a acompanhar, mas não substitui as consultas com o pediatra.</p>
+    </section>
 
-    <!-- Gráficos de Crescimento -->
+    <!-- Gráficos -->
     <div class="charts-section">
-      <div class="chart-container">
-        <div class="chart-title">📊 Evolução do Peso</div>
+      <section class="secao" aria-labelledby="peso-titulo">
+        <h2 id="peso-titulo">📊 Peso por idade</h2>
         <div class="chart-canvas">
-          <canvas id="weightChart"></canvas>
+          <canvas id="weightChart" role="img" aria-label="Gráfico do peso do Dante sobre as curvas de referência da OMS"></canvas>
         </div>
-      </div>
-
-      <div class="chart-container">
-        <div class="chart-title">📏 Evolução da Altura</div>
+        <div class="legenda" aria-hidden="true">
+          <span><i class="l-dante"></i>Dante</span>
+          <span><i class="l-mediana"></i>Mediana (P50)</span>
+          <span><i class="l-central"></i>P15–P85</span>
+          <span><i class="l-externa"></i>P3–P97</span>
+        </div>
+      </section>
+      <section class="secao" aria-labelledby="comprimento-titulo">
+        <h2 id="comprimento-titulo">📏 Comprimento por idade</h2>
         <div class="chart-canvas">
-          <canvas id="heightChart"></canvas>
+          <canvas id="heightChart" role="img" aria-label="Gráfico do comprimento do Dante sobre as curvas de referência da OMS"></canvas>
         </div>
+        <div class="legenda" aria-hidden="true">
+          <span><i class="l-dante"></i>Dante</span>
+          <span><i class="l-mediana"></i>Mediana (P50)</span>
+          <span><i class="l-central"></i>P15–P85</span>
+          <span><i class="l-externa"></i>P3–P97</span>
+        </div>
+      </section>
+    </div>
+    <p class="nota-grafico" id="nota-grafico">Faixa P3–P97: onde está a grande maioria dos bebês saudáveis. Mais importante que o percentil exato é a curva seguir um caminho parecido com as linhas de referência.</p>
+
+    <!-- Tabela -->
+    <section class="secao" aria-labelledby="historico-titulo" style="margin-top: 1.5rem;">
+      <h2 id="historico-titulo">📋 Histórico de medições</h2>
+      <div class="tabela-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th class="col-idade">Idade</th>
+              <th>Peso (kg)</th>
+              <th>Comprimento (cm)</th>
+            </tr>
+          </thead>
+          <tbody id="measurements-table"></tbody>
+        </table>
       </div>
-    </div>
+    </section>
 
-    <div class="divider"></div>
+    <!-- Formulário -->
+    <section class="secao" aria-labelledby="form-titulo">
+      <h2 id="form-titulo">➕ Registrar nova medição</h2>
+      <p class="form-ajuda">A medição fica salva só neste aparelho. Para todos verem, use "Copiar JSON atualizado" e cole o conteúdo em <code>gestacao/medicoes.json</code>.</p>
+      <form id="form-medicao" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="new-date">Data</label>
+            <input type="date" id="new-date" required>
+          </div>
+          <div class="form-group">
+            <label for="new-weight">Peso (kg)</label>
+            <input type="text" id="new-weight" inputmode="decimal" placeholder="10,90" autocomplete="off" required>
+          </div>
+          <div class="form-group">
+            <label for="new-height">Comprimento (cm)</label>
+            <input type="text" id="new-height" inputmode="decimal" placeholder="78,5" autocomplete="off" required>
+          </div>
+          <button type="submit" class="botao">Adicionar</button>
+          <div class="form-group obs-campo">
+            <label for="new-obs">Observação (opcional)</label>
+            <input type="text" id="new-obs" maxlength="140" placeholder="Ex.: consulta de 1 ano">
+          </div>
+        </div>
+        <p class="mensagem" id="form-mensagem" role="status"></p>
+      </form>
 
-    <!-- Tabela de Dados -->
-    <div class="table-section">
-      <h2>📋 Histórico Completo de Medições</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Data</th>
-            <th>Peso (kg)</th>
-            <th>Altura (cm)</th>
-            <th>Idade</th>
-          </tr>
-        </thead>
-        <tbody id="measurements-table">
-          <!-- Preenchido via JavaScript -->
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Formulário para Adicionar Novo Registro -->
-    <div class="form-section">
-      <h2>➕ Registrar Nova Medição</h2>
-      <div class="form-grid">
-        <div class="form-group">
-          <label for="new-date">Data</label>
-          <input type="date" id="new-date" required>
-        </div>
-        <div class="form-group">
-          <label for="new-weight">Peso (kg)</label>
-          <input type="number" id="new-weight" step="0.01" placeholder="7.50" required>
-        </div>
-        <div class="form-group">
-          <label for="new-height">Altura (cm)</label>
-          <input type="number" id="new-height" step="0.01" placeholder="65" required>
-        </div>
-        <button onclick="addMeasurement()">Adicionar Medição</button>
+      <div class="locais hidden" id="locais">
+        <p id="locais-texto"></p>
+        <button type="button" class="botao botao-secundario" id="copiar-json">📋 Copiar JSON atualizado</button>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
   <footer>
-    <p>💝 Painel de Acompanhamento do Dante 💝</p>
-    <p style="font-size: 0.85rem; margin-top: 0.5rem; opacity: 0.7;">Criado com muito amor para avós, padrinhos e toda a família</p>
+    <p>💙 Painel de Acompanhamento do Dante 💙</p>
+    <p>Criado com muito amor para avós, padrinhos e toda a família</p>
   </footer>
 
   <script>
-    // Dados iniciais de medições
-    const measurements = [
-      { date: '2025-10-12', weight: 2.91, height: 46.5 },
-      { date: '2025-10-13', weight: 2.75, height: 46.7 },
-      { date: '2025-10-15', weight: 2.77, height: 46.9 },
-      { date: '2025-10-22', weight: 2.83, height: 47.0 },
-      { date: '2025-10-27', weight: 3.07, height: 50.0 },
-      { date: '2025-11-17', weight: 3.95, height: 52.0 },
-      { date: '2025-12-12', weight: 4.97, height: 56.0 },
-      { date: '2026-01-12', weight: 6.21, height: 59.0 },
-      { date: '2026-02-12', weight: 7.23, height: 63.0 },
-      { date: '2026-03-12', weight: 7.84, height: 65.0 }
+    // ===================== Padrões de crescimento da OMS =====================
+    // Meninos, 0 a 24 meses (tabelas LMS mensais da OMS, 2006).
+    // Peso por idade: [L, M, S]
+    const OMS_PESO_MENINOS = [
+      [0.3487, 3.3464, 0.14602], [0.2297, 4.4709, 0.13395], [0.1970, 5.5675, 0.12385],
+      [0.1738, 6.3762, 0.11727], [0.1553, 7.0023, 0.11316], [0.1395, 7.5105, 0.11080],
+      [0.1257, 7.9340, 0.10958], [0.1134, 8.2970, 0.10902], [0.1021, 8.6151, 0.10882],
+      [0.0917, 8.9014, 0.10881], [0.0820, 9.1649, 0.10891], [0.0730, 9.4122, 0.10906],
+      [0.0644, 9.6479, 0.10925], [0.0563, 9.8749, 0.10949], [0.0487, 10.0953, 0.10976],
+      [0.0413, 10.3108, 0.11007], [0.0343, 10.5228, 0.11041], [0.0275, 10.7319, 0.11079],
+      [0.0211, 10.9385, 0.11119], [0.0148, 11.1430, 0.11164], [0.0087, 11.3462, 0.11211],
+      [0.0029, 11.5486, 0.11261], [-0.0028, 11.7504, 0.11314], [-0.0083, 11.9514, 0.11369],
+      [-0.0137, 12.1515, 0.11426]
     ];
+    // Comprimento por idade (L = 1): [M, S]
+    const OMS_COMPRIMENTO_MENINOS = [
+      [49.8842, 0.03795], [54.7244, 0.03557], [58.4249, 0.03424], [61.4292, 0.03328],
+      [63.8860, 0.03257], [65.9026, 0.03204], [67.6236, 0.03165], [69.1645, 0.03139],
+      [70.5994, 0.03124], [71.9687, 0.03117], [73.2812, 0.03118], [74.5388, 0.03125],
+      [75.7488, 0.03137], [76.9186, 0.03154], [78.0497, 0.03174], [79.1458, 0.03197],
+      [80.2113, 0.03222], [81.2487, 0.03250], [82.2587, 0.03279], [83.2418, 0.03310],
+      [84.1996, 0.03342], [85.1348, 0.03376], [86.0477, 0.03410], [86.9410, 0.03445],
+      [87.8161, 0.03479]
+    ];
+    const OMS = {
+      peso: OMS_PESO_MENINOS,
+      comprimento: OMS_COMPRIMENTO_MENINOS.map(([M, S]) => [1, M, S])
+    };
+    const IDADE_MAX_OMS = 24;
+    const DIAS_POR_MES = 30.4375;
+    const Z_PERCENTIS = { P97: 1.881, P85: 1.036, P50: 0, P15: -1.036, P3: -1.881 };
 
-    const birthDate = new Date('2025-10-12');
+    function lmsNaIdade(tabela, meses) {
+      if (meses < 0 || meses > IDADE_MAX_OMS) return null;
+      const i = Math.min(Math.floor(meses), IDADE_MAX_OMS - 1);
+      const f = meses - i;
+      return tabela[i].map((v, k) => v + (tabela[i + 1][k] - v) * f);
+    }
 
-    // Carregar dados do localStorage se disponível
-    function loadFromLocalStorage() {
-      const saved = localStorage.getItem('danteMeasurements');
-      if (saved) {
-        return JSON.parse(saved);
+    function valorDoZ([L, M, S], z) {
+      return Math.abs(L) < 1e-6 ? M * Math.exp(S * z) : M * Math.pow(1 + L * S * z, 1 / L);
+    }
+
+    function zDoValor([L, M, S], x) {
+      return Math.abs(L) < 1e-6 ? Math.log(x / M) / S : (Math.pow(x / M, L) - 1) / (L * S);
+    }
+
+    // Distribuição normal acumulada (Abramowitz & Stegun 7.1.26).
+    function normalAcumulada(z) {
+      const t = 1 / (1 + 0.3275911 * Math.abs(z) / Math.SQRT2);
+      const erf = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t
+        * Math.exp(-(z * z) / 2);
+      return z >= 0 ? (1 + erf) / 2 : (1 - erf) / 2;
+    }
+
+    function percentil(indicador, meses, valor) {
+      const lms = lmsNaIdade(OMS[indicador], meses);
+      if (!lms) return null;
+      const z = zDoValor(lms, valor);
+      return { z, p: normalAcumulada(z) * 100 };
+    }
+
+    function textoPercentil(p) {
+      if (p === null) return '';
+      if (p.p < 1) return 'abaixo do P1';
+      if (p.p > 99) return 'acima do P99';
+      return `percentil ${Math.round(p.p)}`;
+    }
+
+    // ===================== Datas (sempre no fuso local) =====================
+    function dataLocal(iso) {
+      const [a, m, d] = iso.split('-').map(Number);
+      return new Date(a, m - 1, d);
+    }
+
+    function hojeISO() {
+      const h = new Date();
+      return `${h.getFullYear()}-${String(h.getMonth() + 1).padStart(2, '0')}-${String(h.getDate()).padStart(2, '0')}`;
+    }
+
+    function diasEntre(a, b) {
+      // Usa UTC para não errar em mudança de horário de verão.
+      return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) -
+        Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / 86400000);
+    }
+
+    // Meses completos e dias restantes entre o nascimento e a data.
+    function idadeCalendario(nascimento, data) {
+      let meses = (data.getFullYear() - nascimento.getFullYear()) * 12 + data.getMonth() - nascimento.getMonth();
+      if (data.getDate() < nascimento.getDate()) meses--;
+      const aniversarioMes = new Date(nascimento.getFullYear(), nascimento.getMonth() + meses, nascimento.getDate());
+      return { meses, dias: diasEntre(aniversarioMes, data) };
+    }
+
+    function plural(n, singular, pluralTexto) {
+      return `${n} ${n === 1 ? singular : pluralTexto}`;
+    }
+
+    function textoIdadeCurta(nascimento, data) {
+      const { meses, dias } = idadeCalendario(nascimento, data);
+      if (meses === 0) return plural(dias, 'dia', 'dias');
+      return dias ? `${meses} m ${dias} d` : plural(meses, 'mês', 'meses');
+    }
+
+    function textoIdadeLonga(meses) {
+      const anos = Math.floor(meses / 12);
+      const resto = meses % 12;
+      if (!anos) return plural(meses, 'mês', 'meses');
+      return resto ? `${plural(anos, 'ano', 'anos')} e ${plural(resto, 'mês', 'meses')}` : plural(anos, 'ano', 'anos');
+    }
+
+    const fmtData = new Intl.DateTimeFormat('pt-BR');
+    const fmtDiaMes = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' });
+    const fmtNumero = (casas) => new Intl.NumberFormat('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+    const fmtPeso = fmtNumero(2);
+    const fmtComprimento = new Intl.NumberFormat('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 });
+
+    function numeroDoTexto(texto) {
+      const limpo = String(texto).trim().replace(/\s/g, '');
+      if (!limpo) return NaN;
+      const normalizado = limpo.includes(',') ? limpo.replace(/\./g, '').replace(',', '.') : limpo;
+      return /^\d+(\.\d+)?$/.test(normalizado) ? Number(normalizado) : NaN;
+    }
+
+    // ===================== Dados =====================
+    const CHAVE_LOCAIS = 'danteMedicoesLocais';
+    const CHAVE_ANTIGA = 'danteMeasurements';
+    let dados = null;          // conteúdo de medicoes.json
+    let graficos = [];
+
+    function lerStorage(chave) {
+      try {
+        const bruto = localStorage.getItem(chave);
+        return bruto ? JSON.parse(bruto) : null;
+      } catch (e) {
+        return null;
       }
-      return measurements;
     }
 
-    // Salvar dados no localStorage
-    function saveToLocalStorage(data) {
-      localStorage.setItem('danteMeasurements', JSON.stringify(data));
+    function gravarStorage(chave, valor) {
+      try {
+        if (valor === null) localStorage.removeItem(chave);
+        else localStorage.setItem(chave, JSON.stringify(valor));
+      } catch (e) {
+        // Sem armazenamento (modo privado): segue só com o JSON.
+      }
     }
 
-    // Calcular idade em meses
-    function calculateAgeInMonths(date) {
-      const today = date || new Date();
-      let months = today.getMonth() - birthDate.getMonth() + (today.getFullYear() - birthDate.getFullYear()) * 12;
-      if (today.getDate() < birthDate.getDate()) months--;
-      return months;
-    }
+    // Medições digitadas neste aparelho. As que já estão no JSON são descartadas.
+    function medicoesLocais() {
+      const datasDoArquivo = new Set(dados.medicoes.map(m => m.data));
+      let locais = lerStorage(CHAVE_LOCAIS) || [];
 
-    // Calcular dias desde uma data
-    function daysSince(date) {
-      const today = new Date();
-      const diffTime = today - date;
-      return Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    }
-
-    // Atualizar Cards de Estatísticas
-    function updateStats() {
-      const storedMeasurements = loadFromLocalStorage();
-      const lastMeasure = storedMeasurements[storedMeasurements.length - 1];
-      const firstMeasure = storedMeasurements[0];
-      const lastDate = new Date(lastMeasure.date);
-
-      // Idade
-      const ageMonths = calculateAgeInMonths();
-      document.getElementById('age-display').textContent = ageMonths;
-      
-      // Peso
-      const weightChange = (lastMeasure.weight - firstMeasure.weight).toFixed(2);
-      document.getElementById('weight-display').textContent = lastMeasure.weight;
-      document.getElementById('weight-change').textContent = `+${weightChange} kg desde o nascimento`;
-
-      // Altura
-      const heightChange = (lastMeasure.height - firstMeasure.height).toFixed(1);
-      document.getElementById('height-display').textContent = lastMeasure.height;
-      document.getElementById('height-change').textContent = `+${heightChange} cm desde o nascimento`;
-
-      // Última medição
-      const days = daysSince(lastDate);
-      const dateStr = lastDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-      const yearStr = lastDate.getFullYear();
-      document.getElementById('last-measure').textContent = dateStr;
-      document.getElementById('last-measure').parentElement.querySelector('.stat-unit').textContent = yearStr;
-      
-      let daysText = days === 0 ? 'Hoje' : days === 1 ? 'Ontem' : `Há ${days} dias`;
-      document.getElementById('days-since').textContent = daysText;
-    }
-
-    // Renderizar Tabela
-    function renderTable() {
-      const storedMeasurements = loadFromLocalStorage();
-      const tbody = document.getElementById('measurements-table');
-      tbody.innerHTML = '';
-
-      const sortedMeasurements = [...storedMeasurements].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-      sortedMeasurements.forEach((measure, index) => {
-        const date = new Date(measure.date);
-        const dateStr = date.toLocaleDateString('pt-BR');
-        const ageMonths = calculateAgeInMonths(date);
-        
-        let ageText = `${ageMonths} meses`;
-        if (ageMonths === 0) ageText = 'Recém-nascido';
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td class="date-cell">
-            ${dateStr}
-            ${index === 0 ? '<span class="recent-tag">Última</span>' : ''}
-          </td>
-          <td>${measure.weight}</td>
-          <td>${measure.height}</td>
-          <td>${ageText}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
-
-    // Criar Gráficos
-    function createCharts() {
-      const storedMeasurements = loadFromLocalStorage();
-      const sortedMeasurements = [...storedMeasurements].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-      const labels = sortedMeasurements.map(m => {
-        const date = new Date(m.date);
-        return date.toLocaleDateString('pt-BR', { month: 'short', day: 'numeric' });
-      });
-
-      const weights = sortedMeasurements.map(m => m.weight);
-      const heights = sortedMeasurements.map(m => m.height);
-
-      // Gráfico de Peso
-      const weightCtx = document.getElementById('weightChart').getContext('2d');
-      new Chart(weightCtx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Peso (kg)',
-            data: weights,
-            borderColor: '#7fb3d5',
-            backgroundColor: 'rgba(127, 179, 213, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 5,
-            pointBackgroundColor: '#5dade2',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointHoverRadius: 7
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: {
-                callback: function(value) {
-                  return value.toFixed(1) + ' kg';
-                }
-              }
-            }
+      // Migra o formato antigo ({date, weight, height}), que escondia o JSON.
+      const antigas = lerStorage(CHAVE_ANTIGA);
+      if (Array.isArray(antigas)) {
+        antigas.forEach(m => {
+          if (m && m.date && !datasDoArquivo.has(m.date) && !locais.some(l => l.data === m.date)) {
+            locais.push({ data: m.date, peso: Number(m.weight), comprimento: Number(m.height) });
           }
-        }
-      });
+        });
+        gravarStorage(CHAVE_ANTIGA, null);
+      }
 
-      // Gráfico de Altura
-      const heightCtx = document.getElementById('heightChart').getContext('2d');
-      new Chart(heightCtx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Altura (cm)',
-            data: heights,
-            borderColor: '#7fb3d5',
-            backgroundColor: 'rgba(127, 179, 213, 0.1)',
-            borderWidth: 3,
-            fill: true,
-            tension: 0.4,
-            pointRadius: 5,
-            pointBackgroundColor: '#5dade2',
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointHoverRadius: 7
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false }
-          },
-          scales: {
-            y: {
-              beginAtZero: false,
-              ticks: {
-                callback: function(value) {
-                  return value.toFixed(0) + ' cm';
-                }
-              }
-            }
-          }
-        }
-      });
+      const filtradas = locais.filter(m => m && m.data && !datasDoArquivo.has(m.data));
+      gravarStorage(CHAVE_LOCAIS, filtradas.length ? filtradas : null);
+      return filtradas;
     }
 
-    // Adicionar Nova Medição
-    function addMeasurement() {
-      const dateInput = document.getElementById('new-date').value;
-      const weightInput = parseFloat(document.getElementById('new-weight').value);
-      const heightInput = parseFloat(document.getElementById('new-height').value);
+    function todasMedicoes() {
+      const nascimento = dataLocal(dados.crianca.nascimento);
+      const semanas = Number(dados.crianca.semanasGestacao);
+      // Prematuros (< 37 semanas): idade corrigida até os 24 meses.
+      const diasCorrecao = semanas && semanas < 37 ? Math.round((40 - semanas) * 7) : 0;
 
-      if (!dateInput || !weightInput || !heightInput) {
-        alert('Por favor, preencha todos os campos!');
+      const lista = [
+        ...dados.medicoes.map(m => ({ ...m, local: false })),
+        ...medicoesLocais().map(m => ({ ...m, local: true }))
+      ];
+
+      return lista
+        .map(m => {
+          const data = dataLocal(m.data);
+          const dias = diasEntre(nascimento, data);
+          const diasCorrigidos = diasCorrecao ? dias - diasCorrecao : dias;
+          const mesesGrafico = (diasCorrigidos / DIAS_POR_MES);
+          return {
+            ...m,
+            dataObj: data,
+            dias,
+            mesesGrafico,
+            pPeso: mesesGrafico >= 0 ? percentil('peso', mesesGrafico, m.peso) : null,
+            pComprimento: mesesGrafico >= 0 ? percentil('comprimento', mesesGrafico, m.comprimento) : null
+          };
+        })
+        .sort((a, b) => a.dataObj - b.dataObj);
+    }
+
+    // ===================== Render =====================
+    function definirTexto(id, texto) {
+      document.getElementById(id).textContent = texto;
+    }
+
+    function detalhe(id, principal, secundario) {
+      const el = document.getElementById(id);
+      el.textContent = principal;
+      if (secundario) {
+        const span = document.createElement('span');
+        span.textContent = secundario;
+        el.appendChild(span);
+      }
+    }
+
+    function velocidade(medicoes, campo, indicador) {
+      if (medicoes.length < 2) return null;
+      const atual = medicoes[medicoes.length - 1];
+      // Usa a medição anterior com pelo menos 21 dias de intervalo, para não amplificar erro de medida.
+      const anterior = [...medicoes].reverse().find(m => atual.dias - m.dias >= 21);
+      if (!anterior) return null;
+      const meses = (atual.dias - anterior.dias) / DIAS_POR_MES;
+      const real = (atual[campo] - anterior[campo]) / meses;
+
+      let esperado = null;
+      const lmsA = lmsNaIdade(OMS[indicador], anterior.mesesGrafico);
+      const lmsB = lmsNaIdade(OMS[indicador], atual.mesesGrafico);
+      if (lmsA && lmsB) esperado = (lmsB[1] - lmsA[1]) / meses;
+      return { real, esperado, desde: anterior };
+    }
+
+    function textoVelocidade(v, unidade) {
+      if (!v) return '';
+      const formatar = (x) => unidade === 'g'
+        ? `${x >= 0 ? '+' : ''}${Math.round(x * 1000)} g/mês`
+        : `${x >= 0 ? '+' : ''}${fmtNumero(1).format(x)} cm/mês`;
+      const esperado = v.esperado !== null ? ` · mediana OMS ${formatar(v.esperado)}` : '';
+      return `${formatar(v.real)} desde ${fmtDiaMes.format(v.desde.dataObj)}${esperado}`;
+    }
+
+    function renderCards(medicoes) {
+      const nascimento = dataLocal(dados.crianca.nascimento);
+      const hoje = dataLocal(hojeISO());
+      const idade = idadeCalendario(nascimento, hoje);
+      const ultima = medicoes[medicoes.length - 1];
+
+      if (idade.meses < 1) {
+        definirTexto('idade-valor', idade.dias);
+        definirTexto('idade-unidade', idade.dias === 1 ? 'dia' : 'dias');
+      } else {
+        definirTexto('idade-valor', idade.meses);
+        definirTexto('idade-unidade', idade.meses === 1 ? 'mês' : 'meses');
+      }
+      const semanas = Number(dados.crianca.semanasGestacao);
+      const corrigida = semanas && semanas < 37
+        ? `Idade corrigida: ${textoIdadeLonga(idadeCalendario(nascimento, new Date(hoje.getTime() - (40 - semanas) * 7 * 86400000)).meses)}`
+        : (idade.meses >= 12 ? textoIdadeLonga(idade.meses) : '');
+      detalhe('idade-detalhe', `Nascido em ${fmtData.format(nascimento)}`, corrigida);
+
+      definirTexto('peso-valor', fmtPeso.format(ultima.peso));
+      detalhe('peso-detalhe', textoPercentil(ultima.pPeso) || '—', textoVelocidade(velocidade(medicoes, 'peso', 'peso'), 'g'));
+
+      definirTexto('comprimento-valor', fmtComprimento.format(ultima.comprimento));
+      detalhe('comprimento-detalhe', textoPercentil(ultima.pComprimento) || '—',
+        textoVelocidade(velocidade(medicoes, 'comprimento', 'comprimento'), 'cm'));
+
+      definirTexto('ultima-valor', fmtDiaMes.format(ultima.dataObj));
+      definirTexto('ultima-ano', ultima.dataObj.getFullYear());
+      const dias = diasEntre(ultima.dataObj, hoje);
+      detalhe('ultima-detalhe', dias === 0 ? 'Hoje' : dias === 1 ? 'Ontem' : `Há ${dias} dias`);
+    }
+
+    function faixa(p) {
+      if (!p) return null;
+      if (p.p < 3) return 'abaixo';
+      if (p.p > 97) return 'acima';
+      return 'dentro';
+    }
+
+    function renderResumo(medicoes) {
+      const nome = dados.crianca.nome;
+      const ultima = medicoes[medicoes.length - 1];
+      const primeira = medicoes[0];
+      const caixa = document.getElementById('resumo-texto');
+      caixa.replaceChildren();
+
+      const paragrafo = (texto, classe) => {
+        const p = document.createElement('p');
+        p.textContent = texto;
+        if (classe) p.className = classe;
+        caixa.appendChild(p);
+      };
+
+      if (!ultima.pPeso || !ultima.pComprimento) {
+        paragrafo(dados.crianca.sexo !== 'M'
+          ? 'As curvas da OMS deste painel estão cadastradas só para meninos.'
+          : 'As curvas da OMS deste painel vão até os 2 anos.');
         return;
       }
 
-      const storedMeasurements = loadFromLocalStorage();
-      
-      // Verificar se a data já existe
-      const exists = storedMeasurements.some(m => m.date === dateInput);
-      if (exists) {
-        // Atualizar existente
-        const index = storedMeasurements.findIndex(m => m.date === dateInput);
-        storedMeasurements[index] = { date: dateInput, weight: weightInput, height: heightInput };
+      const fPeso = faixa(ultima.pPeso);
+      const fComp = faixa(ultima.pComprimento);
+      if (fPeso === 'dentro' && fComp === 'dentro') {
+        paragrafo(`Na última medição, peso (${textoPercentil(ultima.pPeso)}) e comprimento (${textoPercentil(ultima.pComprimento)}) de ${nome} estão dentro da faixa esperada para a idade pela OMS.`);
       } else {
-        // Adicionar nova
-        storedMeasurements.push({ date: dateInput, weight: weightInput, height: heightInput });
+        const partes = [];
+        if (fPeso !== 'dentro') partes.push(`o peso está ${fPeso} da faixa P3–P97`);
+        if (fComp !== 'dentro') partes.push(`o comprimento está ${fComp} da faixa P3–P97`);
+        paragrafo(`Na última medição, ${partes.join(' e ')}. Vale conversar com o pediatra na próxima consulta.`, 'fora-da-faixa');
       }
 
-      saveToLocalStorage(storedMeasurements);
-
-      // Limpar formulário
-      document.getElementById('new-date').value = '';
-      document.getElementById('new-weight').value = '';
-      document.getElementById('new-height').value = '';
-
-      // Atualizar página
-      updateStats();
-      renderTable();
-      
-      // Remover gráficos antigos e criar novos
-      location.reload();
+      if (primeira.pPeso && primeira !== ultima) {
+        paragrafo(`Ao nascer, ${nome} estava no ${textoPercentil(primeira.pPeso)} de peso e no ${textoPercentil(primeira.pComprimento)} de comprimento.`);
+      }
     }
 
-    // Inicializar ao carregar a página
-    document.addEventListener('DOMContentLoaded', function() {
-      updateStats();
-      renderTable();
-      createCharts();
+    function renderTabela(medicoes) {
+      const nascimento = dataLocal(dados.crianca.nascimento);
+      const tbody = document.getElementById('measurements-table');
+      tbody.replaceChildren();
 
-      // Definir data padrão como hoje
-      const today = new Date().toISOString().split('T')[0];
-      document.getElementById('new-date').value = today;
-    });
+      [...medicoes].reverse().forEach((m, indice) => {
+        const tr = document.createElement('tr');
+
+        const tdData = document.createElement('td');
+        tdData.className = 'date-cell';
+        tdData.textContent = fmtData.format(m.dataObj);
+        const textoIdade = m.dias === 0 ? 'Nascimento' : textoIdadeCurta(nascimento, m.dataObj);
+        const idadeMobile = document.createElement('span');
+        idadeMobile.className = 'idade-mobile';
+        idadeMobile.textContent = textoIdade;
+        tdData.appendChild(idadeMobile);
+        if (indice === 0) tdData.appendChild(tag('Última', 'tag-ultima'));
+        if (m.local) tdData.appendChild(tag('neste aparelho', 'tag-local'));
+        if (m.obs) {
+          const obs = document.createElement('span');
+          obs.className = 'obs';
+          obs.textContent = m.obs;
+          tdData.appendChild(obs);
+        }
+        if (m.local) {
+          const remover = document.createElement('button');
+          remover.type = 'button';
+          remover.className = 'btn-remover';
+          remover.textContent = 'remover';
+          remover.addEventListener('click', () => removerLocal(m.data));
+          tdData.appendChild(remover);
+        }
+
+        const tdIdade = document.createElement('td');
+        tdIdade.className = 'col-idade';
+        tdIdade.textContent = textoIdade;
+
+        tr.append(tdData, tdIdade,
+          celulaValor(fmtPeso.format(m.peso), m.pPeso),
+          celulaValor(fmtComprimento.format(m.comprimento), m.pComprimento));
+        tbody.appendChild(tr);
+      });
+    }
+
+    function tag(texto, classe) {
+      const span = document.createElement('span');
+      span.className = `tag ${classe}`;
+      span.textContent = texto;
+      return span;
+    }
+
+    function celulaValor(valor, p) {
+      const td = document.createElement('td');
+      td.textContent = valor;
+      if (p) {
+        const span = document.createElement('span');
+        span.className = 'percentil';
+        span.textContent = p.p < 1 ? '<P1' : p.p > 99 ? '>P99' : `P${Math.round(p.p)}`;
+        td.appendChild(span);
+      }
+      return td;
+    }
+
+    function curvas(indicador, ate) {
+      const passo = 0.25;
+      const resultado = {};
+      Object.entries(Z_PERCENTIS).forEach(([nome, z]) => {
+        const pontos = [];
+        for (let x = 0; x <= ate + 1e-9; x += passo) {
+          pontos.push({ x, y: valorDoZ(lmsNaIdade(OMS[indicador], x), z) });
+        }
+        resultado[nome] = pontos;
+      });
+      return resultado;
+    }
+
+    function criarGrafico(canvasId, indicador, medicoes, unidade, formatar) {
+      const pontosDante = medicoes.filter(m => m.mesesGrafico >= 0).map(m => ({
+        x: m.mesesGrafico, y: m[indicador], medicao: m
+      }));
+      const ultimaIdade = pontosDante.length ? pontosDante[pontosDante.length - 1].x : 0;
+      const ate = Math.min(IDADE_MAX_OMS, Math.max(6, Math.ceil(ultimaIdade) + 2));
+      const ref = curvas(indicador, ate);
+      const temCurvas = dados.crianca.sexo === 'M';
+
+      const lilas = 'rgba(109, 95, 115, 0.55)';
+      const curva = (nome, fill, cor) => ({
+        label: nome,
+        data: ref[nome],
+        borderColor: nome === 'P50' ? 'rgba(109, 95, 115, 0.9)' : lilas,
+        borderWidth: nome === 'P50' ? 1.5 : 1,
+        borderDash: nome === 'P50' ? [6, 4] : [],
+        backgroundColor: cor,
+        fill,
+        pointRadius: 0,
+        pointHitRadius: 0,
+        order: 2
+      });
+
+      const conjuntos = temCurvas ? [
+        curva('P97', '+1', 'rgba(109, 95, 115, 0.10)'),
+        curva('P85', '+1', 'rgba(109, 95, 115, 0.22)'),
+        curva('P50', '+1', 'rgba(109, 95, 115, 0.22)'),
+        curva('P15', '+1', 'rgba(109, 95, 115, 0.10)'),
+        curva('P3', false, 'transparent')
+      ] : [];
+
+      conjuntos.push({
+        label: 'Dante',
+        data: pontosDante,
+        borderColor: '#2f6f9a',
+        backgroundColor: '#2f6f9a',
+        borderWidth: 2.5,
+        tension: 0,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        pointBackgroundColor: pontosDante.map(p => p.medicao.local ? '#fff4dc' : '#2f6f9a'),
+        pointBorderColor: pontosDante.map(p => p.medicao.local ? '#2f6f9a' : '#fff'),
+        pointBorderWidth: 1.5,
+        fill: false,
+        order: 1
+      });
+      const indiceDante = conjuntos.length - 1;
+      const nascimento = dataLocal(dados.crianca.nascimento);
+
+      return new Chart(document.getElementById(canvasId), {
+        type: 'line',
+        data: { datasets: conjuntos },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          parsing: false,
+          animation: false,
+          interaction: { mode: 'medicaoMaisProxima', intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              filter: item => item.datasetIndex === indiceDante,
+              callbacks: {
+                title: itens => {
+                  const m = itens[0].raw.medicao;
+                  const idade = m.dias === 0 ? 'nascimento' : textoIdadeCurta(nascimento, m.dataObj);
+                  return `${fmtData.format(m.dataObj)} (${idade})`;
+                },
+                label: item => {
+                  const m = item.raw.medicao;
+                  const p = indicador === 'peso' ? m.pPeso : m.pComprimento;
+                  return `${formatar(item.raw.y)} ${unidade}${p ? ' · ' + textoPercentil(p) : ''}`;
+                },
+                afterLabel: item => item.raw.medicao.obs || ''
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'linear',
+              min: 0,
+              max: ate,
+              ticks: { stepSize: ate > 12 ? 2 : 1, callback: v => v },
+              title: {
+                display: true,
+                text: Number(dados.crianca.semanasGestacao) < 37 && dados.crianca.semanasGestacao
+                  ? 'Idade corrigida (meses)' : 'Idade (meses)'
+              },
+              grid: { color: 'rgba(0, 0, 0, 0.05)' }
+            },
+            y: {
+              ticks: { callback: v => `${fmtComprimento.format(v)} ${unidade}` },
+              grid: { color: 'rgba(0, 0, 0, 0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    // O tooltip considera só os pontos das medições (as curvas da OMS têm um ponto a cada 0,25 mês).
+    function registrarModoInteracao() {
+      if (!window.Chart || Chart.Interaction.modes.medicaoMaisProxima) return;
+      Chart.Interaction.modes.medicaoMaisProxima = (chart, evento) => {
+        const posicao = Chart.helpers.getRelativePosition(evento, chart);
+        const indice = chart.data.datasets.length - 1;
+        const meta = chart.getDatasetMeta(indice);
+        let melhor = null;
+        meta.data.forEach((ponto, i) => {
+          const distancia = Math.abs(ponto.x - posicao.x);
+          if (!melhor || distancia < melhor.distancia) melhor = { element: ponto, datasetIndex: indice, index: i, distancia };
+        });
+        return melhor ? [melhor] : [];
+      };
+    }
+
+    function renderGraficos(medicoes) {
+      registrarModoInteracao();
+      graficos.forEach(g => g.destroy());
+      graficos = [];
+      if (!window.Chart) return;
+      graficos.push(criarGrafico('weightChart', 'peso', medicoes, 'kg', v => fmtPeso.format(v)));
+      graficos.push(criarGrafico('heightChart', 'comprimento', medicoes, 'cm', v => fmtComprimento.format(v)));
+    }
+
+    function renderLocais() {
+      const locais = medicoesLocais();
+      const caixa = document.getElementById('locais');
+      caixa.classList.toggle('hidden', locais.length === 0);
+      if (locais.length) {
+        definirTexto('locais-texto',
+          `${plural(locais.length, 'medição está salva', 'medições estão salvas')} só neste aparelho. ` +
+          'Copie o JSON atualizado e cole em gestacao/medicoes.json para todos verem.');
+      }
+    }
+
+    function renderTudo() {
+      const medicoes = todasMedicoes();
+      if (!medicoes.length) return;
+      renderCards(medicoes);
+      renderResumo(medicoes);
+      renderGraficos(medicoes);
+      renderTabela(medicoes);
+      renderLocais();
+    }
+
+    // ===================== Formulário =====================
+    function mensagemForm(texto, tipo) {
+      const el = document.getElementById('form-mensagem');
+      el.textContent = texto;
+      el.className = `mensagem ${tipo || ''}`;
+    }
+
+    function adicionarMedicao(evento) {
+      evento.preventDefault();
+      const data = document.getElementById('new-date').value;
+      const peso = numeroDoTexto(document.getElementById('new-weight').value);
+      const comprimento = numeroDoTexto(document.getElementById('new-height').value);
+      const obs = document.getElementById('new-obs').value.trim();
+
+      if (!data) return mensagemForm('Informe a data.', 'erro');
+      if (data < dados.crianca.nascimento || data > hojeISO()) {
+        return mensagemForm('A data precisa estar entre o nascimento e hoje.', 'erro');
+      }
+      if (!(peso >= 1 && peso <= 30)) return mensagemForm('Peso inválido. Use kg, por exemplo 10,9.', 'erro');
+      if (!(comprimento >= 35 && comprimento <= 130)) {
+        return mensagemForm('Comprimento inválido. Use cm, por exemplo 78,5.', 'erro');
+      }
+      if (dados.medicoes.some(m => m.data === data)) {
+        return mensagemForm('Já existe uma medição nessa data no arquivo medicoes.json.', 'erro');
+      }
+
+      const locais = medicoesLocais().filter(m => m.data !== data);
+      const nova = { data, peso, comprimento };
+      if (obs) nova.obs = obs;
+      locais.push(nova);
+      gravarStorage(CHAVE_LOCAIS, locais);
+
+      document.getElementById('new-weight').value = '';
+      document.getElementById('new-height').value = '';
+      document.getElementById('new-obs').value = '';
+      mensagemForm('Medição adicionada neste aparelho.', 'ok');
+      renderTudo();
+    }
+
+    function removerLocal(data) {
+      if (!confirm(`Remover a medição de ${fmtData.format(dataLocal(data))} deste aparelho?`)) return;
+      gravarStorage(CHAVE_LOCAIS, medicoesLocais().filter(m => m.data !== data));
+      renderTudo();
+    }
+
+    // JSON no mesmo formato do arquivo, com uma medição por linha.
+    function jsonAtualizado() {
+      const todas = [...dados.medicoes, ...medicoesLocais()]
+        .map(({ data, peso, comprimento, obs }) => (obs ? { data, peso, comprimento, obs } : { data, peso, comprimento }))
+        .sort((a, b) => a.data.localeCompare(b.data));
+      const cabecalho = { ...dados };
+      delete cabecalho.medicoes;
+      const base = JSON.stringify(cabecalho, null, 2).replace(/\n}$/, '');
+      const linhas = todas.map(m => `    ${JSON.stringify(m).replace(/,"/g, ', "').replace(/":/g, '": ').replace(/^{/, '{ ').replace(/}$/, ' }')}`);
+      return `${base},\n  "medicoes": [\n${linhas.join(',\n')}\n  ]\n}\n`;
+    }
+
+    async function copiarJSON() {
+      const texto = jsonAtualizado();
+      try {
+        await navigator.clipboard.writeText(texto);
+      } catch (e) {
+        const area = document.createElement('textarea');
+        area.value = texto;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+      }
+      definirTexto('locais-texto', 'JSON copiado! Cole em gestacao/medicoes.json (substituindo o conteúdo) e publique. Depois disso, a marcação "neste aparelho" some sozinha.');
+    }
+
+    // ===================== Início =====================
+    async function iniciar() {
+      document.getElementById('new-date').value = hojeISO();
+      document.getElementById('new-date').max = hojeISO();
+      document.getElementById('form-medicao').addEventListener('submit', adicionarMedicao);
+      document.getElementById('copiar-json').addEventListener('click', copiarJSON);
+
+      try {
+        const resposta = await fetch('medicoes.json', { cache: 'no-cache' });
+        if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+        dados = await resposta.json();
+        if (!dados.crianca || !Array.isArray(dados.medicoes)) throw new Error('formato inesperado');
+      } catch (erro) {
+        console.error(erro);
+        const caixa = document.getElementById('erro-carga');
+        caixa.textContent = `Não foi possível carregar as medições (medicoes.json): ${erro.message}.`;
+        caixa.classList.remove('hidden');
+        definirTexto('resumo-texto', '');
+        return;
+      }
+
+      document.getElementById('new-date').min = dados.crianca.nascimento;
+      renderTudo();
+    }
+
+    document.addEventListener('DOMContentLoaded', iniciar);
   </script>
 </body>
 </html>

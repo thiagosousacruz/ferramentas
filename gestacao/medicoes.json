@@ -1,0 +1,26 @@
+{
+  "_comoCadastrar": "Adicione um item em 'medicoes' com data (AAAA-MM-DD), peso (kg) e comprimento (cm), usando ponto como separador decimal. 'obs' é opcional. Se o bebê nasceu prematuro, preencha 'semanasGestacao' para usar a idade corrigida.",
+  "crianca": {
+    "nome": "Dante",
+    "nascimento": "2025-10-12",
+    "sexo": "M",
+    "semanasGestacao": null
+  },
+  "medicoes": [
+    { "data": "2025-10-12", "peso": 2.91, "comprimento": 46.5 },
+    { "data": "2025-10-13", "peso": 2.75, "comprimento": 46.7 },
+    { "data": "2025-10-15", "peso": 2.77, "comprimento": 46.9 },
+    { "data": "2025-10-22", "peso": 2.83, "comprimento": 47.0 },
+    { "data": "2025-10-27", "peso": 3.07, "comprimento": 50.0, "obs": "Salto de 3 cm em 5 dias: provável diferença na forma de medir." },
+    { "data": "2025-11-17", "peso": 3.95, "comprimento": 52.0 },
+    { "data": "2025-12-12", "peso": 4.97, "comprimento": 56.0 },
+    { "data": "2026-01-12", "peso": 6.21, "comprimento": 59.0 },
+    { "data": "2026-02-12", "peso": 7.23, "comprimento": 63.0 },
+    { "data": "2026-03-12", "peso": 7.84, "comprimento": 65.0 },
+    { "data": "2026-06-10", "peso": 9.20, "comprimento": 69.9 },
+    { "data": "2026-07-13", "peso": 9.70, "comprimento": 71.5 },
+    { "data": "2026-08-12", "peso": 10.22, "comprimento": 73.5 },
+    { "data": "2026-09-15", "peso": 10.40, "comprimento": 75.3 },
+    { "data": "2026-11-10", "peso": 10.86, "comprimento": 78.0 }
+  ]
+}
