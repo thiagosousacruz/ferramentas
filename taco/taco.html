@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔥 Calculadora Nutricional 🍏</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --cor-fundo: #f9fafb;
@@ -248,9 +247,25 @@
                 grid-template-columns: repeat(4, 1fr);
             }
         }
+
+        .link-inicio {
+            display: inline-block;
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #e8eaed;
+            color: #333;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .link-inicio:hover {
+            background: #d5d8dc;
+        }
     </style>
 </head>
 <body>
+    <a class="link-inicio" href="../index.html">← Início</a>
     <h1>🔥 Calculadora Nutricional 🍏</h1>
     <div class="container">
         <div id="status" class="status">Carregando tabela TACO...</div>
@@ -351,17 +366,14 @@
             return s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
-        async function carregarXLSX() {
+        // Tabela TACO em CSV (separado por ";", codificação Latin-1).
+        async function carregarTabela() {
             const status = $('status');
             try {
-                if (typeof XLSX === 'undefined') throw new Error('biblioteca XLSX não carregou (sem internet?)');
-                const response = await fetch('assets/taco.xlsx');
+                const response = await fetch('assets/taco.csv');
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                const arrayBuffer = await response.arrayBuffer();
-                const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-                const sheet = workbook.Sheets['taco'];
-                if (!sheet) throw new Error('aba "taco" não encontrada na planilha');
-                const data = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                const texto = new TextDecoder('windows-1252').decode(await response.arrayBuffer());
+                const data = texto.split('\n').map(l => l.replace(/\r$/, '')).filter(l => l.trim()).map(l => l.split(';'));
 
                 const cols = {
                     nome: 1,         // B
@@ -641,7 +653,7 @@
             }
         });
 
-        carregarXLSX();
+        carregarTabela();
     </script>
 </body>
 </html>

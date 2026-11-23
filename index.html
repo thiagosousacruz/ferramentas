@@ -5,13 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <link rel="manifest" href="/ferramentas/manifest.json">
-<meta name="theme-color" content="#007BFF">
-<link rel="apple-touch-icon" href="/ferramentas/icons/icon-192x192.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>🛠️ Ferramentas Práticas 🛠️</title>
+  <meta name="theme-color" content="#0062cc">
+  <link rel="apple-touch-icon" href="/ferramentas/icons/icon-192x192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Ferramentas">
+  <title>Ferramentas Práticas</title>
   <style>
-    /* Reset básico para evitar inconsistências entre navegadores */
     *,
     *::before,
     *::after {
@@ -20,126 +20,148 @@
       padding: 0;
     }
 
-    /* Paleta de cores e variáveis de espaçamento */
     :root {
       --cor-fundo: #f9fafb;
-      /* Fundo claro e neutro */
       --cor-texto: #333333;
-      /* Texto escuro */
-      --cor-botao: #007BFF;
-      /* Azul para botões */
-      --cor-botao-hover: #0056b3;
-      /* Azul mais escuro no hover */
+      --cor-suave: #5f6368;
+      --cor-botao: #0062cc;
+      --cor-botao-hover: #004a99;
       --cor-titulo: #2c3e50;
-      /* Azul escuro para o título */
-      --espacamento: 1rem;
     }
 
-    /* Estilização global */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--cor-fundo);
       color: var(--cor-texto);
-      display: flex;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      padding: var(--espacamento);
-      text-align: center;
+      padding: max(24px, env(safe-area-inset-top)) 16px max(24px, env(safe-area-inset-bottom));
     }
 
-    /* Container centralizado com fundo branco e sombra para destaque */
     .container {
       width: 100%;
-      max-width: 400px;
-      padding: calc(var(--espacamento) * 1.5);
-      background-color: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 24px;
     }
 
     h1 {
-      font-size: 2rem;
+      font-size: 1.9rem;
       color: var(--cor-titulo);
-      margin-bottom: 0.75rem;
+      margin-bottom: 6px;
     }
 
-    p {
-      font-size: 1rem;
+    header p {
+      color: var(--cor-suave);
       line-height: 1.5;
-      margin-bottom: 1.5rem;
     }
 
-    /* Botões com feedback visual e responsividade */
+    section {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--cor-suave);
+      margin-bottom: 10px;
+    }
+
     .botao {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
+      padding: 14px 16px;
+      margin-top: 8px;
       background-color: var(--cor-botao);
       color: #fff;
       text-decoration: none;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      transition: background-color 0.3s ease, transform 0.1s ease;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .botao:first-of-type {
+      margin-top: 0;
     }
 
     .botao:hover,
-    .botao:focus {
+    .botao:focus-visible {
       background-color: var(--cor-botao-hover);
-      outline: none;
+    }
+
+    .botao:focus-visible {
+      outline: 3px solid rgba(0, 98, 204, 0.4);
+      outline-offset: 2px;
     }
 
     .botao:active {
       transform: scale(0.98);
     }
 
-    /* Ajustes para telas maiores */
-    @media (min-width: 600px) {
-      h1 {
-        font-size: 2.5rem;
-      }
+    .icone {
+      font-size: 1.3rem;
+      width: 1.6rem;
+      text-align: center;
+    }
 
-      .botao {
-        font-size: 1.2rem;
-        padding: 1rem;
-      }
+    .online {
+      margin-left: auto;
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 20px;
+      padding: 2px 8px;
+      white-space: nowrap;
+    }
+
+    footer {
+      text-align: center;
+      color: var(--cor-suave);
+      font-size: 0.85rem;
+      margin-top: 8px;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>🛠️ Ferramentas Práticas 🛠️</h1>
-    <p>Coisinhas úteis para o dia a dia! Aceito sugestões (ou não)...</p>
+    <header>
+      <h1>🛠️ Ferramentas Práticas</h1>
+      <p>Coisinhas úteis para o dia a dia! Aceito sugestões (ou não)...</p>
+    </header>
 
-    <a href="comparador.html" class="botao">📊 Comparador de Preços</a>
-    <a href="taco/taco.html" class="botao">🔥 Calculadora de Calorias 🍏</a>
-    <a href="fipe/fipe.html" class="botao">🚗 Consulta FIPE</a>
-    <a href="impar_par/index.html" class="botao">🎲 Tirar Par ou Ímpar</a>
-    <a href="regra.html" class="botao">📐 Regra de Três</a>
-    <a href="sudoku/index.html" class="botao">🧩 Sudoku</a>
-    <a href="tetris/index.html" class="botao">🎮 Tetris</a>
+    <section aria-labelledby="titulo-contas">
+      <h2 id="titulo-contas">Contas do dia a dia</h2>
+      <a href="comparador.html" class="botao"><span class="icone" aria-hidden="true">📊</span>Comparador de Preços</a>
+      <a href="regra.html" class="botao"><span class="icone" aria-hidden="true">📐</span>Regra de Três</a>
+      <a href="taco/taco.html" class="botao"><span class="icone" aria-hidden="true">🍏</span>Calculadora de Calorias</a>
+      <a href="fipe/fipe.html" class="botao"><span class="icone" aria-hidden="true">🚗</span>Consulta FIPE<span class="online">precisa de internet</span></a>
+    </section>
+
+    <section aria-labelledby="titulo-jogos">
+      <h2 id="titulo-jogos">Jogos</h2>
+      <a href="sudoku/index.html" class="botao"><span class="icone" aria-hidden="true">🧩</span>Sudoku</a>
+      <a href="tetris/index.html" class="botao"><span class="icone" aria-hidden="true">🎮</span>Tetris</a>
+      <a href="impar_par/index.html" class="botao"><span class="icone" aria-hidden="true">🎲</span>Par ou Ímpar</a>
+    </section>
+
+    <footer>Instale na tela inicial para usar como app, inclusive offline.</footer>
+  </div>
 
   <script>
-    // Script básico para futuras funcionalidades
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('Página carregada com sucesso!');
-    });
-
-    // Adicione ao seu script existente
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/ferramentas/sw.js', {
-          scope: '/ferramentas/'
-        })
-          .then(registration => {
-            console.log('Service Worker registrado com sucesso:', registration.scope);
-          })
-          .catch(error => {
-            console.log('Falha ao registrar o Service Worker:', error);
-          });
+        navigator.serviceWorker.register('/ferramentas/sw.js', { scope: '/ferramentas/' })
+          .catch(erro => console.error('Falha ao registrar o service worker:', erro));
       });
     }
   </script>

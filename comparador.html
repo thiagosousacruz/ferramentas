@@ -1,267 +1,636 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comparador de Preços Inteligente</title>
+  <title>Comparador de Preços</title>
+  <meta name="theme-color" content="#0062cc">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+  <link rel="manifest" href="/ferramentas/manifest.json">
+  <link rel="apple-touch-icon" href="/ferramentas/icons/icon-192x192.png">
   <style>
     :root {
       --cor-fundo: #f9fafb;
       --cor-texto: #333333;
-      --cor-botao: #007BFF;
-      --cor-botao-hover: #0056b3;
+      --cor-suave: #5f6368;
+      --cor-botao: #0062cc;
+      --cor-botao-hover: #004a99;
       --cor-titulo: #2c3e50;
+      --cor-borda: #dadce0;
+      --cor-melhor-fundo: #e8f0fe;
+      --cor-alerta-fundo: #fff4dc;
+      --cor-alerta-texto: #6b4b00;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', sans-serif;
     }
 
     body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--cor-fundo);
-      padding: 20px;
       color: var(--cor-texto);
+      padding: 20px 16px 32px;
+      line-height: 1.4;
     }
 
     .container {
-      max-width: 800px;
+      max-width: 860px;
       margin: 0 auto;
     }
 
-    .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
+    .topo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
       margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--cor-titulo);
-      margin-bottom: 30px;
-      font-size: 1.8rem;
-    }
-
-    .input-group {
-      margin-bottom: 15px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: var(--cor-texto);
-      font-weight: 500;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #dadce0;
-      border-radius: 5px;
-      font-size: 1rem;
-      text-align: right;
-    }
-
-    button {
-      width: 100%;
-      padding: 12px;
-      background: var(--cor-botao);
-      color: #fff;
-      border: none;
-      border-radius: 5px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    
-    button:hover {
-      background: var(--cor-botao-hover);
     }
 
     .botao-voltar {
-      background: #e0e0e0;
+      flex-shrink: 0;
+      background: #e8eaed;
       color: var(--cor-texto);
       padding: 8px 12px;
+      border-radius: 6px;
       font-size: 0.9rem;
-      width: auto;
-      margin-bottom: 15px;
+      text-decoration: none;
     }
 
     .botao-voltar:hover {
-      background: #cacaca;
+      background: #d5d8dc;
     }
 
-    .botao-limpar {
-      margin-top: 10px;
+    h1 {
+      color: var(--cor-titulo);
+      font-size: 1.6rem;
     }
 
-    .resultado {
-      display: none;
-      margin-top: 20px;
+    .ajuda {
+      color: var(--cor-suave);
+      font-size: 0.9rem;
+      margin-bottom: 16px;
     }
 
-    .produto {
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 15px;
+    /* ---------- Opções ---------- */
+    .opcoes {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
     }
 
-    .melhor {
-      background: #e8f0fe;
+    .opcao {
+      background: #fff;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+
+    .opcao.melhor {
+      border-color: var(--cor-botao);
+      background: var(--cor-melhor-fundo);
+    }
+
+    .opcao-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .opcao h2 {
+      font-size: 1.15rem;
+      color: var(--cor-titulo);
+    }
+
+    .remover {
+      background: none;
+      border: none;
+      color: var(--cor-suave);
+      font-size: 0.85rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 4px;
+    }
+
+    .campos {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .campo label {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .campo .opcional {
+      font-weight: 400;
+      color: var(--cor-suave);
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--cor-borda);
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--cor-texto);
+      background: #fff;
+    }
+
+    input {
+      text-align: right;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid var(--cor-botao);
+      outline-offset: 0;
+      border-color: var(--cor-botao);
+    }
+
+    .linha-quantidade {
+      display: grid;
+      grid-template-columns: 1fr 88px 72px;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .vezes {
+      text-align: center;
+    }
+
+    .resultado-opcao {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #eceff1;
+      min-height: 3.2em;
+    }
+
+    .preco-unitario {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--cor-titulo);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .preco-unitario small {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--cor-suave);
+    }
+
+    .situacao {
+      font-size: 0.88rem;
+      color: var(--cor-suave);
+      margin-top: 2px;
+    }
+
+    .selo {
+      display: inline-block;
+      background: var(--cor-botao);
+      color: #fff;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .selo.empate {
+      background: #5f6368;
+    }
+
+    .pendente {
+      font-size: 0.88rem;
+      color: var(--cor-suave);
+    }
+
+    /* ---------- Resumo e ações ---------- */
+    .resumo {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      font-size: 1rem;
+    }
+
+    .resumo.destaque {
+      background: var(--cor-botao);
+      color: #fff;
+    }
+
+    .resumo.alerta {
+      background: var(--cor-alerta-fundo);
+      color: var(--cor-alerta-texto);
+      box-shadow: none;
+    }
+
+    .resumo.neutro {
+      color: var(--cor-suave);
+    }
+
+    .resumo strong {
+      font-weight: 700;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .botao {
+      flex: 1;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
       border: 2px solid var(--cor-botao);
     }
 
-    .destaque {
+    .botao-primario {
+      background: var(--cor-botao);
+      color: #fff;
+    }
+
+    .botao-primario:hover {
+      background: var(--cor-botao-hover);
+      border-color: var(--cor-botao-hover);
+    }
+
+    .botao-secundario {
+      background: #fff;
       color: var(--cor-botao);
-      font-weight: bold;
     }
 
-    .aviso {
-      color: #d93025;
-      text-align: center;
-      margin: 15px 0;
-      display: none;
+    .botao-secundario:hover {
+      background: var(--cor-melhor-fundo);
     }
 
-    @media (min-width: 600px) {
-      .comparador {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+    .botao:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .botao:focus-visible,
+    .botao-voltar:focus-visible,
+    .remover:focus-visible {
+      outline: 3px solid rgba(0, 98, 204, 0.4);
+      outline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .opcoes {
+        grid-template-columns: 1fr;
+        gap: 12px;
       }
-      button {
-        grid-column: span 2;
+
+      h1 {
+        font-size: 1.35rem;
       }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>📊 Comparador de Preços</h1>
-    <div class="card">
-      <button type="button" class="botao-voltar" onclick="history.back()">← Voltar</button>
+    <div class="topo">
+      <a class="botao-voltar" href="index.html">← Início</a>
+      <h1>📊 Comparador de Preços</h1>
+    </div>
+    <p class="ajuda">Informe o preço e a quantidade de cada opção. Para fardos e kits, use o campo "Emb." (ex.: 6 × 1 L).</p>
 
-      <div class="comparador">
-        <div class="input-group">
-          <label>Preço Total da opção A</label>
-          <input type="text" id="preco1" placeholder="0,00" maxlength="10" inputmode="decimal" />
-        </div>
-        <div class="input-group">
-          <label>Quantidade / Volume da opção A</label>
-          <input type="text" id="quantidade1" placeholder="0,00" maxlength="10" inputmode="decimal" />
-        </div>
+    <div class="opcoes" id="opcoes"></div>
 
-        <div class="input-group">
-          <label>Preço Total da opção B</label>
-          <input type="text" id="preco2" placeholder="0,00" maxlength="10" inputmode="decimal" />
-        </div>
-        <div class="input-group">
-          <label>Quantidade / Volume da opção B</label>
-          <input type="text" id="quantidade2" placeholder="0,00" maxlength="10" inputmode="decimal" />
-        </div>
-      </div>
+    <div class="resumo neutro" id="resumo" role="status" aria-live="polite"></div>
 
-      <div class="aviso" id="aviso">
-        Preencha todos os campos corretamente!
-      </div>
-
-      <div class="resultado" id="resultado">
-        <div class="produto" id="produto1"></div>
-        <div class="produto" id="produto2"></div>
-      </div>
-
-      <button type="button" class="botao-limpar" onclick="limparCampos()">Limpar</button>
+    <div class="acoes">
+      <button type="button" class="botao botao-secundario" id="adicionar">+ Adicionar opção</button>
+      <button type="button" class="botao botao-secundario" id="limpar">Limpar tudo</button>
     </div>
   </div>
 
+  <template id="modelo-opcao">
+    <section class="opcao">
+      <div class="opcao-topo">
+        <h2 class="titulo-opcao"></h2>
+        <button type="button" class="remover">Remover</button>
+      </div>
+      <div class="campos">
+        <div class="campo">
+          <label data-campo="preco">Preço total (R$)</label>
+          <input type="text" data-campo="preco" inputmode="decimal" placeholder="0,00" autocomplete="off" maxlength="14">
+        </div>
+        <div class="linha-quantidade">
+          <div class="campo">
+            <label data-campo="quantidade">Quantidade</label>
+            <input type="text" data-campo="quantidade" inputmode="decimal" placeholder="0" autocomplete="off" maxlength="10">
+          </div>
+          <div class="campo">
+            <label data-campo="unidade">Unidade</label>
+            <select data-campo="unidade">
+              <option value="g">g</option>
+              <option value="kg">kg</option>
+              <option value="ml">mL</option>
+              <option value="l">L</option>
+              <option value="un">un.</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label data-campo="embalagens">Emb. <span class="opcional">(×)</span></label>
+            <input type="text" data-campo="embalagens" class="vezes" inputmode="numeric" placeholder="1" autocomplete="off" maxlength="4">
+          </div>
+        </div>
+      </div>
+      <div class="resultado-opcao" aria-live="polite"></div>
+    </section>
+  </template>
+
   <script>
-    // Função para formatar número como moeda
-    const formatarMoeda = (valor) => {
-      return valor.toLocaleString('pt-BR', { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 2 
-      });
+    const MIN_OPCOES = 2;
+    const MAX_OPCOES = 4;
+    const TOLERANCIA_EMPATE = 0.001; // diferenças abaixo de 0,1% contam como empate
+
+    // Cada unidade é convertida para a base do seu tipo.
+    const UNIDADES = {
+      g: { tipo: 'massa', fator: 0.001 },
+      kg: { tipo: 'massa', fator: 1 },
+      ml: { tipo: 'volume', fator: 0.001 },
+      l: { tipo: 'volume', fator: 1 },
+      un: { tipo: 'unidade', fator: 1 }
+    };
+    const BASES = {
+      massa: 'por kg',
+      volume: 'por litro',
+      unidade: 'por unidade'
     };
 
-    // Função para converter string em número
-    const converterParaNumero = (valor) => {
-      return parseFloat(valor.replace(/\./g, '').replace(',', '.')) || 0;
-    };
+    const opcoesEl = document.getElementById('opcoes');
+    const resumoEl = document.getElementById('resumo');
+    const botaoAdicionar = document.getElementById('adicionar');
+    const modelo = document.getElementById('modelo-opcao');
+    let proximoId = 1;
 
-    // Evento de input para validação
-    const inputs = document.querySelectorAll('input[type="text"]');
-    inputs.forEach(input => {
-      input.addEventListener('input', (e) => {
-        // Permite apenas números, vírgula e ponto
-        e.target.value = e.target.value.replace(/[^\d,.]/, '');
-        compararPrecos();
+    // ---------- Números ----------
+    // Aceita "1,5", "1.5", "1.234,56", "R$ 12,90". Vazio ou inválido -> NaN.
+    function numeroDoTexto(texto) {
+      let t = String(texto).replace(/[^\d.,]/g, '');
+      if (!t) return NaN;
+      if (t.includes(',')) {
+        t = t.replace(/\./g, '').replace(',', '.');
+      } else if ((t.match(/\./g) || []).length > 1) {
+        t = t.replace(/\./g, ''); // "1.234.567"
+      }
+      const n = Number(t);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    function formatarReais(valor) {
+      const casas = valor < 1 ? 4 : 2;
+      return valor.toLocaleString('pt-BR', {
+        style: 'currency', currency: 'BRL', minimumFractionDigits: 2, maximumFractionDigits: casas
+      });
+    }
+
+    function formatarPercentual(fracao) {
+      return fracao.toLocaleString('pt-BR', { style: 'percent', maximumFractionDigits: 1 });
+    }
+
+    function letra(indice) {
+      return String.fromCharCode(65 + indice);
+    }
+
+    // ---------- Opções ----------
+    function cartoes() {
+      return [...opcoesEl.querySelectorAll('.opcao')];
+    }
+
+    const UNIDADE_PADRAO = 'un';
+
+    function adicionarOpcao() {
+      if (cartoes().length >= MAX_OPCOES) return;
+      const id = proximoId++;
+      const cartao = modelo.content.firstElementChild.cloneNode(true);
+
+      cartao.querySelectorAll('[data-campo]').forEach(el => {
+        const campoId = `${el.dataset.campo}-${id}`;
+        if (el.tagName === 'LABEL') el.htmlFor = campoId;
+        else el.id = campoId;
       });
 
-      // Selecionar todo o conteúdo ao focar
-      input.addEventListener('focus', (e) => {
-        e.target.select();
+      const unidade = cartao.querySelector('select');
+      // Novas opções seguem a unidade da Opção A.
+      unidade.value = primeiraUnidade() || UNIDADE_PADRAO;
+
+      cartao.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', () => {
+          // Mantém só dígitos, vírgula e ponto (também ao colar "R$ 12,90").
+          const limpo = input.dataset.campo === 'embalagens'
+            ? input.value.replace(/\D/g, '')
+            : input.value.replace(/[^\d.,]/g, '');
+          if (limpo !== input.value) input.value = limpo;
+          comparar();
+        });
+        input.addEventListener('focus', () => input.select());
       });
-    });
+      unidade.addEventListener('change', () => {
+        if (cartao === cartoes()[0]) {
+          // Mudou a Opção A: as outras acompanham, exceto as que a pessoa já trocou à mão.
+          cartoes().slice(1).forEach(outro => {
+            if (!outro.dataset.unidadeManual) outro.querySelector('select').value = unidade.value;
+          });
+        } else {
+          cartao.dataset.unidadeManual = 'sim';
+        }
+        comparar();
+      });
+      cartao.querySelector('.remover').addEventListener('click', () => {
+        cartao.remove();
+        atualizarEstrutura();
+        comparar();
+      });
 
-    function compararPrecos() {
-      const preco1 = converterParaNumero(document.getElementById('preco1').value);
-      const quantidade1 = converterParaNumero(document.getElementById('quantidade1').value);
-      const preco2 = converterParaNumero(document.getElementById('preco2').value);
-      const quantidade2 = converterParaNumero(document.getElementById('quantidade2').value);
+      opcoesEl.appendChild(cartao);
+      atualizarEstrutura();
+      comparar();
+      return cartao;
+    }
 
-      const aviso = document.getElementById('aviso');
-      const resultado = document.getElementById('resultado');
+    function primeiraUnidade() {
+      const primeira = cartoes()[0];
+      return primeira ? primeira.querySelector('select').value : null;
+    }
 
-      if (quantidade1 <= 0 || quantidade2 <= 0) {
-        aviso.style.display = 'block';
-        resultado.style.display = 'none';
+    function atualizarEstrutura() {
+      const lista = cartoes();
+      lista.forEach((cartao, i) => {
+        cartao.querySelector('.titulo-opcao').textContent = `Opção ${letra(i)}`;
+        cartao.dataset.letra = letra(i);
+        const remover = cartao.querySelector('.remover');
+        remover.hidden = lista.length <= MIN_OPCOES;
+        remover.setAttribute('aria-label', `Remover opção ${letra(i)}`);
+      });
+      botaoAdicionar.disabled = lista.length >= MAX_OPCOES;
+      botaoAdicionar.textContent = lista.length >= MAX_OPCOES ? 'Máximo de 4 opções' : '+ Adicionar opção';
+    }
+
+    // ---------- Cálculo ----------
+    function lerOpcao(cartao) {
+      const campo = nome => cartao.querySelector(`[data-campo="${nome}"]:not(label)`);
+      const preco = numeroDoTexto(campo('preco').value);
+      const quantidade = numeroDoTexto(campo('quantidade').value);
+      const embalagensTexto = campo('embalagens').value;
+      const embalagens = embalagensTexto ? Number(embalagensTexto) : 1;
+      const unidade = UNIDADES[campo('unidade').value];
+
+      const vazio = !campo('preco').value && !campo('quantidade').value;
+      let pendencia = null;
+      if (!(preco > 0)) pendencia = 'Informe o preço.';
+      else if (!(quantidade > 0)) pendencia = 'Informe a quantidade.';
+      else if (!(embalagens > 0)) pendencia = 'O número de embalagens precisa ser maior que zero.';
+
+      const totalBase = quantidade * embalagens * unidade.fator;
+      return {
+        cartao,
+        letra: cartao.dataset.letra,
+        vazio,
+        pendencia,
+        tipo: unidade.tipo,
+        unitario: pendencia ? null : preco / totalBase
+      };
+    }
+
+    function comparar() {
+      const opcoes = cartoes().map(lerOpcao);
+      const completas = opcoes.filter(o => !o.pendencia);
+      const tipos = new Set(completas.map(o => o.tipo));
+      const comparavel = completas.length >= 2 && tipos.size === 1;
+
+      let menor = null;
+      let maior = null;
+      if (comparavel) {
+        menor = Math.min(...completas.map(o => o.unitario));
+        maior = Math.max(...completas.map(o => o.unitario));
+      }
+      const empate = (a, b) => Math.abs(a - b) / b <= TOLERANCIA_EMPATE;
+      const todosEmpatados = comparavel && empate(maior, menor);
+
+      opcoes.forEach(o => renderOpcao(o, { comparavel, menor, todosEmpatados, empate }));
+      renderResumo({ opcoes, completas, tipos, comparavel, menor, maior, todosEmpatados, empate });
+    }
+
+    function renderOpcao(o, { comparavel, menor, todosEmpatados, empate }) {
+      const caixa = o.cartao.querySelector('.resultado-opcao');
+      caixa.replaceChildren();
+      o.cartao.classList.remove('melhor');
+
+      if (o.pendencia) {
+        const p = document.createElement('p');
+        p.className = 'pendente';
+        // Opção ainda em branco não precisa de aviso.
+        p.textContent = o.vazio ? 'Preencha preço e quantidade.' : o.pendencia;
+        caixa.appendChild(p);
         return;
       }
 
-      aviso.style.display = 'none';
+      const valor = document.createElement('p');
+      valor.className = 'preco-unitario';
+      valor.textContent = `${formatarReais(o.unitario)} `;
+      const base = document.createElement('small');
+      base.textContent = BASES[o.tipo];
+      valor.appendChild(base);
+      caixa.appendChild(valor);
 
-      const precoUnitario1 = preco1 / quantidade1;
-      const precoUnitario2 = preco2 / quantidade2;
+      if (!comparavel) return;
 
-      const produto1 = document.getElementById('produto1');
-      const produto2 = document.getElementById('produto2');
-
-      produto1.innerHTML = `
-        <h3>Opção A</h3>
-        <p>Preço Total: R$ ${formatarMoeda(preco1)}</p>
-        <p>Quantidade / Volume: ${formatarMoeda(quantidade1)}</p>
-        <p class="destaque">Preço por unidade: <span>R$ ${formatarMoeda(precoUnitario1)}</span></p>
-      `;
-
-      produto2.innerHTML = `
-        <h3>Opção B</h3>
-        <p>Preço Total: R$ ${formatarMoeda(preco2)}</p>
-        <p>Quantidade / Volume: ${formatarMoeda(quantidade2)}</p>
-        <p class="destaque">Preço por unidade: <span>R$ ${formatarMoeda(precoUnitario2)}</span></p>
-      `;
-
-      produto1.classList.toggle('melhor', precoUnitario1 < precoUnitario2);
-      produto2.classList.toggle('melhor', precoUnitario2 < precoUnitario1);
-
-      resultado.style.display = 'block';
+      if (empate(o.unitario, menor)) {
+        const selo = document.createElement('span');
+        if (todosEmpatados) {
+          selo.className = 'selo empate';
+          selo.textContent = 'Empate';
+        } else {
+          selo.className = 'selo';
+          selo.textContent = '✓ Mais barata';
+          o.cartao.classList.add('melhor');
+        }
+        caixa.appendChild(selo);
+      } else {
+        const diferenca = o.unitario - menor;
+        const situacao = document.createElement('p');
+        situacao.className = 'situacao';
+        situacao.textContent = `${formatarPercentual(diferenca / menor)} mais cara (+${formatarReais(diferenca)} ${BASES[o.tipo]})`;
+        caixa.appendChild(situacao);
+      }
     }
 
-    function limparCampos() {
-      inputs.forEach(input => {
-        input.value = '';
-      });
-      
-      document.getElementById('resultado').style.display = 'none';
-      document.getElementById('aviso').style.display = 'none';
-      document.getElementById('produto1').innerHTML = '';
-      document.getElementById('produto2').innerHTML = '';
+    function renderResumo({ completas, tipos, comparavel, menor, maior, todosEmpatados, empate }) {
+      resumoEl.replaceChildren();
+      const definir = (classe, ...partes) => {
+        resumoEl.className = `resumo ${classe}`;
+        partes.forEach(parte => {
+          if (typeof parte === 'string') resumoEl.append(parte);
+          else {
+            const forte = document.createElement('strong');
+            forte.textContent = parte.forte;
+            resumoEl.append(forte);
+          }
+        });
+      };
+
+      if (completas.length >= 2 && tipos.size > 1) {
+        definir('alerta', 'As opções usam unidades de tipos diferentes (peso, volume ou unidade). Escolha unidades do mesmo tipo para comparar.');
+        return;
+      }
+      if (!comparavel) {
+        definir('neutro', 'Preencha preço e quantidade de pelo menos duas opções para comparar.');
+        return;
+      }
+
+      const base = BASES[completas[0].tipo];
+      if (todosEmpatados) {
+        definir('neutro', { forte: 'Empate: ' }, `todas custam ${formatarReais(menor)} ${base}.`);
+        return;
+      }
+
+      // Mesma base dos cartões: quanto a mais custa em relação à mais barata.
+      const melhores = completas.filter(o => empate(o.unitario, menor)).map(o => o.letra);
+      const maisCara = completas.find(o => o.unitario === maior);
+      const nomesMelhores = melhores.length === 1
+        ? `Opção ${melhores[0]} é a mais barata`
+        : `Opções ${melhores.slice(0, -1).join(', ')} e ${melhores[melhores.length - 1]} empatam como as mais baratas`;
+      const quemCusta = completas.length === 2 ? `A opção ${maisCara.letra}` : `A mais cara (${maisCara.letra})`;
+
+      definir('destaque',
+        { forte: `${nomesMelhores}: ${formatarReais(menor)} ${base}. ` },
+        `${quemCusta} custa ${formatarPercentual((maior - menor) / menor)} a mais (+${formatarReais(maior - menor)} ${base}).`);
     }
+
+    function limpar() {
+      opcoesEl.replaceChildren();
+      proximoId = 1;
+      adicionarOpcao();
+      adicionarOpcao();
+      opcoesEl.querySelector('input').focus();
+    }
+
+    botaoAdicionar.addEventListener('click', () => {
+      const cartao = adicionarOpcao();
+      if (cartao) cartao.querySelector('input').focus();
+    });
+    document.getElementById('limpar').addEventListener('click', limpar);
+
+    adicionarOpcao();
+    adicionarOpcao();
   </script>
 </body>
 </html>

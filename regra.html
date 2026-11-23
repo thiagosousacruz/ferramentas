@@ -3,286 +3,531 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>📐 Regra de Três</title>
+  <title>Regra de Três</title>
+  <meta name="theme-color" content="#0062cc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/ferramentas/manifest.json">
+  <link rel="apple-touch-icon" href="/ferramentas/icons/icon-192x192.png">
   <style>
     :root {
-      --cor-fundo: #f9fafb; /* Fundo claro e neutro */
-      --cor-texto: #333333; /* Texto escuro */
-      --cor-botao: #007BFF; /* Azul para botões */
-      --cor-botao-hover: #0056b3; /* Azul mais escuro no hover */
-      --cor-titulo: #2c3e50; /* Azul escuro para o título */
-      --cor-toggle: #28a745; /* Cor para o botão de alternar modo */
-      --cor-toggle-hover: #218838;
+      --cor-fundo: #f9fafb;
+      --cor-texto: #333333;
+      --cor-suave: #5f6368;
+      --cor-botao: #0062cc;
+      --cor-botao-hover: #004a99;
+      --cor-titulo: #2c3e50;
+      --cor-borda: #dadce0;
+      --cor-destaque-fundo: #e8f0fe;
+      --cor-alerta-fundo: #fff4dc;
+      --cor-alerta-texto: #6b4b00;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
       background-color: var(--cor-fundo);
       color: var(--cor-texto);
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 15px;
+      padding: 20px 16px 32px;
+      line-height: 1.45;
     }
 
     .container {
-      max-width: 500px;
-      margin: 20px auto;
-      background-color: #fff;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      max-width: 560px;
+      margin: 0 auto;
+    }
+
+    .topo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .botao-voltar {
+      flex-shrink: 0;
+      background: #e8eaed;
+      color: var(--cor-texto);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
+
+    .botao-voltar:hover {
+      background: #d5d8dc;
     }
 
     h1 {
-      text-align: center;
       color: var(--cor-titulo);
-      margin-bottom: 20px;
+      font-size: 1.6rem;
     }
 
-    .vertical-regra {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 20px;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    .vertical-regra span {
-      font-weight: bold;
-    }
-
-    .vertical-regra input[type="number"],
-    .vertical-regra input[readonly] {
-      width: 100%;
-      max-width: 300px;
-      padding: 8px;
-      font-size: 16px;
-      text-align: center;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-
-    .vertical-regra input[readonly] {
-      background-color: #e9ecef;
-    }
-
-    .button-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-      align-items: center;
-    }
-
-    button {
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      color: #fff;
-      cursor: pointer;
-      font-size: 16px;
-      width: 100%;
-      max-width: 300px;
-    }
-
-    .btn-toggle {
-      background-color: var(--cor-toggle);
-    }
-
-    .btn-toggle:hover {
-      background-color: var(--cor-toggle-hover);
-    }
-
-    .btn-limpar {
-      background-color: var(--cor-botao);
-    }
-
-    .btn-limpar:hover {
-      background-color: var(--cor-botao-hover);
-    }
-
-    .btn-voltar {
-      background-color: #6c757d;
-      margin-bottom: 15px;
-      width: 100%;
-      max-width: 300px;
-    }
-
-    .btn-voltar:hover {
-      background-color: #5a6268;
-    }
-
-    .help-button {
-      background-color: #17a2b8;
-      width: 100%;
-      max-width: 300px;
-    }
-
-    .help-button:hover {
-      background-color: #138496;
-    }
-
-    /* Estilos do Popup de Ajuda */
-    .overlay {
-      position: fixed;
-      display: none;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
-
-    .popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #fff;
-      border: 1px solid #ccc;
+    .cartao {
+      background: #fff;
+      border-radius: 12px;
       padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-      z-index: 1000;
-      width: 90%;
-      max-width: 400px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      margin-bottom: 16px;
     }
 
-    .popup h2 {
-      margin-top: 0;
-    }
-
-    .popup p {
-      margin-bottom: 15px;
-    }
-
-    .popup-close {
-      background-color: var(--cor-botao);
-      padding: 5px 10px;
+    /* ---------- Modo ---------- */
+    .modo {
       border: none;
-      border-radius: 4px;
-      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .modo legend {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .segmentos {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border: 2px solid var(--cor-botao);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .segmentos input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .segmentos label {
+      text-align: center;
+      padding: 10px;
       cursor: pointer;
-      float: right;
+      font-weight: 600;
+      color: var(--cor-botao);
+      background: #fff;
+      user-select: none;
+    }
+
+    .segmentos label + input + label {
+      border-left: 2px solid var(--cor-botao);
+    }
+
+    .segmentos input:checked + label {
+      background: var(--cor-botao);
+      color: #fff;
+    }
+
+    .segmentos input:focus-visible + label {
+      outline: 3px solid rgba(0, 98, 204, 0.4);
+      outline-offset: -5px;
+    }
+
+    .explica-modo {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: var(--cor-suave);
+    }
+
+    /* ---------- Frase ---------- */
+    .frase {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 6px 10px;
+      align-items: end;
+    }
+
+    .campo label,
+    .campo .rotulo {
+      display: block;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .seta {
+      padding-bottom: 10px;
+      color: var(--cor-suave);
+      font-size: 1.2rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--cor-borda);
+      border-radius: 6px;
+      font-size: 1.1rem;
+      font-family: inherit;
+      text-align: center;
+      color: var(--cor-texto);
+    }
+
+    input[type="text"]:focus {
+      outline: 2px solid var(--cor-botao);
+      border-color: var(--cor-botao);
+    }
+
+    .incognita {
+      padding: 10px;
+      border: 2px dashed var(--cor-botao);
+      border-radius: 6px;
+      font-size: 1.1rem;
+      text-align: center;
+      font-weight: 700;
+      color: var(--cor-botao);
+      background: var(--cor-destaque-fundo);
+      min-height: 2.75rem;
+      overflow-wrap: anywhere;
+    }
+
+    /* ---------- Resultado ---------- */
+    .resultado {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-radius: 10px;
+      background: var(--cor-destaque-fundo);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 4.5rem;
+    }
+
+    .resultado.vazio {
+      background: #f1f3f4;
+      color: var(--cor-suave);
+    }
+
+    .resultado.alerta {
+      background: var(--cor-alerta-fundo);
+      color: var(--cor-alerta-texto);
+    }
+
+    .conta {
+      font-size: 0.95rem;
+      color: var(--cor-suave);
+      overflow-wrap: anywhere;
+    }
+
+    .valor-final {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--cor-titulo);
+      overflow-wrap: anywhere;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .botao {
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      cursor: pointer;
+      border: 2px solid var(--cor-botao);
+      background: #fff;
+      color: var(--cor-botao);
+    }
+
+    .botao:hover {
+      background: var(--cor-destaque-fundo);
+    }
+
+    .botao-primario {
+      background: var(--cor-botao);
+      color: #fff;
+    }
+
+    .botao-primario:hover {
+      background: var(--cor-botao-hover);
+      border-color: var(--cor-botao-hover);
+    }
+
+    .acoes .botao {
+      flex: 1;
+    }
+
+    .botao-copiar {
+      flex-shrink: 0;
+      font-size: 0.9rem;
+      padding: 8px 12px;
+    }
+
+    .botao:focus-visible,
+    .botao-voltar:focus-visible,
+    summary:focus-visible {
+      outline: 3px solid rgba(0, 98, 204, 0.4);
+      outline-offset: 2px;
+    }
+
+    /* ---------- Ajuda ---------- */
+    details.cartao {
+      padding: 0;
+    }
+
+    summary {
+      padding: 16px 20px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--cor-titulo);
+      list-style-position: inside;
+    }
+
+    .ajuda {
+      padding: 0 20px 20px;
+    }
+
+    .ajuda h2 {
+      font-size: 1rem;
+      color: var(--cor-titulo);
+      margin: 16px 0 6px;
+    }
+
+    .ajuda p {
+      margin-bottom: 8px;
+    }
+
+    .dica {
+      background: #f1f3f4;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .exemplo {
+      border-left: 4px solid var(--cor-borda);
+      padding-left: 12px;
+      margin-bottom: 8px;
+    }
+
+    .exemplo .botao {
+      font-size: 0.9rem;
+      padding: 6px 12px;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 420px) {
+      h1 {
+        font-size: 1.35rem;
+      }
+
+      .cartao {
+        padding: 16px;
+      }
+
+      .frase {
+        gap: 6px 6px;
+      }
+
+      .resultado {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Botão de Voltar -->
-    <button class="btn-voltar" onclick="voltar()">← Voltar</button>
-    <h1>📐 Regra de Três</h1>
-
-    <!-- Layout Vertical com a frase e campos -->
-    <div class="vertical-regra">
-      <span>Se</span>
-      <input type="number" id="valor1" placeholder="Valor 1" required oninput="calcular()" />
-
-      <span>corresponde a</span>
-      <input type="number" id="valor2" placeholder="Valor 2" required oninput="calcular()" />
-
-      <span>então</span>
-      <input type="number" id="valor3" placeholder="Valor 3" required oninput="calcular()" />
-
-      <span>corresponde a</span>
-      <input type="text" id="resultado" placeholder="Resultado" readonly />
+    <div class="topo">
+      <a class="botao-voltar" href="index.html">← Início</a>
+      <h1>📐 Regra de Três</h1>
     </div>
 
-    <!-- Botões de alternância, limpar e ajuda -->
-    <div class="button-group">
-      <button type="button" class="btn-toggle" id="toggleBtn" onclick="toggleProporcionalidade()">
-        Usar Regra Inversa
-      </button>
-      <button type="button" class="btn-limpar" onclick="limparCampos()">Limpar</button>
-      <button type="button" class="help-button" onclick="mostrarAjuda()">❓ Ajuda</button>
-    </div>
-  </div>
+    <main class="cartao">
+      <fieldset class="modo">
+        <legend>Tipo de proporção</legend>
+        <div class="segmentos">
+          <input type="radio" name="modo" id="modo-direta" value="direta" checked>
+          <label for="modo-direta">Direta</label>
+          <input type="radio" name="modo" id="modo-inversa" value="inversa">
+          <label for="modo-inversa">Inversa</label>
+        </div>
+        <p class="explica-modo" id="explica-modo"></p>
+      </fieldset>
 
-  <!-- Popup e Overlay de Ajuda -->
-  <div class="overlay" id="overlay"></div>
-  <div class="popup" id="popupAjuda">
-    <button class="popup-close" onclick="fecharAjuda()">Fechar</button>
-    <h2>Como funciona?</h2>
-    <p>
-      Imagine que você tem carrinhos e bicicletas.
-    </p>
-    <p>
-      <strong>Exemplo de Regra de Três Direta</strong>:<br>
-      Se 2 carrinhos correspondem a 4 bicicletas, então se você tem 6 carrinhos, quantas bicicletas você terá?<br>
-      Cálculo: (Valor 2 × Valor 3) / Valor 1 = (4 × 6) / 2 = 12
-    </p>
-    <p>
-      <strong>Exemplo de Regra de Três Inversa</strong>:<br>
-      Se 2 carrinhos correspondem a 4 bicicletas, então se você tem 6 bicicletas, quantos carrinhos serão necessários?<br>
-      Cálculo: (Valor 1 × Valor 2) / Valor 3 = (2 × 4) / 6 ≈ 1,33
-    </p>
+      <div class="frase">
+        <div class="campo">
+          <label for="valor1">Se</label>
+          <input type="text" id="valor1" inputmode="decimal" autocomplete="off" placeholder="ex.: 2">
+        </div>
+        <span class="seta" aria-hidden="true">→</span>
+        <div class="campo">
+          <label for="valor2">corresponde a</label>
+          <input type="text" id="valor2" inputmode="decimal" autocomplete="off" placeholder="ex.: 10">
+        </div>
+
+        <div class="campo">
+          <label for="valor3">então</label>
+          <input type="text" id="valor3" inputmode="decimal" autocomplete="off" placeholder="ex.: 5">
+        </div>
+        <span class="seta" aria-hidden="true">→</span>
+        <div class="campo">
+          <span class="rotulo" id="rotulo-x">corresponde a</span>
+          <div class="incognita" id="incognita" aria-labelledby="rotulo-x">x</div>
+        </div>
+      </div>
+
+      <div class="resultado vazio" id="resultado" role="status" aria-live="polite">
+        <div>
+          <div class="conta" id="conta">Preencha os três valores.</div>
+          <div class="valor-final" id="valor-final"></div>
+        </div>
+        <button type="button" class="botao botao-copiar" id="copiar" hidden>Copiar</button>
+      </div>
+
+      <div class="acoes">
+        <button type="button" class="botao" id="limpar">Limpar</button>
+      </div>
+    </main>
+
+    <details class="cartao" id="ajuda">
+      <summary>❓ Como saber se é direta ou inversa?</summary>
+      <div class="ajuda">
+        <p class="dica">Pense no que acontece quando um valor <strong>aumenta</strong>:<br>
+          • o outro também aumenta → <strong>direta</strong><br>
+          • o outro diminui → <strong>inversa</strong></p>
+
+        <h2>Exemplo de regra direta</h2>
+        <div class="exemplo">
+          <p>Se 2 kg de arroz custam R$ 10, quanto custam 5 kg?<br>
+            Mais arroz, mais caro: é direta.<br>
+            x = 10 × 5 ÷ 2 = <strong>R$ 25</strong></p>
+          <button type="button" class="botao" data-exemplo="direta,2,10,5">Testar este exemplo</button>
+        </div>
+
+        <h2>Exemplo de regra inversa</h2>
+        <div class="exemplo">
+          <p>Se 4 pedreiros fazem um muro em 6 dias, em quantos dias 8 pedreiros fazem o mesmo muro?<br>
+            Mais pedreiros, menos dias: é inversa.<br>
+            x = 4 × 6 ÷ 8 = <strong>3 dias</strong></p>
+          <button type="button" class="botao" data-exemplo="inversa,4,6,8">Testar este exemplo</button>
+        </div>
+      </div>
+    </details>
   </div>
 
   <script>
-    // Modo padrão: Regra de Três Direta
-    // Quando direta = true: Resultado = (Valor 2 × Valor 3) / Valor 1
-    // Quando direta = false (inversa): Resultado = (Valor 1 × Valor 2) / Valor 3
-    let direta = true;
+    const campos = ['valor1', 'valor2', 'valor3'].map(id => document.getElementById(id));
+    const incognita = document.getElementById('incognita');
+    const resultadoEl = document.getElementById('resultado');
+    const contaEl = document.getElementById('conta');
+    const valorFinalEl = document.getElementById('valor-final');
+    const copiarBtn = document.getElementById('copiar');
+    const explicaModo = document.getElementById('explica-modo');
+
+    const EXPLICACOES = {
+      direta: 'Quando um valor aumenta, o outro também aumenta (ex.: mais quilos, mais caro).',
+      inversa: 'Quando um valor aumenta, o outro diminui (ex.: mais pedreiros, menos dias).'
+    };
+
+    // Aceita "1,5", "1.5", "1.234,56". Vazio ou inválido -> NaN.
+    function numeroDoTexto(texto) {
+      let t = String(texto).replace(/[^\d.,]/g, '');
+      if (!t) return NaN;
+      if (t.includes(',')) {
+        t = t.replace(/\./g, '').replace(',', '.');
+      } else if ((t.match(/\./g) || []).length > 1) {
+        t = t.replace(/\./g, '');
+      }
+      const n = Number(t);
+      return Number.isFinite(n) ? n : NaN;
+    }
+
+    const formatoExibicao = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4 });
+    const formatoCopia = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 4, useGrouping: false });
+
+    function modoAtual() {
+      return document.querySelector('input[name="modo"]:checked').value;
+    }
+
+    function mostrar(classe, conta, valorFinal) {
+      resultadoEl.className = `resultado ${classe}`;
+      contaEl.textContent = conta;
+      valorFinalEl.textContent = valorFinal || '';
+      copiarBtn.hidden = !valorFinal;
+    }
 
     function calcular() {
-      const valor1 = parseFloat(document.getElementById("valor1").value);
-      const valor2 = parseFloat(document.getElementById("valor2").value);
-      const valor3 = parseFloat(document.getElementById("valor3").value);
-      
-      // Verifica se os três campos estão preenchidos e se os valores são válidos (não zero onde necessário).
-      if (isNaN(valor1) || isNaN(valor2) || isNaN(valor3) || valor1 === 0 || valor3 === 0) {
-        document.getElementById("resultado").value = "";
+      const modo = modoAtual();
+      explicaModo.textContent = EXPLICACOES[modo];
+      const [a, b, c] = campos.map(campo => numeroDoTexto(campo.value));
+
+      if ([a, b, c].some(Number.isNaN)) {
+        incognita.textContent = 'x';
+        mostrar('vazio', 'Preencha os três valores.');
         return;
       }
 
-      let res;
-      if (direta) {
-        // Regra de Três Direta: Resultado = (Valor 2 × Valor 3) / Valor 1
-        res = (valor2 * valor3) / valor1;
-      } else {
-        // Regra de Três Inversa: Resultado = (Valor 1 × Valor 2) / Valor 3
-        res = (valor1 * valor2) / valor3;
+      // Direta: a/b = c/x  ->  x = b × c ÷ a
+      // Inversa: a × b = c × x  ->  x = a × b ÷ c
+      const [m1, m2, divisor] = modo === 'direta' ? [b, c, a] : [a, b, c];
+      if (divisor === 0) {
+        incognita.textContent = '?';
+        const qual = modo === 'direta' ? 'primeiro' : 'terceiro';
+        mostrar('alerta', `O ${qual} valor não pode ser zero: não existe divisão por zero.`);
+        return;
       }
-      
-      // Formata o resultado para o padrão brasileiro (vírgula como separador decimal)
-      document.getElementById("resultado").value = res.toLocaleString('pt-BR');
+
+      const x = (m1 * m2) / divisor;
+      const exibido = formatoExibicao.format(x);
+      const arredondado = Number(x.toFixed(4)) !== x;
+      const f = formatoExibicao.format;
+      incognita.textContent = exibido;
+      mostrar('', `x = ${f(m1)} × ${f(m2)} ÷ ${f(divisor)}`, `${arredondado ? '≈ ' : '= '}${exibido}`);
+      copiarBtn.dataset.valor = formatoCopia.format(x);
     }
 
-    function toggleProporcionalidade() {
-      direta = !direta;
-      const toggleBtn = document.getElementById("toggleBtn");
-      toggleBtn.innerText = direta ? "Usar Regra Inversa" : "Usar Regra Direta";
+    campos.forEach(campo => {
+      campo.addEventListener('input', () => {
+        const limpo = campo.value.replace(/[^\d.,]/g, '');
+        if (limpo !== campo.value) campo.value = limpo;
+        calcular();
+      });
+      campo.addEventListener('focus', () => campo.select());
+    });
+
+    document.querySelectorAll('input[name="modo"]').forEach(radio => radio.addEventListener('change', calcular));
+
+    // Limpa os valores, mas mantém o tipo de proporção escolhido.
+    document.getElementById('limpar').addEventListener('click', () => {
+      campos.forEach(campo => { campo.value = ''; });
       calcular();
-    }
+      campos[0].focus();
+    });
 
-    function limparCampos() {
-      document.getElementById("valor1").value = "";
-      document.getElementById("valor2").value = "";
-      document.getElementById("valor3").value = "";
-      document.getElementById("resultado").value = "";
-      // Retorna ao modo direto
-      direta = true;
-      document.getElementById("toggleBtn").innerText = "Usar Regra Inversa";
-    }
+    copiarBtn.addEventListener('click', async () => {
+      const texto = copiarBtn.dataset.valor;
+      try {
+        await navigator.clipboard.writeText(texto);
+      } catch (e) {
+        const area = document.createElement('textarea');
+        area.value = texto;
+        area.style.position = 'fixed';
+        area.style.opacity = '0';
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand('copy');
+        area.remove();
+      }
+      copiarBtn.textContent = 'Copiado ✓';
+      setTimeout(() => { copiarBtn.textContent = 'Copiar'; }, 1500);
+    });
 
-    function mostrarAjuda() {
-      document.getElementById("overlay").style.display = "block";
-      document.getElementById("popupAjuda").style.display = "block";
-    }
+    document.querySelectorAll('[data-exemplo]').forEach(botao => {
+      botao.addEventListener('click', () => {
+        const [modo, ...valores] = botao.dataset.exemplo.split(',');
+        document.getElementById(`modo-${modo}`).checked = true;
+        campos.forEach((campo, i) => { campo.value = valores[i]; });
+        calcular();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
 
-    function fecharAjuda() {
-      document.getElementById("overlay").style.display = "none";
-      document.getElementById("popupAjuda").style.display = "none";
-    }
-
-    function voltar() {
-      window.history.back();
-    }
+    calcular();
   </script>
 </body>
 </html>

@@ -651,6 +651,19 @@ controlButtons.forEach((button) => {
 });
 
 startGameButton.addEventListener("click", enterGame);
+
+// Sair no meio da partida perde o jogo atual (o Top 5 so e salvo no fim).
+document.getElementById("gameHomeLink").addEventListener("click", (event) => {
+  if (!isRunning || isGameOver) {
+    return;
+  }
+  if (!isPaused) {
+    pauseGame();
+  }
+  if (!window.confirm("Sair para o inicio? A partida atual sera perdida.")) {
+    event.preventDefault();
+  }
+});
 pauseButton.addEventListener("click", pauseGame);
 restartButton.addEventListener("click", () => {
   cancelAnimationFrame(animationFrameId);

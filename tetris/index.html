@@ -30,13 +30,18 @@
           </div>
         </div>
         <button id="startGameButton" class="primary-button" type="button">Jogar</button>
+        <a class="home-link" href="../index.html">&larr; Inicio</a>
       </div>
     </section>
 
     <section id="gameScreen" class="screen game-screen" aria-label="Jogo Tetris estilo Brink Game">
       <div class="console-shell">
         <div class="console-topbar">
-          <p class="brand">SUPER</p>
+          <div class="topbar-row">
+            <a id="gameHomeLink" class="home-link home-link-mini" href="../index.html" aria-label="Voltar ao inicio">&larr;</a>
+            <p class="brand">SUPER</p>
+            <span class="topbar-spacer" aria-hidden="true"></span>
+          </div>
           <div class="status-strip">
             <div>
               <span class="status-label">Score</span>

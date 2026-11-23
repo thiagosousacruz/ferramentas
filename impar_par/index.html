@@ -1,210 +1,527 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Par ou Ímpar</title>
-    <style>
-        :root {
-            --cor-fundo: #f9fafb;
-            --cor-texto: #333333;
-            --cor-botao: #007BFF;
-            --cor-botao-hover: #0056b3;
-            --cor-titulo: #2c3e50;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Par ou Ímpar</title>
+  <meta name="theme-color" content="#0062cc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/ferramentas/manifest.json">
+  <link rel="apple-touch-icon" href="/ferramentas/icons/icon-192x192.png">
+  <style>
+    :root {
+      --cor-fundo: #f9fafb;
+      --cor-texto: #333333;
+      --cor-suave: #5f6368;
+      --cor-botao: #0062cc;
+      --cor-botao-hover: #004a99;
+      --cor-titulo: #2c3e50;
+      --cor-borda: #dadce0;
+      --cor-destaque-fundo: #e8f0fe;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: var(--cor-fundo);
-            color: var(--cor-texto);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      padding: 16px 16px 32px;
+      line-height: 1.4;
+    }
 
-        h1 {
-            color: var(--cor-titulo);
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 2.5em;
-        }
+    .container {
+      max-width: 520px;
+      margin: 0 auto;
+    }
 
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
+    .topo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
 
-        .input-group {
-            margin-bottom: 30px;
-            display: flex;
-            gap: 20px;
-        }
+    .botao-voltar {
+      flex-shrink: 0;
+      background: #e8eaed;
+      color: var(--cor-texto);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      text-decoration: none;
+    }
 
-        input {
-            width: 100%;
-            padding: 15px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 1.2em;
-        }
+    .botao-voltar:hover {
+      background: #d5d8dc;
+    }
 
-        button {
-            background-color: var(--cor-botao);
-            color: white;
-            border: none;
-            padding: 20px 40px;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.5em;
-            transition: background-color 0.3s;
-        }
+    h1 {
+      color: var(--cor-titulo);
+      font-size: 1.6rem;
+    }
 
-        button:hover {
-            background-color: var(--cor-botao-hover);
-        }
+    .cartao {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+      margin-bottom: 12px;
+    }
 
-        .result {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 1.5em;
-        }
+    /* ---------- Nomes ---------- */
+    .nomes {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: end;
+    }
 
-        .hands {
-            display: none;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            margin: 30px 0;
-        }
+    .nomes label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
 
-        .hand-image {
-            width: 200px;
-            height: 200px;
-            object-fit: contain;
-            transition: transform 0.5s ease;
-        }
+    .nomes input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--cor-borda);
+      border-radius: 6px;
+      font-size: 1rem;
+      font-family: inherit;
+      color: var(--cor-texto);
+    }
 
-        @media (min-width: 768px) {
-            .container {
-                max-width: 1000px;
-            }
+    .nomes input:focus {
+      outline: 2px solid var(--cor-botao);
+      border-color: var(--cor-botao);
+    }
 
-            .hands {
-                flex-direction: row;
-            }
-            
-            .hand-image.left {
-                transform: rotate(90deg);
-            }
-            
-            .hand-image.right {
-                transform: rotate(-90deg);
-            }
+    .trocar {
+      width: 40px;
+      height: 42px;
+      border: 1px solid var(--cor-borda);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--cor-botao);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
 
-            .hand-image {
-                width: 300px;
-                height: 300px;
-            }
+    .trocar:hover {
+      background: var(--cor-destaque-fundo);
+    }
 
-            input {
-                font-size: 1.5em;
-                padding: 20px;
-            }
+    /* ---------- Arena ---------- */
+    .arena {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      text-align: center;
+    }
 
-            .result {
-                font-size: 2em;
-            }
-        }
+    .jogador {
+      min-width: 0;
+    }
 
-        @media (max-width: 767px) {
-            .input-group {
-                flex-direction: column;
-                gap: 10px;
-            }
+    .nome-jogador {
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
 
-            .hands {
-                flex-direction: column;
-            }
-            
-            .hand-image.left {
-                transform: rotate(180deg);
-            }
-            
-            .hand-image.right {
-                transform: rotate(0deg);
-            }
+    .lado {
+      font-size: 0.8rem;
+      color: var(--cor-suave);
+    }
 
-            .hand-image {
-                margin: 0 auto;
-            }
+    .mao {
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 4px 0;
+    }
 
-            h1 {
-                font-size: 2em;
-            }
-        }
+    .mao img {
+      width: 140px;
+      height: 140px;
+      object-fit: contain;
+    }
 
-        .show {
-            display: flex;
-        }
-    </style>
+    /* A imagem é uma mão direita: espelhada, vira a mão esquerda do par. */
+    .jogador:first-child .mao img {
+      transform: scaleX(-1);
+    }
+
+    .dedos {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--cor-titulo);
+      min-height: 2.2rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .arena.sacudindo .mao {
+      animation: sacode 0.42s ease-in-out infinite;
+    }
+
+    .arena.sacudindo .jogador:last-child .mao {
+      animation-delay: 0.05s;
+    }
+
+    @keyframes sacode {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-16px); }
+    }
+
+    /* ---------- Resultado ---------- */
+    .painel {
+      margin-top: 8px;
+      min-height: 4.6rem;
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: #f1f3f4;
+      color: var(--cor-suave);
+    }
+
+    .painel.vencedor {
+      background: var(--cor-botao);
+      color: #fff;
+    }
+
+    .contagem {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--cor-titulo);
+    }
+
+    .soma {
+      font-size: 0.95rem;
+    }
+
+    .quem-venceu {
+      font-size: 1.35rem;
+      font-weight: 700;
+      overflow-wrap: anywhere;
+    }
+
+    .jogar {
+      width: 100%;
+      margin-top: 12px;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: var(--cor-botao);
+      color: #fff;
+      font-size: 1.2rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .jogar:hover {
+      background: var(--cor-botao-hover);
+    }
+
+    .jogar:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+
+    /* ---------- Placar ---------- */
+    .placar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .placar-titulo {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--cor-suave);
+    }
+
+    .placar-valor {
+      font-size: 1.15rem;
+      font-weight: 600;
+      overflow-wrap: anywhere;
+    }
+
+    .placar-valor strong {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .zerar {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid var(--cor-borda);
+      border-radius: 6px;
+      padding: 6px 10px;
+      color: var(--cor-suave);
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .zerar:hover {
+      background: #f1f3f4;
+    }
+
+    .jogar:focus-visible,
+    .trocar:focus-visible,
+    .zerar:focus-visible,
+    .botao-voltar:focus-visible {
+      outline: 3px solid rgba(0, 98, 204, 0.4);
+      outline-offset: 2px;
+    }
+
+    .visualmente-oculto {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+    }
+
+    @media (min-width: 600px) {
+      .mao,
+      .mao img {
+        height: 190px;
+      }
+
+      .mao img {
+        width: 190px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .arena.sacudindo .mao {
+        animation: none;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🎮 Par ou Ímpar 🎲</h1>
-        
-        <div class="input-group">
-            <input type="text" id="optionEven" placeholder="Digite a opção PAR">
-            <input type="text" id="optionOdd" placeholder="Digite a opção ÍMPAR">
-        </div>
-        
-        <button onclick="playGame()">Tirar!</button>
-        
-        <div class="hands" id="handsContainer">
-            <img src="/api/placeholder/300/300" alt="Mão esquerda" class="hand-image left" id="leftHand">
-            <img src="/api/placeholder/300/300" alt="Mão direita" class="hand-image right" id="rightHand">
-        </div>
-        
-        <div class="result" id="result"></div>
+  <div class="container">
+    <div class="topo">
+      <a class="botao-voltar" href="../index.html">← Início</a>
+      <h1>🎲 Par ou Ímpar</h1>
     </div>
 
-    <script>
-        function playGame() {
-            const optionEven = document.getElementById('optionEven').value || 'Par';
-            const optionOdd = document.getElementById('optionOdd').value || 'Ímpar';
-            
-            const number1 = Math.floor(Math.random() * 6);
-            const number2 = Math.floor(Math.random() * 6);
-            const sum = number1 + number2;
-            
-            const handsContainer = document.getElementById('handsContainer');
-            const leftHand = document.getElementById('leftHand');
-            const rightHand = document.getElementById('rightHand');
-            const result = document.getElementById('result');
-            
-            leftHand.src = `assets/${number1}.png`;
-            rightHand.src = `assets/${number2}.png`;
-            
-            const isEven = sum % 2 === 0;
-            const winner = isEven ? optionEven : optionOdd;
-            
-            // Mostrar as mãos
-            handsContainer.classList.add('show');
-            
-            result.innerHTML = `
-                <p>A soma é ${sum} (${isEven ? 'PAR' : 'ÍMPAR'})</p>
-                <p>🎉 <strong>${winner}</strong> venceu! 🎉</p>
-            `;
-        }
-    </script>
+    <section class="cartao" aria-label="Jogadores">
+      <div class="nomes">
+        <div>
+          <label for="nome-par">Fica com PAR</label>
+          <input type="text" id="nome-par" maxlength="20" placeholder="Par" autocomplete="off">
+        </div>
+        <button type="button" class="trocar" id="trocar" title="Trocar os lados" aria-label="Trocar quem fica com par e com ímpar">⇄</button>
+        <div>
+          <label for="nome-impar">Fica com ÍMPAR</label>
+          <input type="text" id="nome-impar" maxlength="20" placeholder="Ímpar" autocomplete="off">
+        </div>
+      </div>
+    </section>
+
+    <section class="cartao" aria-label="Jogada">
+      <div class="arena" id="arena">
+        <div class="jogador">
+          <div class="nome-jogador" id="arena-nome-par"></div>
+          <div class="lado">par</div>
+          <div class="mao"><img id="mao-par" src="assets/0.png" alt="Mão fechada"></div>
+          <div class="dedos" id="dedos-par" aria-hidden="true"></div>
+        </div>
+        <div class="jogador">
+          <div class="nome-jogador" id="arena-nome-impar"></div>
+          <div class="lado">ímpar</div>
+          <div class="mao"><img id="mao-impar" src="assets/0.png" alt="Mão fechada"></div>
+          <div class="dedos" id="dedos-impar" aria-hidden="true"></div>
+        </div>
+      </div>
+
+      <div class="painel" id="painel">
+        <div id="painel-texto">Toque em “Jogar” para tirar par ou ímpar.</div>
+      </div>
+      <p class="visualmente-oculto" id="anuncio" aria-live="polite"></p>
+
+      <button type="button" class="jogar" id="jogar">Jogar</button>
+    </section>
+
+    <section class="cartao placar" aria-label="Placar">
+      <div>
+        <div class="placar-titulo">Placar</div>
+        <div class="placar-valor" id="placar"></div>
+      </div>
+      <button type="button" class="zerar" id="zerar">Zerar</button>
+    </section>
+  </div>
+
+  <script>
+    const CHAVE_NOMES = 'parOuImpar-nomes';
+    const CHAVE_PLACAR = 'parOuImpar-placar';
+    const reduzMovimento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const PASSO_CONTAGEM_MS = reduzMovimento ? 150 : 420;
+
+    const $ = id => document.getElementById(id);
+    const campos = { par: $('nome-par'), impar: $('nome-impar') };
+    let placar = { par: 0, impar: 0 };
+    let jogando = false;
+
+    // Pré-carrega as mãos para não piscar na hora do resultado.
+    for (let i = 0; i <= 5; i++) new Image().src = `assets/${i}.png`;
+
+    // ---------- Armazenamento (nunca quebra a página se falhar) ----------
+    function ler(storage, chave) {
+      try {
+        return JSON.parse(storage.getItem(chave));
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function gravar(storage, chave, valor) {
+      try {
+        storage.setItem(chave, JSON.stringify(valor));
+      } catch (e) {
+        // modo privado / sem espaço: segue sem salvar
+      }
+    }
+
+    function nome(lado) {
+      return campos[lado].value.trim() || (lado === 'par' ? 'Par' : 'Ímpar');
+    }
+
+    function textoDedos(n) {
+      return n === 0 ? 'mão fechada' : n === 1 ? '1 dedo' : `${n} dedos`;
+    }
+
+    // ---------- Render ----------
+    function atualizarNomes() {
+      $('arena-nome-par').textContent = nome('par');
+      $('arena-nome-impar').textContent = nome('impar');
+      renderPlacar();
+    }
+
+    function renderPlacar() {
+      const el = $('placar');
+      el.replaceChildren(
+        `${nome('par')} `,
+        Object.assign(document.createElement('strong'), { textContent: `${placar.par} × ${placar.impar}` }),
+        ` ${nome('impar')}`
+      );
+      $('zerar').hidden = placar.par + placar.impar === 0;
+    }
+
+    function mostrarPainel(classe, ...linhas) {
+      const painel = $('painel');
+      painel.className = `painel ${classe}`;
+      painel.replaceChildren(...linhas.map(([texto, classeLinha]) =>
+        Object.assign(document.createElement('div'), { textContent: texto, className: classeLinha || '' })));
+    }
+
+    // ---------- Jogo ----------
+    const esperar = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+    async function jogar() {
+      if (jogando) return;
+      jogando = true;
+      const botao = $('jogar');
+      botao.disabled = true;
+      $('anuncio').textContent = '';
+
+      const dedos = {
+        par: Math.floor(Math.random() * 6),
+        impar: Math.floor(Math.random() * 6)
+      };
+
+      // "1, 2, 3, já!" com as mãos fechadas chacoalhando
+      ['par', 'impar'].forEach(lado => {
+        $(`mao-${lado}`).src = 'assets/0.png';
+        $(`mao-${lado}`).alt = 'Mão fechada';
+        $(`dedos-${lado}`).textContent = '';
+      });
+      const arena = $('arena');
+      arena.classList.add('sacudindo');
+      for (const passo of ['1', '2', '3', 'Já!']) {
+        mostrarPainel('', [passo, 'contagem']);
+        await esperar(PASSO_CONTAGEM_MS);
+      }
+      arena.classList.remove('sacudindo');
+
+      ['par', 'impar'].forEach(lado => {
+        $(`mao-${lado}`).src = `assets/${dedos[lado]}.png`;
+        $(`mao-${lado}`).alt = `Mão de ${nome(lado)}: ${textoDedos(dedos[lado])}`;
+        $(`dedos-${lado}`).textContent = dedos[lado];
+      });
+
+      const soma = dedos.par + dedos.impar;
+      const ladoVencedor = soma % 2 === 0 ? 'par' : 'impar';
+      const vencedor = nome(ladoVencedor);
+      placar[ladoVencedor]++;
+      gravar(sessionStorage, CHAVE_PLACAR, placar);
+
+      mostrarPainel('vencedor',
+        [`${dedos.par} + ${dedos.impar} = ${soma} · ${ladoVencedor === 'par' ? 'PAR' : 'ÍMPAR'}`, 'soma'],
+        [`🎉 ${vencedor} venceu!`, 'quem-venceu']);
+      $('anuncio').textContent = `${nome('par')} mostrou ${textoDedos(dedos.par)}, ${nome('impar')} mostrou ${textoDedos(dedos.impar)}. ` +
+        `Soma ${soma}, ${ladoVencedor === 'par' ? 'par' : 'ímpar'}. ${vencedor} venceu.`;
+      renderPlacar();
+
+      botao.textContent = 'Jogar de novo';
+      botao.disabled = false;
+      jogando = false;
+    }
+
+    // Troca quem fica com par/ímpar. O placar acompanha as pessoas.
+    function trocarLados() {
+      [campos.par.value, campos.impar.value] = [campos.impar.value, campos.par.value];
+      placar = { par: placar.impar, impar: placar.par };
+      gravar(sessionStorage, CHAVE_PLACAR, placar);
+      salvarNomes();
+      atualizarNomes();
+    }
+
+    function salvarNomes() {
+      gravar(localStorage, CHAVE_NOMES, { par: campos.par.value, impar: campos.impar.value });
+    }
+
+    // ---------- Início ----------
+    const nomesSalvos = ler(localStorage, CHAVE_NOMES);
+    if (nomesSalvos) {
+      campos.par.value = nomesSalvos.par || '';
+      campos.impar.value = nomesSalvos.impar || '';
+    }
+    const placarSalvo = ler(sessionStorage, CHAVE_PLACAR);
+    if (placarSalvo && Number.isInteger(placarSalvo.par) && Number.isInteger(placarSalvo.impar)) {
+      placar = placarSalvo;
+    }
+
+    Object.values(campos).forEach(campo => campo.addEventListener('input', () => {
+      salvarNomes();
+      atualizarNomes();
+    }));
+    $('trocar').addEventListener('click', trocarLados);
+    $('jogar').addEventListener('click', jogar);
+    $('zerar').addEventListener('click', () => {
+      placar = { par: 0, impar: 0 };
+      gravar(sessionStorage, CHAVE_PLACAR, placar);
+      renderPlacar();
+    });
+
+    atualizarNomes();
+  </script>
 </body>
 </html>

@@ -468,3 +468,34 @@ h1 {
     font-size: 0.5rem;
   }
 }
+
+/* Link para o menu inicial (no app instalado nao existe botao voltar) */
+.home-link {
+  display: inline-block;
+  margin-top: 16px;
+  color: var(--pixel);
+  opacity: 0.75;
+  font-size: 0.56rem;
+  text-decoration: none;
+  padding: 8px 12px;
+}
+
+.home-link:hover,
+.home-link:focus-visible {
+  opacity: 1;
+}
+
+.topbar-row {
+  display: grid;
+  grid-template-columns: 34px 1fr 34px;
+  align-items: center;
+}
+
+.home-link-mini {
+  margin: 0;
+  padding: 6px 0;
+  font-size: 0.8rem;
+  text-align: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.06);
+}
